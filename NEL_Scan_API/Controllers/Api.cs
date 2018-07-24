@@ -10,19 +10,12 @@ namespace NEL_Scan_API.Controllers
     public class Api
     {
         private string netnode { get; set; }
-        private string mongodbConnStr { get; set; }
-        private string mongodbDatabase { get; set; }
-        private string notify_mongodbConnStr { get; set; }
-        private string notify_mongodbDatabase { get; set; }
-        private string nelJsonRPCUrl { get; set; }
-        private string mongodbConnStrAtBlock { get; set; }
-        private string mongodbDatabaseAtBlock { get; set; }
-    
-        //private OssFileService ossClient;
-        //private AuctionService auctionService;
-        //private BonusService bonusService;
+        
+        private AnalyService analyService;
         private AssetService assetService;
         private NNSService nnsService;
+        private CommonService commonService;
+
         private mongoHelper mh = new mongoHelper();
 
         public Api(string node)
@@ -31,17 +24,19 @@ namespace NEL_Scan_API.Controllers
             switch (netnode)
             {
                 case "testnet":
-                    mongodbConnStr = mh.mongodbConnStr_testnet;
-                    mongodbDatabase = mh.mongodbDatabase_testnet;
-                    notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet;
-                    notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet;
-                    nelJsonRPCUrl = mh.nelJsonRPCUrl_testnet;
-                    mongodbConnStrAtBlock = mh.mongodbConnStrAtBlock_testnet;
-                    mongodbDatabaseAtBlock = mh.mongodbDatabaseAtBlock_testnet;
+                    analyService = new AnalyService
+                    {
+                        block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_testnet,
+                        nelJsonRPCUrl = mh.nelJsonRPCUrl_testnet,
+                        mh = mh
+                    };
                     assetService = new AssetService
                     {
-                        mongodbConnStr = mh.mongodbConnStrAtBlock_testnet,
-                        mongodbDatabase = mh.mongodbDatabaseAtBlock_testnet,
+                        mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        mongodbDatabase = mh.block_mongodbDatabase_testnet,
                         mh = mh
                     };
                     nnsService = new NNSService
@@ -49,21 +44,31 @@ namespace NEL_Scan_API.Controllers
                         newNotify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
                         newNotify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                         nnsDomainState = mh.nnsDomainState_testnet,
+                        mh = mh
+                    };
+                    commonService = new CommonService
+                    {
                         mh = mh,
+                        Block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        Block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
+                        Notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
+                        Notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                     };
                     break;
                 case "mainnet":
-                    mongodbConnStr = mh.mongodbConnStr_mainnet;
-                    mongodbDatabase = mh.mongodbDatabase_mainnet;
-                    notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet;
-                    notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet;
-                    nelJsonRPCUrl = mh.nelJsonRPCUrl_mainnet;
-                    mongodbConnStrAtBlock = mh.mongodbConnStrAtBlock_mainnet;
-                    mongodbDatabaseAtBlock = mh.mongodbDatabaseAtBlock_mainnet;
+                    analyService = new AnalyService
+                    {
+                        block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_mainnet,
+                        nelJsonRPCUrl = mh.nelJsonRPCUrl_mainnet,
+                        mh = mh
+                    };
                     assetService = new AssetService
                     {
-                        mongodbConnStr = mh.mongodbConnStrAtBlock_mainnet,
-                        mongodbDatabase = mh.mongodbDatabaseAtBlock_mainnet,
+                        mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        mongodbDatabase = mh.block_mongodbDatabase_mainnet,
                         mh = mh
                     };
                     nnsService = new NNSService
@@ -71,7 +76,15 @@ namespace NEL_Scan_API.Controllers
                         newNotify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
                         newNotify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                         nnsDomainState = mh.nnsDomainState_mainnet,
+                        mh = mh
+                    };
+                    commonService = new CommonService
+                    {
                         mh = mh,
+                        Block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        Block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                        Notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
+                        Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                     };
                     break;
             }
@@ -84,6 +97,17 @@ namespace NEL_Scan_API.Controllers
             {
                 switch (req.method)
                 {
+                    // 根据域名查询域名竞拍详情
+                    case "getbiddetailbydomain":
+                        if (req.@params.Length < 3)
+                        {
+                            result = commonService.getBidDetailByDomain(req.@params[0].ToString());
+                        }
+                        else
+                        { 
+                            result = commonService.getBidDetailByDomain(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
+                        break;
                     // 获取域名信息
                     case "getdomaininfo":
                         result = nnsService.getDomain(req.@params[0].ToString());
@@ -114,33 +138,36 @@ namespace NEL_Scan_API.Controllers
                     case "getstatistics":
                         result = nnsService.getStatistic();
                         break;
+
                     // 资产名称模糊查询
                     case "fuzzysearchasset":
                         result = assetService.fuzzySearchAsset(req.@params[0].ToString());
                         break;
-                    // 根据地址查询txid列表
-                    case "gettxidsetbyaddress":
-                        string queryTxidSetAddr = "{$or: [{\"from\":\"" + req.@params[0] + "\"}" + "," + "{\"to\":\"" + req.@params[0] + "\"}]}";
-                        JArray queryTxidSetRes = mh.GetData(notify_mongodbConnStr, notify_mongodbDatabase, "0x4ac464f84f50d3f902c2f0ca1658bfaa454ddfbf", queryTxidSetAddr);
-                        if (queryTxidSetRes == null || queryTxidSetRes.Count() == 0)
-                            result = new JArray { };
-                        else
-                            result = new JArray() { queryTxidSetRes.Select(item => item["txid"].ToString()).ToArray() };
+                    case "getaddresstxs":
+                        result = analyService.getAddressTxs(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        break;
+                    case "getrankbyasset":
+                        result = analyService.getRankByAsset(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        break;
+                    case "getrankbyassetcount":
+                        result = analyService.getRankByAssetCount(req.@params[0].ToString());
+                        break;
+                    
+                    // test
+                    case "getnodetype":
+                        result = new JArray { new JObject { { "nodeType", netnode } } };
                         break;
                 }
                 if (result.Count == 0)
                 {
                     JsonPRCresponse_Error resE = new JsonPRCresponse_Error(req.id, -1, "No Data", "Data does not exist");
-
                     return resE;
                 }
             }
             catch (Exception e)
             {
                 JsonPRCresponse_Error resE = new JsonPRCresponse_Error(req.id, -100, "Parameter Error", e.Message);
-
                 return resE;
-
             }
 
             JsonPRCresponse res = new JsonPRCresponse();

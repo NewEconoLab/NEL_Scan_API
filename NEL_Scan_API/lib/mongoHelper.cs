@@ -4,8 +4,6 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MongoDB.Bson.IO;
 
@@ -13,48 +11,21 @@ namespace NEL_Scan_API.lib
 {
     public class mongoHelper
     {
-        public string mongodbConnStr_testnet = string.Empty;
-        public string mongodbDatabase_testnet = string.Empty;
-        public string nelJsonRPCUrl_testnet = string.Empty;
+        public string block_mongodbConnStr_testnet = string.Empty;
+        public string block_mongodbDatabase_testnet = string.Empty;
+        public string analy_mongodbConnStr_testnet = string.Empty;
+        public string analy_mongodbDatabase_testnet = string.Empty;
         public string notify_mongodbConnStr_testnet = string.Empty;
         public string notify_mongodbDatabase_testnet = string.Empty;
+        public string nelJsonRPCUrl_testnet = string.Empty;
 
-        public string mongodbConnStr_mainnet = string.Empty;
-        public string mongodbDatabase_mainnet = string.Empty;
-        public string nelJsonRPCUrl_mainnet = string.Empty;
+        public string block_mongodbConnStr_mainnet = string.Empty;
+        public string block_mongodbDatabase_mainnet = string.Empty;
+        public string analy_mongodbConnStr_mainnet = string.Empty;
+        public string analy_mongodbDatabase_mainnet = string.Empty;
         public string notify_mongodbConnStr_mainnet = string.Empty;
         public string notify_mongodbDatabase_mainnet = string.Empty;
-
-        public string mongodbConnStr_NeonOnline = string.Empty;
-        public string mongodbDatabase_NeonOnline = string.Empty;
-
-
-        public string queryDomainCollection_testnet = string.Empty;
-        public string queryTxidSetCollection_testnet = string.Empty;
-        public string queryBidListCollection_testnet = string.Empty;
-
-        public string queryDomainCollection_mainnet = string.Empty;
-        public string queryTxidSetCollection_mainnet = string.Empty;
-        public string queryBidListCollection_mainnet = string.Empty;
-
-        public string mongodbConnStrAtBlock_mainnet = string.Empty;
-        public string mongodbDatabaseAtBlock_mainnet = string.Empty;
-        public string mongodbConnStrAtBlock_testnet = string.Empty;
-        public string mongodbDatabaseAtBlock_testnet = string.Empty;
-
-        public string ossServiceUrl_testnet = string.Empty;
-        public string ossServiceUrl_mainnet = string.Empty;
-
-        public string bonusNotifyCol_testnet = string.Empty;
-        public string bonusNotifyFrom_testnet = string.Empty;
-        public string bonusNotifyCol_mainnet = string.Empty;
-        public string bonusNotifyFrom_mainnet = string.Empty;
-
-        public string rechargeCollection_mainnet = string.Empty;
-        public string rechargeCollection_testnet = string.Empty;
-
-        public string domainResolver_testnet = string.Empty;
-        public string domainResolver_mainnet = string.Empty;
+        public string nelJsonRPCUrl_mainnet = string.Empty;
 
         public string nnsDomainState_testnet = string.Empty;
         public string nnsDomainState_mainnet = string.Empty;
@@ -67,48 +38,21 @@ namespace NEL_Scan_API.lib
                 .SetBasePath(System.IO.Directory.GetCurrentDirectory())   //指定配置文件所在的目录
                 .AddJsonFile("mongodbsettings.json", optional: true, reloadOnChange: true)  //指定加载的配置文件
                 .Build();    //编译成对象  
-            mongodbConnStr_testnet = config["mongodbConnStr_testnet"];
-            mongodbDatabase_testnet = config["mongodbDatabase_testnet"];
+            block_mongodbConnStr_testnet = config["block_mongodbConnStr_testnet"];
+            block_mongodbDatabase_testnet = config["block_mongodbDatabase_testnet"];
+            analy_mongodbConnStr_testnet = config["analy_mongodbConnStr_testnet"];
+            analy_mongodbDatabase_testnet = config["analy_mongodbDatabase_testnet"];
             notify_mongodbConnStr_testnet = config["notify_mongodbConnStr_testnet"];
             notify_mongodbDatabase_testnet = config["notify_mongodbDatabase_testnet"];
             nelJsonRPCUrl_testnet = config["nelJsonRPCUrl_testnet"];
 
-            mongodbConnStr_mainnet = config["mongodbConnStr_mainnet"];
-            mongodbDatabase_mainnet = config["mongodbDatabase_mainnet"];
+            block_mongodbConnStr_mainnet = config["block_mongodbConnStr_mainnet"];
+            block_mongodbDatabase_mainnet = config["block_mongodbDatabase_mainnet"];
+            analy_mongodbConnStr_mainnet = config["analy_mongodbConnStr_mainnet"];
+            analy_mongodbDatabase_mainnet = config["analy_mongodbDatabase_mainnet"];
             notify_mongodbConnStr_mainnet = config["notify_mongodbConnStr_mainnet"];
             notify_mongodbDatabase_mainnet = config["notify_mongodbDatabase_mainnet"];
             nelJsonRPCUrl_mainnet = config["nelJsonRPCUrl_mainnet"];
-
-            mongodbConnStr_NeonOnline = config["mongodbConnStr_NeonOnline"];
-            mongodbDatabase_NeonOnline = config["mongodbDatabase_NeonOnline"];
-
-
-            queryDomainCollection_testnet = config["queryDomainCollection_testnet"];
-            queryTxidSetCollection_testnet = config["queryTxidSetCollection_testnet"];
-            queryBidListCollection_testnet = config["queryBidListCollection_testnet"];
-            queryDomainCollection_mainnet = config["queryDomainCollection_mainnet"];
-            queryTxidSetCollection_mainnet = config["queryTxidSetCollection_mainnet"];
-            queryBidListCollection_mainnet = config["queryBidListCollection_mainnet"];
-
-
-            mongodbConnStrAtBlock_mainnet = config["mongodbConnStrAtBlock_mainnet"];
-            mongodbDatabaseAtBlock_mainnet = config["mongodbDatabaseAtBlock_mainnet"];
-            mongodbConnStrAtBlock_testnet = config["mongodbConnStrAtBlock_testnet"];
-            mongodbDatabaseAtBlock_testnet = config["mongodbDatabaseAtBlock_testnet"];
-
-            ossServiceUrl_testnet = config["ossServiceUrl_testnet"];
-            ossServiceUrl_mainnet = config["ossServiceUrl_mainnet"];
-
-            bonusNotifyCol_testnet = config["bonusNotifyCol_testnet"];
-            bonusNotifyFrom_testnet = config["bonusNotifyFrom_testnet"];
-            bonusNotifyCol_mainnet = config["bonusNotifyCol_mainnet"];
-            bonusNotifyFrom_mainnet = config["bonusNotifyFrom_mainnet"];
-
-            rechargeCollection_mainnet = config["rechargeCollection_mainnet"];
-            rechargeCollection_testnet = config["rechargeCollection_testnet"];
-
-            domainResolver_testnet = config["domainResolver_testnet"];
-            domainResolver_mainnet = config["domainResolver_mainnet"];
 
             nnsDomainState_testnet = config["nnsDomainState_testnet"];
             nnsDomainState_mainnet = config["nnsDomainState_mainnet"];
