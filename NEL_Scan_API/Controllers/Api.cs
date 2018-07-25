@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Linq;
+﻿using System;
+using Newtonsoft.Json.Linq;
 using NEL_Scan_API.Service;
-using NEL_Agency_API.RPC;
+using NEL_Scan_API.RPC;
 using NEL_Scan_API.lib;
 
 namespace NEL_Scan_API.Controllers
@@ -166,6 +165,7 @@ namespace NEL_Scan_API.Controllers
             }
             catch (Exception e)
             {
+                Console.WriteLine("errMsg:{0},errStack:{1}", e.Message, e.StackTrace);
                 JsonPRCresponse_Error resE = new JsonPRCresponse_Error(req.id, -100, "Parameter Error", e.Message);
                 return resE;
             }

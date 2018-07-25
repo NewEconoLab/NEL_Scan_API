@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using NEL_Agency_API.RPC;
-using NEL_Scan_API.Controllers;
+using NEL_Scan_API.RPC;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace NEL_Agency_API.Controllers
+namespace NEL_Scan_API.Controllers
 {
     [Route("api/[controller]")]
     public class MainnetController : Controller
@@ -34,10 +31,9 @@ namespace NEL_Agency_API.Controllers
             }
             catch (Exception e)
             {
+                Console.WriteLine("errMsg:{0},errStack:{1}", e.Message, e.StackTrace);
                 JsonPRCresponse_Error resE = new JsonPRCresponse_Error(0, -100, "Parameter Error", e.Message);
-
                 return Json(resE);
-
             }
         }
 
@@ -77,7 +73,9 @@ namespace NEL_Agency_API.Controllers
             }
             catch (Exception e)
             {
-                return Json("{}");
+                Console.WriteLine("errMsg:{0},errStack:{1}", e.Message, e.StackTrace);
+                JsonPRCresponse_Error resE = new JsonPRCresponse_Error(0, -100, "Parameter Error", e.Message);
+                return Json(resE);
             }
 
         }

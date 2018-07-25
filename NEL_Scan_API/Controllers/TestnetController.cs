@@ -3,12 +3,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NEL_Agency_API.RPC;
-using NEL_Scan_API.Controllers;
+using NEL_Scan_API.RPC;
 
-namespace NEL_Agency_API.Controllers
+namespace NEL_Scan_API.Controllers
 {
-    //[RpcRoute("api/[controller]")]
     [Route("api/[controller]")]
     public class TestnetController : Controller
     {
@@ -33,8 +31,8 @@ namespace NEL_Agency_API.Controllers
             }
             catch (Exception e)
             {
-                JsonPRCresponse_Error resE = new JsonPRCresponse_Error(0, -100, "Parameter Error", e.Message);
-
+                Console.WriteLine("errMsg:{0},errStack:{1}", e.Message, e.StackTrace);
+                JsonPRCresponse_Error resE = new JsonPRCresponse_Error(0, -100, "Parameter Error:", e.Message);
                 return Json(resE);
 
             }
@@ -76,7 +74,9 @@ namespace NEL_Agency_API.Controllers
             }
             catch (Exception e)
             {
-                return Json("{err:"+e.Message+"}");
+                Console.WriteLine("errMsg:{0},errStack:{1}", e.Message, e.StackTrace);
+                JsonPRCresponse_Error resE = new JsonPRCresponse_Error(0, -100, "Parameter Error:", e.Message);
+                return Json(resE);
             }
 
         }
