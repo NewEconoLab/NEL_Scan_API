@@ -77,16 +77,17 @@ namespace NEL_Scan_API.Service
             }
             JObject obj = (JObject)res[0];
             string fulldomain = obj["fulldomain"].ToString();
-            string fulldomainhash = obj["fulldomainhash"].ToString();
+            //string fulldomainhash = obj["fulldomainhash"].ToString();
             string maxPrice = obj["maxPrice"].ToString();
             string maxBuyer = obj["maxBuyer"].ToString();
             string auctionState = obj["auctionState"].ToString();
             string ttl = obj["ttl"].ToString();
-            string startAuctionTime = obj["startAuctionTime"].ToString();
+            //string startAuctionTime = obj["startAuctionTime"].ToString();
+            string startAuctionTime = obj["startBlockSellingTime"].ToString();
             string endBlockTime = obj["endBlockTime"].ToString();
             string blockindex = obj["blockindex"].ToString();
             string txid = obj["txid"].ToString();
-            if (auctionState == "0" || auctionState == "3")
+            if (auctionState == "0" || auctionState == "3" || auctionState == "5")
             {
                 // 已经成交
                 JObject Jdata = new JObject() { { "domain", fulldomain }, { "txid", txid }, { "maxPrice", maxPrice }, { "maxBuyer", maxBuyer }, { "ttl", ttl } };
