@@ -30,6 +30,9 @@ namespace NEL_Scan_API.lib
         public string nnsDomainState_testnet = string.Empty;
         public string nnsDomainState_mainnet = string.Empty;
 
+        public string queryBidListCollection_testnet = string.Empty;
+        public string queryBidListCollection_mainnet = string.Empty;
+
 
         public mongoHelper()
         {
@@ -56,6 +59,9 @@ namespace NEL_Scan_API.lib
 
             nnsDomainState_testnet = config["nnsDomainState_testnet"];
             nnsDomainState_mainnet = config["nnsDomainState_mainnet"];
+
+            queryBidListCollection_testnet = config["queryBidListCollection_testnet"];
+            queryBidListCollection_mainnet = config["queryBidListCollection_mainnet"];
         }
 
         public JArray GetData(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter)

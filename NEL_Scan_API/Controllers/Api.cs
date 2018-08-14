@@ -57,6 +57,7 @@ namespace NEL_Scan_API.Controllers
                         Block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
                         Notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
+                        queryBidListCollection = mh.queryBidListCollection_testnet,
                     };
                     break;
                 case "mainnet":
@@ -89,6 +90,7 @@ namespace NEL_Scan_API.Controllers
                         Block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
                         Notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
+                        queryBidListCollection = mh.queryBidListCollection_mainnet,
                     };
                     break;
             }
