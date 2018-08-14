@@ -48,7 +48,10 @@ namespace NEL_Scan_API.Controllers
                         newNotify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
                         newNotify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                         nnsDomainState = mh.nnsDomainState_testnet,
-                        mh = mh
+                        mh = mh,
+                        bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_testnet,
+                        bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_testnet,
+                        bonusSgasCol = mh.bonusSgasCol_testnet,
                     };
                     commonService = new CommonService
                     {
@@ -81,7 +84,10 @@ namespace NEL_Scan_API.Controllers
                         newNotify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
                         newNotify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                         nnsDomainState = mh.nnsDomainState_mainnet,
-                        mh = mh
+                        mh = mh,
+                        bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_mainnet,
+                        bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_mainnet,
+                        bonusSgasCol = mh.bonusSgasCol_mainnet,
                     };
                     commonService = new CommonService
                     {

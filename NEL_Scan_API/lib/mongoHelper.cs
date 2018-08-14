@@ -33,6 +33,13 @@ namespace NEL_Scan_API.lib
         public string queryBidListCollection_testnet = string.Empty;
         public string queryBidListCollection_mainnet = string.Empty;
 
+        public string bonusSgas_mongodbConnStr_testnet { set; get; }
+        public string bonusSgas_mongodbConnStr_mainnet { set; get; }
+        public string bonusSgas_mongodbDatabase_testnet { set; get; }
+        public string bonusSgas_mongodbDatabase_mainnet { set; get; }
+        public string bonusSgasCol_testnet { set; get; }
+        public string bonusSgasCol_mainnet { set; get; }
+
 
         public mongoHelper()
         {
@@ -62,6 +69,13 @@ namespace NEL_Scan_API.lib
 
             queryBidListCollection_testnet = config["queryBidListCollection_testnet"];
             queryBidListCollection_mainnet = config["queryBidListCollection_mainnet"];
+
+            bonusSgas_mongodbConnStr_testnet = config["bonusSgas_mongodbConnStr_testnet"];
+            bonusSgas_mongodbConnStr_mainnet = config["bonusSgas_mongodbConnStr_mainnet"];
+            bonusSgas_mongodbDatabase_testnet = config["bonusSgas_mongodbDatabase_testnet"];
+            bonusSgas_mongodbDatabase_mainnet = config["bonusSgas_mongodbDatabase_mainnet"];
+            bonusSgasCol_testnet = config["bonusSgasCol_testnet"];
+            bonusSgasCol_mainnet = config["bonusSgasCol_mainnet"];
         }
 
         public JArray GetData(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter)
@@ -171,84 +185,13 @@ namespace NEL_Scan_API.lib
             var database = client.GetDatabase(mongodbDatabase);
             var collection = database.GetCollection<BsonDocument>(coll);
 
-            var txCount = collection.Find(BsonDocument.Parse(findBson)).Count();
+            var txCount = collection.Find(BsonDocument.Parse(findBson)).CountDocuments();
 
             client = null;
 
             return txCount;
         }
-
-        public JArray Getdatablockheight(string mongodbConnStr, string mongodbDatabase)
-        {
-            int blockDataHeight = -1;
-            int txDataHeight = -1;
-            int utxoDataHeight = -1;
-            int notifyDataHeight = -1;
-            int fulllogDataHeight = -1;
-
-            var client = new MongoClient(mongodbConnStr);
-            var database = client.GetDatabase(mongodbDatabase);
-
-            var collection = database.GetCollection<BsonDocument>("block");
-            var sortBson = BsonDocument.Parse("{index:-1}");
-            var query = collection.Find(new BsonDocument()).Sort(sortBson).Limit(1).ToList();
-            if (query.Count > 0)
-            { blockDataHeight = (int)query[0]["index"]; }
-
-            collection = database.GetCollection<BsonDocument>("tx");
-            sortBson = BsonDocument.Parse("{blockindex:-1}");
-            query = collection.Find(new BsonDocument()).Sort(sortBson).Limit(1).ToList();
-            if (query.Count > 0)
-            { txDataHeight = (int)query[0]["blockindex"]; }
-
-            collection = database.GetCollection<BsonDocument>("system_counter");
-            query = collection.Find(new BsonDocument()).ToList();
-            if (query.Count > 0)
-            {
-                foreach (var q in query)
-                {
-                    if ((string)q["counter"] == "utxo") { utxoDataHeight = (int)q["lastBlockindex"]; };
-                    if ((string)q["counter"] == "notify") { notifyDataHeight = (int)q["lastBlockindex"]; };
-                    if ((string)q["counter"] == "fulllog") { fulllogDataHeight = (int)q["lastBlockindex"]; };
-                }
-            }
-
-            client = null;
-
-            JObject J = new JObject
-            {
-                { "blockDataHeight", blockDataHeight },
-                { "txDataHeight", txDataHeight },
-                { "utxoDataHeight", utxoDataHeight },
-                { "notifyDataHeight", notifyDataHeight },
-                { "fulllogDataHeight", fulllogDataHeight }
-            };
-            JArray JA = new JArray
-            {
-                J
-            };
-
-            return JA;
-        }
-
-        public void InsertOneDataByCheckKey(string mongodbConnStr, string mongodbDatabase, string coll, JObject Jdata, string key, string value)
-        {
-            var client = new MongoClient(mongodbConnStr);
-            var database = client.GetDatabase(mongodbDatabase);
-            var collection = database.GetCollection<BsonDocument>(coll);
-
-            var query = collection.Find("{'" + key + "':'" + value + "'}").ToList();
-            if (query.Count == 0)
-            {
-                string strData = Newtonsoft.Json.JsonConvert.SerializeObject(Jdata);
-                BsonDocument bson = BsonDocument.Parse(strData);
-                bson.Add("getTime", DateTime.Now);
-                collection.InsertOne(bson);
-            }
-
-            client = null;
-        }
-
+        
         public string InsertOneData(string mongodbConnStr, string mongodbDatabase, string coll, string insertBson)
         {
             var client = new MongoClient(mongodbConnStr);
@@ -311,26 +254,6 @@ namespace NEL_Scan_API.lib
             {
                 return e.ToString();
             }
-        }
-
-        public decimal GetTotalSysFeeByBlock(string mongodbConnStr, string mongodbDatabase, int blockindex)
-        {
-            var client = new MongoClient(mongodbConnStr);
-            var database = client.GetDatabase(mongodbDatabase);
-            var collection = database.GetCollection<BsonDocument>("block_sysfee");
-
-            decimal totalSysFee = 0;
-            var query = collection.Find("{'index':" + blockindex + "}").ToList();
-            if (query.Count > 0)
-            {
-                totalSysFee = decimal.Parse(query[0]["totalSysfee"].AsString);
-            }
-            else
-            {
-                totalSysFee = -1;
-            }
-            client = null;
-            return totalSysFee;
         }
 
         public string ReplaceData(string mongodbConnStr, string mongodbDatabase, string collName, string whereFliter, string replaceFliter)
@@ -409,6 +332,31 @@ namespace NEL_Scan_API.lib
                 return JA;
             }
             else { return new JArray(); }
+        }
+
+        public JArray Aggregate(string mongodbConnStr, string mongodbDatabase, string coll, string group)
+        {
+            var client = new MongoClient(mongodbConnStr);
+            var database = client.GetDatabase(mongodbDatabase);
+            var collection = database.GetCollection<BsonDocument>(coll);
+
+            IList<IPipelineStageDefinition> stages = new List<IPipelineStageDefinition>();
+            stages.Add(new JsonPipelineStageDefinition<BsonDocument, BsonDocument>(group));
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = new PipelineStagePipelineDefinition<BsonDocument, BsonDocument>(stages);
+            List<BsonDocument> query = collection.Aggregate(pipeline).ToList();
+            client = null;
+            if (query.Count > 0)
+            {
+                var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+                JArray JA = JArray.Parse(query.ToJson(jsonWriterSettings));
+                foreach (JObject j in JA)
+                {
+                    j.Remove("_id");
+                }
+                return JA;
+            }
+            else { return new JArray(); }
+            return null;
         }
 
     }
