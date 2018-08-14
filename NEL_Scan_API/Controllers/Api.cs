@@ -114,9 +114,19 @@ namespace NEL_Scan_API.Controllers
                             result = commonService.getBidDetailByDomain(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         }
                         break;
+                    case "getbiddetailbyauctionid":
+                        if (req.@params.Length < 3)
+                        {
+                            result = commonService.getBidDetailByAuctionId(req.@params[0].ToString());
+                        }
+                        else
+                        {
+                            result = commonService.getBidDetailByAuctionId(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
+                        break;
                     // 获取域名信息
                     case "getdomaininfo":
-                        result = nnsService.getDomain(req.@params[0].ToString());
+                        result = nnsService.getDomainInfo(req.@params[0].ToString());
                         break;
                     // 最具价值域名
                     case "getaucteddomain":

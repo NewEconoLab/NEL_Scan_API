@@ -28,6 +28,10 @@ namespace NEL_Scan_API.Service
             JObject sortBy = new JObject() { { "blockindex", -1 } };
             JObject fieldFilter = new JObject() { { "fulldomain", 1 }, { "txid", 1 }, { "maxBuyer", 1 }, { "maxPrice", 1 }, { "auctionState", 1 } };
             JArray res = mh.GetDataPagesWithField(newNotify_mongodbConnStr, newNotify_mongodbDatabase, nnsDomainState, fieldFilter.ToString(), pageSize, pageNum, sortBy.ToString(), filter.ToString());
+            if(res == null || res.Count() == 0)
+            {
+                return new JArray() { };
+            }
             long count = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, nnsDomainState, filter.ToString());
 
             return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
@@ -40,6 +44,10 @@ namespace NEL_Scan_API.Service
             JObject sortBy = new JObject() { { "maxPrice", -1 } };
             JObject fieldFilter = new JObject() { { "fulldomain", 1 }, { "txid", 1 }, { "maxBuyer", 1 }, { "maxPrice", 1 }, { "ttl", 1 } };
             JArray res = mh.GetDataPagesWithField(newNotify_mongodbConnStr, newNotify_mongodbDatabase, nnsDomainState, fieldFilter.ToString(), pageSize, pageNum, sortBy.ToString(), filter.ToString());
+            if (res == null || res.Count() == 0)
+            {
+                return new JArray() { };
+            }
             long count = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, nnsDomainState, filter.ToString());
 
             int num = (pageNum - 1) * pageSize;
@@ -63,7 +71,7 @@ namespace NEL_Scan_API.Service
             return new JObject() { { "$or", new JArray() { filter.Select(p => new JObject() { { field, p } }) } } };
         }
 
-        public JArray getDomain(string domain, bool domainInfoFlag = false)
+        public JArray getDomainInfo(string domain, bool domainInfoFlag = false)
         {
             // 1. 已经成交： 域名 + 哈希 + 成交价 + 中标人 + 域名过期时间
             // 2. 正在竞拍： 域名 + 哈希 + 当前最高价 + 中标人 + 状态
@@ -73,7 +81,7 @@ namespace NEL_Scan_API.Service
             JArray res = mh.GetData(newNotify_mongodbConnStr, newNotify_mongodbDatabase, nnsDomainState, new JObject() { { "fulldomain", domain } }.ToString());
             if (res == null || res.Count() == 0)
             {
-                return new JArray() { { new JObject() { { "list", "[]" }, { "count", 0 } } } };
+                return new JArray() { };
             }
             JObject obj = (JObject)res[0];
             string fulldomain = obj["fulldomain"].ToString();
@@ -87,10 +95,11 @@ namespace NEL_Scan_API.Service
             string endBlockTime = obj["endBlockTime"].ToString();
             string blockindex = obj["blockindex"].ToString();
             string txid = obj["txid"].ToString();
+            string id = obj["id"].ToString();
             if (auctionState == "0" || auctionState == "3" || auctionState == "5")
             {
                 // 已经成交
-                JObject Jdata = new JObject() { { "domain", fulldomain }, { "txid", txid }, { "maxPrice", maxPrice }, { "maxBuyer", maxBuyer }, { "ttl", ttl } };
+                JObject Jdata = new JObject() { { "domain", fulldomain }, { "txid", txid }, { "maxPrice", maxPrice }, { "maxBuyer", maxBuyer }, { "ttl", ttl }, { "id", id } };
                 //if(domainInfoFlag)
                 {
                     Jdata.Add("startAuctionTime", startAuctionTime);
@@ -103,7 +112,7 @@ namespace NEL_Scan_API.Service
             if (auctionState == "1" || auctionState == "2")
             {
                 // 正在竞拍
-                JObject Jdata = new JObject() { { "domain", fulldomain }, { "txid", txid }, { "maxPrice", maxPrice }, { "maxBuyer", maxBuyer }, { "auctionState", auctionState } };
+                JObject Jdata = new JObject() { { "domain", fulldomain }, { "txid", txid }, { "maxPrice", maxPrice }, { "maxBuyer", maxBuyer }, { "auctionState", auctionState }, { "id", id } };
                 //if (domainInfoFlag)
                 {
                     Jdata.Add("startAuctionTime", startAuctionTime);
@@ -112,8 +121,8 @@ namespace NEL_Scan_API.Service
                 }
                 return new JArray() { Jdata };
             }
-
-            return new JArray() { { new JObject() { { "list", "[]" }, { "count", 0 } } } };
+            
+            return new JArray() { };
         }
 
     }
