@@ -1,5 +1,6 @@
 ﻿using NEL_Scan_API.lib;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Linq;
 
 namespace NEL_Scan_API.Service
@@ -13,23 +14,24 @@ namespace NEL_Scan_API.Service
         public string bonusSgasCol { set; get; }
         public string nnsDomainState { get; set; }
         public mongoHelper mh { set; get; }
+        public string id_sgas { get; set; }
 
         public JArray getStatistic()
         {
             // 奖金池 + 利息累计 + 已使用域名数量 + 正在竞拍域名数量
             int bonus = 0;
-            long profit = getProfit();
+            decimal profit = getProfit();
             long usedDomainCount = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, nnsDomainState, toOrFilter("auctionState", new string[] { "0", "3" }).ToString());
             long auctingDomainCount = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, nnsDomainState, toOrFilter("auctionState", new string[] { "1", "2" }).ToString());
             return new JArray() { { new JObject() { { "bonus", bonus }, { "profit", profit }, { "usedDomainCount", usedDomainCount }, { "auctingDomainCount", auctingDomainCount } } } };
         }
-        private long getProfit()
+        private decimal getProfit()
         {
-            string group = "{$group: {\"_id\": null, \"totalSend\": {$sum: \"$totalSend\"}}}";
-            JArray res = mh.Aggregate(bonusSgas_mongodbConnStr, bonusSgas_mongodbDatabase, bonusSgasCol, group);
-            if(res != null && res.Count > 0)
+            string filter = new JObject() { {"assetid",id_sgas } }.ToString();
+            JArray rr = mh.GetData(bonusSgas_mongodbConnStr, bonusSgas_mongodbDatabase, bonusSgasCol, filter);
+            if(rr != null && rr.Count > 0)
             {
-                return long.Parse(res[0]["totalSend"].ToString());
+                return rr.Select(p => Decimal.Parse(p["totalValue"].ToString())).Sum();
             }
             return 0;
         }

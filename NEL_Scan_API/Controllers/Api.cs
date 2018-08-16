@@ -52,6 +52,7 @@ namespace NEL_Scan_API.Controllers
                         bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_testnet,
                         bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_testnet,
                         bonusSgasCol = mh.bonusSgasCol_testnet,
+                        id_sgas = mh.id_sgas_testnet,
                     };
                     commonService = new CommonService
                     {
@@ -88,6 +89,7 @@ namespace NEL_Scan_API.Controllers
                         bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_mainnet,
                         bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_mainnet,
                         bonusSgasCol = mh.bonusSgasCol_mainnet,
+                        id_sgas = mh.id_sgas_mainnet,
                     };
                     commonService = new CommonService
                     {

@@ -39,6 +39,8 @@ namespace NEL_Scan_API.lib
         public string bonusSgas_mongodbDatabase_mainnet { set; get; }
         public string bonusSgasCol_testnet { set; get; }
         public string bonusSgasCol_mainnet { set; get; }
+        public string id_sgas_testnet { set; get; }
+        public string id_sgas_mainnet { set; get; }
 
 
         public mongoHelper()
@@ -76,6 +78,8 @@ namespace NEL_Scan_API.lib
             bonusSgas_mongodbDatabase_mainnet = config["bonusSgas_mongodbDatabase_mainnet"];
             bonusSgasCol_testnet = config["bonusSgasCol_testnet"];
             bonusSgasCol_mainnet = config["bonusSgasCol_mainnet"];
+            id_sgas_testnet = config["id_sgas_testnet"];
+            id_sgas_mainnet = config["id_sgas_mainnet"];
         }
 
         public JArray GetData(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter)
@@ -356,7 +360,6 @@ namespace NEL_Scan_API.lib
                 return JA;
             }
             else { return new JArray(); }
-            return null;
         }
 
     }
