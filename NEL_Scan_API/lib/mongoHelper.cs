@@ -170,20 +170,7 @@ namespace NEL_Scan_API.lib
             else { return new JArray(); }
         }
 
-        public long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll)
-        {
-            var client = new MongoClient(mongodbConnStr);
-            var database = client.GetDatabase(mongodbDatabase);
-            var collection = database.GetCollection<BsonDocument>(coll);
-
-            var txCount = collection.Find(new BsonDocument()).Count();
-
-            client = null;
-
-            return txCount;
-        }
-
-        public long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll, string findBson)
+        public long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll, string findBson="{}")
         {
             var client = new MongoClient(mongodbConnStr);
             var database = client.GetDatabase(mongodbDatabase);
@@ -195,6 +182,7 @@ namespace NEL_Scan_API.lib
 
             return txCount;
         }
+        
         
         public string InsertOneData(string mongodbConnStr, string mongodbDatabase, string coll, string insertBson)
         {

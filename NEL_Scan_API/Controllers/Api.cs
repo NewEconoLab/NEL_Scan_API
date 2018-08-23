@@ -168,6 +168,9 @@ namespace NEL_Scan_API.Controllers
                         result = assetService.fuzzySearchAsset(req.@params[0].ToString());
                         break;
                     case "getaddresstxs":
+                        result = analyService.getAddressTxsNew(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        break;
+                    case "getaddresstxsOld":
                         result = analyService.getAddressTxs(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         break;
                     case "getrankbyasset":
