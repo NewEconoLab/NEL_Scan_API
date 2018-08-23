@@ -32,16 +32,39 @@ namespace NEL_Scan_API.Service
             {
                 return null;
             }
-            int[] vinIndex = txRes.SelectMany(p => p["vin"].Select(pk => (int)pk["vout"])).ToArray();
-            string[] vinTxid = txRes.SelectMany(p => p["vin"].Select(pk => pk["txid"].ToString())).ToArray();
-            findBson = MongoFieldHelper.toFilter(vinTxid, "txid").ToString();
-            JArray txVinRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "tx", findBson);
-            if (txVinRes == null || txVinRes.Count == 0)
+            var txResNew = txRes.Where(p =>
             {
-                return null;
+                if (p["vin"] == null)
+                {
+                    return false;
+                }
+                JArray ja = (JArray)p["vin"];
+                if (ja == null || ja.Count == 0)
+                {
+                    return false;
+                }
+                return true;
+            }).ToArray();
+
+            Dictionary<string, JArray> txidVinOutDict = null;
+            if (txResNew != null && txResNew.Count() > 0)
+            {
+                int[] vinIndex = txResNew.SelectMany(p => p["vin"].Select(pk => (int)pk["vout"])).ToArray();
+                string[] vinTxid = txResNew.SelectMany(p => p["vin"].Select(pk => pk["txid"].ToString())).ToArray();
+                findBson = MongoFieldHelper.toFilter(vinTxid, "txid").ToString();
+                JArray txVinRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "tx", findBson);
+                if (txVinRes != null && txVinRes.Count > 0)
+                {
+                    txidVinOutDict = txVinRes.ToDictionary(k => k["txid"].ToString(), v => (JArray)v["vout"]);
+                }
             }
-            Dictionary<string, JArray> txidVinOutDict = txVinRes.ToDictionary(k => k["txid"].ToString(), v => (JArray)v["vout"]);
+            
+
             Dictionary<string, JArray> txidVinOutIndexDict = txRes.ToDictionary(k => k["txid"].ToString(), v => {
+                if(txidVinOutDict == null || txidVinOutDict.Count == 0)
+                {
+                    return new JArray();
+                }
                 JArray vin = (JArray)v["vin"];
                 JArray vinOut = new JArray() {
                     vin.Select(p => (JObject)(txidVinOutDict.GetValueOrDefault(p["txid"].ToString())[(int)p["vout"]]))
