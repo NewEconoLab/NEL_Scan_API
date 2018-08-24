@@ -34,7 +34,6 @@ namespace NEL_Scan_API.Controllers
                         block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
                         analy_mongodbDatabase = mh.analy_mongodbDatabase_testnet,
-                        nelJsonRPCUrl = mh.nelJsonRPCUrl_testnet,
                         mh = mh
                     };
                     assetService = new AssetService
@@ -71,7 +70,6 @@ namespace NEL_Scan_API.Controllers
                         block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
                         analy_mongodbDatabase = mh.analy_mongodbDatabase_mainnet,
-                        nelJsonRPCUrl = mh.nelJsonRPCUrl_mainnet,
                         mh = mh
                     };
                     assetService = new AssetService
@@ -169,9 +167,6 @@ namespace NEL_Scan_API.Controllers
                         break;
                     case "getaddresstxs":
                         result = analyService.getAddressTxsNew(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
-                        break;
-                    case "getaddresstxsOld":
-                        result = analyService.getAddressTxs(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         break;
                     case "getrankbyasset":
                         result = analyService.getRankByAsset(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
