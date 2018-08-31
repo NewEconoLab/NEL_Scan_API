@@ -71,16 +71,17 @@ namespace NEL_Scan_API.Service
         public JArray getUsedDomainListNew(int pageNum = 1, int pageSize = 10)
         {
             string findStr = MongoFieldHelper.toFilter(new string[] { "0401"}, "auctionState").ToString();
-            string sortStr = new JObject() { { "maxPrice", -1 } }.ToString();
+            //string sortStr = new JObject() { { "maxPrice", -1 } }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "startTime.blocktime"}).ToString();
-            JArray res = mh.GetDataPagesWithField(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, fieldStr, pageSize, pageNum, sortStr, findStr);
+            //JArray res = mh.GetDataPagesWithField(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, fieldStr, pageSize, pageNum, sortStr, findStr);
+            JArray res = mh.GetDataWithField(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
             if(res == null || res.Count() == 0)
             {
                 return new JArray() { };
             }
             res = new JArray() { res.OrderByDescending(p => decimal.Parse(p["maxPrice"].ToString())).ToArray() };
             int num = (pageNum - 1) * pageSize;
-            foreach (JObject obj in res)
+            foreach (JObject obj in res.Skip(num))
             {
                 obj.Add("range", ++num);
                 obj.Add("ttl", long.Parse(obj["startTime"]["blocktime"].ToString()) + ONE_YEAR_SECONDS);

@@ -56,13 +56,33 @@ namespace NEL_Scan_API.Service
                 }).ToArray()
             };
         }
-        public JArray getAuctionInfoRank(string auctionId)
+        public JArray getAuctionInfoRank(string auctionId, int pageNum=1, int pageSize=10)
         {
             // 竞价排行:
             // 排名 + 价格 + 竞标人
             string findStr = new JObject() { { "auctionId", auctionId } }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "addwholist.address", "addwholist.totalValue" }).ToString();
-            return mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
+            JArray res = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
+            if(res == null || res.Count == 0)
+            {
+                return new JArray() { };
+            }
+            JToken[] jt = res.SelectMany(p =>
+            {
+                JObject ja = (JObject)p;
+                return (JArray)ja["addwholist"];
+            }).ToArray();
+
+
+            JToken[] arr = jt.OrderByDescending(p => decimal.Parse(p["totalValue"].ToString())).ToArray();
+            long count = arr.Count();
+            int num = (pageNum - 1) * pageSize; ;
+            foreach (JObject obj in arr.Skip(num))
+            {
+                obj.Add("range", ++num);
+            }
+            res = new JArray() { arr };
+            return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
         }
         public JArray getAuctionInfoTx(string auctionId)
         {
