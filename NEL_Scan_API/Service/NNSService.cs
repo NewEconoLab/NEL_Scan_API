@@ -40,7 +40,7 @@ namespace NEL_Scan_API.Service
         public JArray getAuctingDomainListNew(int pageNum = 1, int pageSize = 10)
         {
             string findStr = MongoFieldHelper.toFilter(new string[] {"0101", "0201", "0301" }, "auctionState").ToString();
-            string sortStr = new JObject() { {"startTime.blockindex" } }.ToString();
+            string sortStr = new JObject() { {"startTime.blockindex", -1 } }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] {"fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "auctionState" }).ToString();
             JArray res = mh.GetDataPagesWithField(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, fieldStr, pageSize, pageNum, sortStr, findStr);
             if(res == null || res.Count == 0)
