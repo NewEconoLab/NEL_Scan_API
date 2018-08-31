@@ -13,6 +13,7 @@ namespace NEL_Scan_API.Service
         public string bonusSgas_mongodbDatabase { set; get; }
         public string bonusSgasCol { set; get; }
         public string nnsDomainState { get; set; }
+        public string auctionStateColl { get; set; }
         public mongoHelper mh { set; get; }
         public string id_sgas { get; set; }
 
@@ -36,6 +37,20 @@ namespace NEL_Scan_API.Service
             return 0;
         }
 
+        public JArray getAuctingDomainListNew(int pageNum = 1, int pageSize = 10)
+        {
+            string findStr = MongoFieldHelper.toFilter(new string[] {"0101", "0201", "0301" }, "auctionState").ToString();
+            string sortStr = new JObject() { {"startTime.blockindex" } }.ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] {"fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "auctionState" }).ToString();
+            JArray res = mh.GetDataPagesWithField(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, fieldStr, pageSize, pageNum, sortStr, findStr);
+            if(res == null || res.Count == 0)
+            {
+                return new JArray() { };
+            }
+            long count = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, findStr);
+
+            return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
+        }
         public JArray getAuctingDomainList(int pageNum = 1, int pageSize = 10)
         {
             // 域名 + 哈希 + 当前最高价 + 竞标人 + 状态  ==> 哈希改为txid
@@ -52,6 +67,20 @@ namespace NEL_Scan_API.Service
             return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
         }
 
+        public JArray getUsedDomainListNew(int pageNum = 1, int pageSize = 10)
+        {
+            string findStr = MongoFieldHelper.toFilter(new string[] { "0401"}, "auctionState").ToString();
+            string sortStr = new JObject() { { "maxPrice", -1 } }.ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "ttl" }).ToString();
+            JArray res = mh.GetDataPagesWithField(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, fieldStr, pageSize, pageNum, sortStr, findStr);
+            if(res == null || res.Count() == 0)
+            {
+                return new JArray() { };
+            }
+            res = new JArray() { res.OrderByDescending(p => decimal.Parse(p["maxPrice"].ToString())).ToArray() };
+            long count = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, nnsDomainState, findStr.ToString());
+            return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
+        }
         public JArray getUsedDomainList(int pageNum = 1, int pageSize = 10)
         {
             // 排名 + 域名 + 哈希 + 成交价 + 中标人 + 域名过期时间 ==> 哈希改为txid

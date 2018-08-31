@@ -52,6 +52,7 @@ namespace NEL_Scan_API.Controllers
                         bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_testnet,
                         bonusSgasCol = mh.bonusSgasCol_testnet,
                         id_sgas = mh.id_sgas_testnet,
+                        auctionStateColl = mh.auctionStateColl_testnet,
                     };
                     commonService = new CommonService
                     {
@@ -89,6 +90,7 @@ namespace NEL_Scan_API.Controllers
                         bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_mainnet,
                         bonusSgasCol = mh.bonusSgasCol_mainnet,
                         id_sgas = mh.id_sgas_mainnet,
+                        auctionStateColl = mh.auctionStateColl_mainnet,
                     };
                     commonService = new CommonService
                     {
@@ -120,6 +122,9 @@ namespace NEL_Scan_API.Controllers
                     case "getauctioninfo":
                         result = commonService.getAuctionInfo(req.@params[0].ToString());
                         break;
+                    case "searchbydomain":
+                        result = commonService.searchByDomain(req.@params[0].ToString());
+                        break;
                     // 根据域名查询域名竞拍详情
                     case "getbiddetailbydomain":
                         if (req.@params.Length < 3)
@@ -149,22 +154,22 @@ namespace NEL_Scan_API.Controllers
                     case "getaucteddomain":
                         if (req.@params.Length < 2)
                         {
-                            result = nnsService.getUsedDomainList();
+                            result = nnsService.getUsedDomainListNew();
                         }
                         else
                         {
-                            result = nnsService.getUsedDomainList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                            result = nnsService.getUsedDomainListNew(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
                         }
                         break;
                     // 正在竞拍域名
                     case "getauctingdomain":
                         if (req.@params.Length < 2)
                         {
-                            result = nnsService.getAuctingDomainList();
+                            result = nnsService.getAuctingDomainListNew();
                         }
                         else
                         {
-                            result = nnsService.getAuctingDomainList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                            result = nnsService.getAuctingDomainListNew(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
                         }
                         break;
                     // statistics(奖金池+已领分红+已使用域名数量+正在竞拍域名数量)
