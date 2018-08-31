@@ -16,6 +16,7 @@ namespace NEL_Scan_API.Service
         public string auctionStateColl { get; set; }
         public mongoHelper mh { set; get; }
         public string id_sgas { get; set; }
+        private const long ONE_YEAR_SECONDS = 365 * 1 * /*24 * 60 * */60 /*测试时5分钟一天*/* 5;
 
         public JArray getStatistic()
         {
@@ -71,16 +72,24 @@ namespace NEL_Scan_API.Service
         {
             string findStr = MongoFieldHelper.toFilter(new string[] { "0401"}, "auctionState").ToString();
             string sortStr = new JObject() { { "maxPrice", -1 } }.ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "ttl" }).ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "startTime.blocktime"}).ToString();
             JArray res = mh.GetDataPagesWithField(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, fieldStr, pageSize, pageNum, sortStr, findStr);
             if(res == null || res.Count() == 0)
             {
                 return new JArray() { };
             }
             res = new JArray() { res.OrderByDescending(p => decimal.Parse(p["maxPrice"].ToString())).ToArray() };
-            long count = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, nnsDomainState, findStr.ToString());
+            int num = (pageNum - 1) * pageSize;
+            foreach (JObject obj in res)
+            {
+                obj.Add("range", ++num);
+                obj.Add("ttl", long.Parse(obj["startTime"]["blocktime"].ToString()) + ONE_YEAR_SECONDS);
+            }
+            long count = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, findStr.ToString());
             return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
         }
+        
+
         public JArray getUsedDomainList(int pageNum = 1, int pageSize = 10)
         {
             // 排名 + 域名 + 哈希 + 成交价 + 中标人 + 域名过期时间 ==> 哈希改为txid

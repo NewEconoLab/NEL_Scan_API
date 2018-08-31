@@ -17,6 +17,7 @@ namespace NEL_Scan_API.Service
         public string Notify_mongodbDatabase { get; set; }
         public string queryBidListCollection { get; set; }
         public string auctionStateColl { get; set; }
+        private const long ONE_YEAR_SECONDS = 365 * 1 * /*24 * 60 * */60 /*测试时5分钟一天*/* 5;
 
         public JArray searchByDomain(string fulldomain)
         {
@@ -26,7 +27,17 @@ namespace NEL_Scan_API.Service
             string sortStr = new JObject() { { "startTime.blockindex", -1} }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex" }).ToString();
 
-            return mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
+            JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
+            return new JArray() {
+                res.Select(p =>
+                {
+                    JObject jo = (JObject)p;
+                    long ttl = long.Parse(p["startTime"]["blocktime"].ToString()) + ONE_YEAR_SECONDS;
+                    jo.Add("ttl", ttl);
+                    return jo;
+                }).ToArray()
+            };
+            
         }
         public JArray getAuctionInfo(string auctionId)
         {
@@ -34,7 +45,16 @@ namespace NEL_Scan_API.Service
             // 域名 + 哈希 + 开始时间 + 结束时间 + maxBuyer + maxPrice + auctionState + 开标块
             string findStr = new JObject() { { "auctionId", auctionId } }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex" }).ToString() ;
-            return mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
+            JArray res = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
+            return new JArray() {
+                res.Select(p =>
+                {
+                    JObject jo = (JObject)p;
+                    long ttl = long.Parse(p["startTime"]["blocktime"].ToString()) + ONE_YEAR_SECONDS;
+                    jo.Add("ttl", ttl);
+                    return jo;
+                }).ToArray()
+            };
         }
         public JArray getAuctionInfoRank(string auctionId)
         {
