@@ -1,4 +1,5 @@
 ﻿using NEL_Scan_API.lib;
+using NEL_Scan_API.Service.dao;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,93 @@ namespace NEL_Scan_API.Service
         public string Notify_mongodbConnStr { get; set; }
         public string Notify_mongodbDatabase { get; set; }
         public string queryBidListCollection { get; set; }
+        public string auctionStateColl { get; set; }
+
+        public JArray getAuctionInfo(string auctionId)
+        {
+            // 域名信息:
+            // 域名 + 哈希 + 开始时间 + 结束时间 + maxBuyer + maxPrice + auctionState + 开标块
+            string findStr = new JObject() { { "auctionId", auctionId } }.ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex" }).ToString() ;
+            return mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
+        }
+        public JArray getAuctionInfoRank(string auctionId)
+        {
+            // 竞价排行:
+            // 排名 + 价格 + 竞标人
+            string findStr = new JObject() { { "auctionId", auctionId } }.ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "addwholist.address", "addwholist.totalValue" }).ToString();
+            return mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
+        }
+        public JArray getAuctionInfoTx(string auctionId)
+        {
+            // 竞拍信息:
+            // txid + 类型(开标+加价+结束+领取+取回+) + 地址 + 金额 + 时间
+            string findStr = new JObject() { { "auctionId", auctionId } }.ToString();
+            List<AuctionTx> txList = mh.GetData<AuctionTx>(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, findStr);
+            if(txList == null || txList.Count == 0)
+            {
+                return new JArray() { };
+            }
+            AuctionTx tx = txList[0];
+
+            //txid + 类型(开标+加价+结束+领取+取回+) + 地址 + 金额 + 时间
+            JArray arr = new JArray();
+            JObject jo = new JObject() {
+                { "txid", tx.startTime.txid},
+                { "type", "startAuction"},
+                { "address", tx.startAddress},
+                { "value", "0" },
+                { "time", tx.startTime.blocktime } };
+            arr.Add(jo);
+            foreach (AuctionAddWho addwho in tx.addwholist)
+            {
+                foreach(AuctionAddPrice addprice in addwho.addpricelist)
+                {
+                    jo = new JObject();
+                    jo.Add("txid", addprice.time.txid);
+                    jo.Add("type", "addprice");
+                    jo.Add("address", addwho.address);
+                    jo.Add("amount", addprice.value);
+                    jo.Add("time", addprice.time.blocktime);
+                    arr.Add(jo);
+                }
+                if(addwho.accountTime != null && addwho.accountTime.blockindex != 0)
+                {
+                    jo = new JObject();
+                    jo.Add("txid", addwho.accountTime.txid);
+                    jo.Add("type", "getbackGas");
+                    jo.Add("address", addwho.address);
+                    jo.Add("amount", "0");
+                    jo.Add("time", addwho.accountTime.blocktime);
+                    arr.Add(jo);
+                }
+                if (addwho.getdomainTime != null && addwho.getdomainTime.blockindex != 0)
+                {
+                    jo = new JObject();
+                    jo.Add("txid", addwho.getdomainTime.txid);
+                    jo.Add("type", "collectDomain");
+                    jo.Add("address", addwho.address);
+                    jo.Add("amount", "0");
+                    jo.Add("time", addwho.getdomainTime.blocktime);
+                    arr.Add(jo);
+                }
+
+            }
+
+            return arr;
+        }
+
+        static class AuctionStaus
+        {
+            public static string AuctionStatus_Start = "500301";
+            public static string AuctionStatus_AddPrice = "500302";
+            public static string AuctionStatus_End = "500303";
+            public static string AuctionStatus_Account = "500304";
+            public static string AuctionStatus_GetDomain = "500305";
+        }
+
+
 
         public JArray getBidDetailByAuctionId(string auctionId, int pageNum = 1, int pageSize = 10)
         {

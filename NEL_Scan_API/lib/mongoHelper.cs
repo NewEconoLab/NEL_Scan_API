@@ -32,6 +32,9 @@ namespace NEL_Scan_API.lib
 
         public string queryBidListCollection_testnet = string.Empty;
         public string queryBidListCollection_mainnet = string.Empty;
+        public string auctionStateColl_testnet = string.Empty;
+        public string auctionStateColl_mainnet = string.Empty;
+
 
         public string bonusSgas_mongodbConnStr_testnet { set; get; }
         public string bonusSgas_mongodbConnStr_mainnet { set; get; }
@@ -71,6 +74,8 @@ namespace NEL_Scan_API.lib
 
             queryBidListCollection_testnet = config["queryBidListCollection_testnet"];
             queryBidListCollection_mainnet = config["queryBidListCollection_mainnet"];
+            auctionStateColl_testnet = config["auctionStateColl_testnet"];
+            auctionStateColl_mainnet = config["auctionStateColl_mainnet"];
 
             bonusSgas_mongodbConnStr_testnet = config["bonusSgas_mongodbConnStr_testnet"];
             bonusSgas_mongodbConnStr_mainnet = config["bonusSgas_mongodbConnStr_mainnet"];
@@ -182,8 +187,27 @@ namespace NEL_Scan_API.lib
 
             return txCount;
         }
-        
-        
+        public List<T> GetData<T>(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter = "{}", string sortFliter = "{}", int skip = 0, int limit = 0)
+        {
+            var client = new MongoClient(mongodbConnStr);
+            var database = client.GetDatabase(mongodbDatabase);
+            var collection = database.GetCollection<T>(coll);
+
+            List<T> query = null;
+            if (limit == 0)
+            {
+                query = collection.Find(BsonDocument.Parse(findFliter)).ToList();
+            }
+            else
+            {
+                query = collection.Find(BsonDocument.Parse(findFliter)).Sort(sortFliter).Skip(skip).Limit(limit).ToList();
+            }
+            client = null;
+
+            return query;
+        }
+
+
         public string InsertOneData(string mongodbConnStr, string mongodbDatabase, string coll, string insertBson)
         {
             var client = new MongoClient(mongodbConnStr);

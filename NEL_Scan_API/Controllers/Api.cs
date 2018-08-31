@@ -61,6 +61,7 @@ namespace NEL_Scan_API.Controllers
                         Notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                         queryBidListCollection = mh.queryBidListCollection_testnet,
+                        auctionStateColl = mh.auctionStateColl_testnet,
                     };
                     break;
                 case "mainnet":
@@ -97,6 +98,7 @@ namespace NEL_Scan_API.Controllers
                         Notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                         queryBidListCollection = mh.queryBidListCollection_mainnet,
+                        auctionStateColl = mh.auctionStateColl_mainnet,
                     };
                     break;
             }
@@ -109,6 +111,15 @@ namespace NEL_Scan_API.Controllers
             {
                 switch (req.method)
                 {
+                    case "getauctioninfoTx":
+                        result = commonService.getAuctionInfoTx(req.@params[0].ToString());
+                        break;
+                    case "getauctioninfoRank":
+                        result = commonService.getAuctionInfoRank(req.@params[0].ToString());
+                        break;
+                    case "getauctioninfo":
+                        result = commonService.getAuctionInfo(req.@params[0].ToString());
+                        break;
                     // 根据域名查询域名竞拍详情
                     case "getbiddetailbydomain":
                         if (req.@params.Length < 3)
