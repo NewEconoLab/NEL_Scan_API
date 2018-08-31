@@ -84,7 +84,7 @@ namespace NEL_Scan_API.Service
             res = new JArray() { arr };
             return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
         }
-        public JArray getAuctionInfoTx(string auctionId)
+        public JArray getAuctionInfoTx(string auctionId, int pageNum=1, int pageSize=10)
         {
             // 竞拍信息:
             // txid + 类型(开标+加价+结束+领取+取回+) + 地址 + 金额 + 时间
@@ -100,7 +100,7 @@ namespace NEL_Scan_API.Service
             JArray arr = new JArray();
             JObject jo = new JObject() {
                 { "txid", tx.startTime.txid},
-                { "type", "startAuction"},
+                { "type", AuctionStaus.AuctionStatus_Start},
                 { "address", tx.startAddress},
                 { "value", "0" },
                 { "time", tx.startTime.blocktime } };
@@ -111,7 +111,7 @@ namespace NEL_Scan_API.Service
                 {
                     jo = new JObject();
                     jo.Add("txid", addprice.time.txid);
-                    jo.Add("type", "addprice");
+                    jo.Add("type", AuctionStaus.AuctionStatus_AddPrice);
                     jo.Add("address", addwho.address);
                     jo.Add("amount", addprice.value);
                     jo.Add("time", addprice.time.blocktime);
@@ -121,7 +121,7 @@ namespace NEL_Scan_API.Service
                 {
                     jo = new JObject();
                     jo.Add("txid", addwho.accountTime.txid);
-                    jo.Add("type", "getbackGas");
+                    jo.Add("type", AuctionStaus.AuctionStatus_Account);
                     jo.Add("address", addwho.address);
                     jo.Add("amount", "0");
                     jo.Add("time", addwho.accountTime.blocktime);
@@ -131,7 +131,7 @@ namespace NEL_Scan_API.Service
                 {
                     jo = new JObject();
                     jo.Add("txid", addwho.getdomainTime.txid);
-                    jo.Add("type", "collectDomain");
+                    jo.Add("type", AuctionStaus.AuctionStatus_GetDomain);
                     jo.Add("address", addwho.address);
                     jo.Add("amount", "0");
                     jo.Add("time", addwho.getdomainTime.blocktime);
@@ -139,17 +139,29 @@ namespace NEL_Scan_API.Service
                 }
 
             }
-
-            return arr;
+            if(tx.endTime != null && tx.endTime.blockindex !=0)
+            {
+                jo = new JObject() {
+                { "txid", tx.endTime.txid},
+                { "type", AuctionStaus.AuctionStatus_End},
+                { "address", tx.endAddress},
+                { "value", "0" },
+                { "time", tx.endTime.blocktime } };
+                arr.Add(jo);
+            }
+            JToken[] jt = arr.OrderByDescending(p => long.Parse(p["time"].ToString())).ToArray();
+            int count = jt.Count();
+            JArray res = new JArray() { jt.Skip(pageSize * (pageNum-1)).Take(pageSize).ToArray() };
+            return new JArray() { new JObject() { { "count", count }, { "list", res } } };
         }
 
         static class AuctionStaus
         {
-            public static string AuctionStatus_Start = "500301";
-            public static string AuctionStatus_AddPrice = "500302";
-            public static string AuctionStatus_End = "500303";
-            public static string AuctionStatus_Account = "500304";
-            public static string AuctionStatus_GetDomain = "500305";
+            public static string AuctionStatus_Start = "500301";            // 开标
+            public static string AuctionStatus_AddPrice = "500302";         // 加价
+            public static string AuctionStatus_End = "500303";              // 结束
+            public static string AuctionStatus_Account = "500304";          // 取回Gas
+            public static string AuctionStatus_GetDomain = "500305";        // 领取域名
         }
 
 

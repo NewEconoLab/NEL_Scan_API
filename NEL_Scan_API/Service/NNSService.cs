@@ -81,13 +81,15 @@ namespace NEL_Scan_API.Service
             }
             res = new JArray() { res.OrderByDescending(p => decimal.Parse(p["maxPrice"].ToString())).ToArray() };
             int num = (pageNum - 1) * pageSize;
+            JArray ja = new JArray();
             foreach (JObject obj in res.Skip(num))
             {
                 obj.Add("range", ++num);
                 obj.Add("ttl", long.Parse(obj["startTime"]["blocktime"].ToString()) + ONE_YEAR_SECONDS);
+                ja.Add(ja);
             }
             long count = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, findStr.ToString());
-            return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
+            return new JArray() { { new JObject() { { "list", ja }, { "count", count } } } };
         }
         
 
