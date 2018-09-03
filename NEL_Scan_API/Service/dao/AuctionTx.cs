@@ -10,7 +10,7 @@ namespace NEL_Scan_API.Service.dao
         public string domain { get; set; }
         public string parenthash { get; set; }
         public string fulldomain { get; set; }
-        public string domainTTL { get; set; }
+        public long ttl { get; set; }
         public string auctionState { get; set; }
         public AuctionTime startTime { get; set; }
         public string startAddress { get; set; }
@@ -26,6 +26,7 @@ namespace NEL_Scan_API.Service.dao
     {
         public string address { get; set; }
         public decimal totalValue { get; set; }
+        public decimal curTotalValue { get; set; }
         public AuctionTime lastTime { get; set; }
         public AuctionTime accountTime { get; set; }
         public AuctionTime getdomainTime { get; set; }

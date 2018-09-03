@@ -63,6 +63,7 @@ namespace NEL_Scan_API.Controllers
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                         queryBidListCollection = mh.queryBidListCollection_testnet,
                         auctionStateColl = mh.auctionStateColl_testnet,
+                        bonusAddress = mh.bonusAddress_testnet,
                     };
                     break;
                 case "mainnet":
@@ -101,6 +102,7 @@ namespace NEL_Scan_API.Controllers
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                         queryBidListCollection = mh.queryBidListCollection_mainnet,
                         auctionStateColl = mh.auctionStateColl_mainnet,
+                        bonusAddress = mh.bonusAddress_mainnet,
                     };
                     break;
             }
@@ -114,10 +116,23 @@ namespace NEL_Scan_API.Controllers
                 switch (req.method)
                 {
                     case "getauctioninfoTx":
-                        result = commonService.getAuctionInfoTx(req.@params[0].ToString());
+                        if (req.@params.Length < 3)
+                        {
+                            result = commonService.getAuctionInfoTx(req.@params[0].ToString());
+                        } else
+                        {
+                            result = commonService.getAuctionInfoTx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
+                            
                         break;
                     case "getauctioninfoRank":
-                        result = commonService.getAuctionInfoRank(req.@params[0].ToString());
+                        if (req.@params.Length < 3)
+                        {
+                            result = commonService.getAuctionInfoRank(req.@params[0].ToString());
+                        } else
+                        {
+                            result = commonService.getAuctionInfoRank(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
                         break;
                     case "getauctioninfo":
                         result = commonService.getAuctionInfo(req.@params[0].ToString());

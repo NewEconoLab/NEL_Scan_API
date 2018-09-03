@@ -34,6 +34,9 @@ namespace NEL_Scan_API.lib
         public string queryBidListCollection_mainnet = string.Empty;
         public string auctionStateColl_testnet = string.Empty;
         public string auctionStateColl_mainnet = string.Empty;
+        public string bonusAddress_testnet = string.Empty;
+        public string bonusAddress_mainnet = string.Empty;
+
 
 
         public string bonusSgas_mongodbConnStr_testnet { set; get; }
@@ -76,6 +79,8 @@ namespace NEL_Scan_API.lib
             queryBidListCollection_mainnet = config["queryBidListCollection_mainnet"];
             auctionStateColl_testnet = config["auctionStateColl_testnet"];
             auctionStateColl_mainnet = config["auctionStateColl_mainnet"];
+            bonusAddress_testnet = config["bonusAddress_testnet"];
+            bonusAddress_mainnet = config["bonusAddress_mainnet"];
 
             bonusSgas_mongodbConnStr_testnet = config["bonusSgas_mongodbConnStr_testnet"];
             bonusSgas_mongodbConnStr_mainnet = config["bonusSgas_mongodbConnStr_mainnet"];

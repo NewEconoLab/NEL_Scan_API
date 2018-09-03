@@ -18,6 +18,7 @@ namespace NEL_Scan_API.Service
         public string queryBidListCollection { get; set; }
         public string auctionStateColl { get; set; }
         private const long ONE_YEAR_SECONDS = 365 * 1 * /*24 * 60 * */60 /*测试时5分钟一天*/* 5;
+        public string bonusAddress { get; set; }
 
         public JArray searchByDomain(string fulldomain)
         {
@@ -25,36 +26,18 @@ namespace NEL_Scan_API.Service
             // 域名 + 哈希 + 开始时间 + 结束时间 + maxBuyer + maxPrice + auctionState + 开标块
             string findStr = new JObject() { { "fulldomain", fulldomain } }.ToString();
             string sortStr = new JObject() { { "startTime.blockindex", -1} }.ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex" }).ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString();
 
-            JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
-            return new JArray() {
-                res.Select(p =>
-                {
-                    JObject jo = (JObject)p;
-                    long ttl = long.Parse(p["startTime"]["blocktime"].ToString()) + ONE_YEAR_SECONDS;
-                    jo.Add("ttl", ttl);
-                    return jo;
-                }).ToArray()
-            };
-            
+            return mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
         }
         public JArray getAuctionInfo(string auctionId)
         {
             // 域名信息:
             // 域名 + 哈希 + 开始时间 + 结束时间 + maxBuyer + maxPrice + auctionState + 开标块
             string findStr = new JObject() { { "auctionId", auctionId } }.ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex" }).ToString() ;
-            JArray res = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
-            return new JArray() {
-                res.Select(p =>
-                {
-                    JObject jo = (JObject)p;
-                    long ttl = long.Parse(p["startTime"]["blocktime"].ToString()) + ONE_YEAR_SECONDS;
-                    jo.Add("ttl", ttl);
-                    return jo;
-                }).ToArray()
-            };
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString() ;
+            return  mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
+            
         }
         public JArray getAuctionInfoRank(string auctionId, int pageNum=1, int pageSize=10)
         {
@@ -74,7 +57,7 @@ namespace NEL_Scan_API.Service
             }).ToArray();
 
 
-            JToken[] arr = jt.OrderByDescending(p => decimal.Parse(p["totalValue"].ToString())).ToArray();
+            JToken[] arr = jt.Where(p => p["address"].ToString() != bonusAddress).OrderByDescending(p => decimal.Parse(p["totalValue"].ToString())).ToArray();
             long count = arr.Count();
             int num = (pageNum - 1) * pageSize; ;
             foreach (JObject obj in arr.Skip(num))
@@ -107,8 +90,11 @@ namespace NEL_Scan_API.Service
             arr.Add(jo);
             foreach (AuctionAddWho addwho in tx.addwholist)
             {
+                if(bonusAddress == addwho.address) continue; 
+
                 foreach(AuctionAddPrice addprice in addwho.addpricelist)
                 {
+                    if (addprice.value <= 0) continue;
                     jo = new JObject();
                     jo.Add("txid", addprice.time.txid);
                     jo.Add("type", AuctionStaus.AuctionStatus_AddPrice);
