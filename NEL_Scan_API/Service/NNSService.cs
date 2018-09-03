@@ -88,7 +88,8 @@ namespace NEL_Scan_API.Service
                 obj.Add("ttl", long.Parse(obj["startTime"]["blocktime"].ToString()) + ONE_YEAR_SECONDS);
                 ja.Add(obj);
             }
-            long count = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, findStr.ToString());
+            //long count = mh.GetDataCount(newNotify_mongodbConnStr, newNotify_mongodbDatabase, auctionStateColl, findStr.ToString());
+            long count = res.Count();
             return new JArray() { { new JObject() { { "list", ja }, { "count", count } } } };
         }
         

@@ -102,7 +102,7 @@ namespace NEL_Scan_API.Service
                 { "txid", tx.startTime.txid},
                 { "type", AuctionStaus.AuctionStatus_Start},
                 { "address", tx.startAddress},
-                { "value", "0" },
+                { "amount", "0" },
                 { "time", tx.startTime.blocktime } };
             arr.Add(jo);
             foreach (AuctionAddWho addwho in tx.addwholist)
@@ -145,7 +145,7 @@ namespace NEL_Scan_API.Service
                 { "txid", tx.endTime.txid},
                 { "type", AuctionStaus.AuctionStatus_End},
                 { "address", tx.endAddress},
-                { "value", "0" },
+                { "amount", "0" },
                 { "time", tx.endTime.blocktime } };
                 arr.Add(jo);
             }
