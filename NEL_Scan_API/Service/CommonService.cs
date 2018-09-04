@@ -20,24 +20,83 @@ namespace NEL_Scan_API.Service
         private const long ONE_YEAR_SECONDS = 365 * 1 * /*24 * 60 * */60 /*测试时5分钟一天*/* 5;
         public string bonusAddress { get; set; }
 
+        private const long ONE_DAY_SECONDS = 1 * /*24 * 60 * */60 /*测试时5分钟一天*/* 5;
+        private const long TWO_DAY_SECONDS = ONE_DAY_SECONDS * 2;
+        private const long THREE_DAY_SECONDS = ONE_DAY_SECONDS * 3;
+        private const long FIVE_DAY_SECONDS = ONE_DAY_SECONDS * 5;
+        
+        private JArray format(JArray res)
+        {
+            if(res == null || res.Count == 0)
+            {
+                return new JArray() { };
+            }
+            return new JArray() {
+                res.Select(p => {
+                    JObject jo = (JObject)p;
+
+                    long ed = long.Parse(jo["endTime"]["blocktime"].ToString());
+                    if(ed > 0)
+                    {
+                        return jo;
+                    }
+                    string auctionState = p["auctionState"].ToString();
+                    long expireSeconds = 0;
+                    if (auctionState == "0201")
+                    {
+                        expireSeconds = THREE_DAY_SECONDS;
+                    } else if(auctionState == "0301")
+                    {
+                        expireSeconds = FIVE_DAY_SECONDS;
+                    } else if(auctionState == "0401")
+                    {
+                        long st = long.Parse(jo["startTime"]["blocktime"].ToString());
+                        long lt = long.Parse(jo["lastTime"]["blocktime"].ToString());
+                        if(st + TWO_DAY_SECONDS >= lt)
+                        {
+                            expireSeconds = THREE_DAY_SECONDS;
+                        } else
+                        {
+                            expireSeconds = FIVE_DAY_SECONDS;
+                        }
+                    }
+                    if(expireSeconds > 0)
+                    {
+                        // 预计结束时间
+                        JObject st = (JObject)jo["endTime"];
+                        long blocktime = long.Parse(st["blocktime"].ToString());
+                        long endBlockTime = blocktime + expireSeconds;
+                        st.Remove("blocktime");
+                        jo.Remove("endTime");
+                        st.Add("blocktime", endBlockTime);
+                        jo.Add("endTime", st);
+                        //
+                        jo.Remove("lastTime");
+                    }
+                    return jo;
+                })
+            };
+        }
         public JArray searchByDomain(string fulldomain)
         {
             // 域名信息:
             // 域名 + 哈希 + 开始时间 + 结束时间 + maxBuyer + maxPrice + auctionState + 开标块
             string findStr = new JObject() { { "fulldomain", fulldomain } }.ToString();
             string sortStr = new JObject() { { "startTime.blockindex", -1} }.ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "lastTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString();
 
-            return mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
+            JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
+            return format(res);
         }
         public JArray getAuctionInfo(string auctionId)
         {
             // 域名信息:
             // 域名 + 哈希 + 开始时间 + 结束时间 + maxBuyer + maxPrice + auctionState + 开标块
             string findStr = new JObject() { { "auctionId", auctionId } }.ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString() ;
-            return  mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
-            
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "lastTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString() ;
+            JArray res = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
+            return format(res);
+
         }
         public JArray getAuctionInfoRank(string auctionId, int pageNum=1, int pageSize=10)
         {
