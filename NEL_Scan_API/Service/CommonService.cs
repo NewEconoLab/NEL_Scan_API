@@ -17,14 +17,9 @@ namespace NEL_Scan_API.Service
         public string Notify_mongodbDatabase { get; set; }
         public string queryBidListCollection { get; set; }
         public string auctionStateColl { get; set; }
-        private const long ONE_YEAR_SECONDS = 365 * 1 * /*24 * 60 * */60 /*测试时5分钟一天*/* 5;
         public string bonusAddress { get; set; }
 
-        private const long ONE_DAY_SECONDS = 1 * /*24 * 60 * */60 /*测试时5分钟一天*/* 5;
-        private const long TWO_DAY_SECONDS = ONE_DAY_SECONDS * 2;
-        private const long THREE_DAY_SECONDS = ONE_DAY_SECONDS * 3;
-        private const long FIVE_DAY_SECONDS = ONE_DAY_SECONDS * 5;
-        
+
         private JArray format(JArray res)
         {
             if(res == null || res.Count == 0)
@@ -35,41 +30,42 @@ namespace NEL_Scan_API.Service
                 res.Select(p => {
                     JObject jo = (JObject)p;
 
+                    long st = long.Parse(jo["startTime"]["blocktime"].ToString());
                     long ed = long.Parse(jo["endTime"]["blocktime"].ToString());
                     if(ed > 0)
                     {
+                        jo.Remove("lastTime");
                         return jo;
                     }
                     string auctionState = p["auctionState"].ToString();
                     long expireSeconds = 0;
                     if (auctionState == "0201")
                     {
-                        expireSeconds = THREE_DAY_SECONDS;
+                        expireSeconds = st + TimeConst.THREE_DAY_SECONDS;
                     } else if(auctionState == "0301")
                     {
-                        expireSeconds = FIVE_DAY_SECONDS;
+                        expireSeconds = st + TimeConst.FIVE_DAY_SECONDS;
                     } else if(auctionState == "0401")
                     {
-                        long st = long.Parse(jo["startTime"]["blocktime"].ToString());
                         long lt = long.Parse(jo["lastTime"]["blocktime"].ToString());
-                        if(st + TWO_DAY_SECONDS >= lt)
+                        if(st + TimeConst.TWO_DAY_SECONDS >= lt)
                         {
-                            expireSeconds = THREE_DAY_SECONDS;
+                            expireSeconds = st + TimeConst.THREE_DAY_SECONDS;
                         } else
                         {
-                            expireSeconds = FIVE_DAY_SECONDS;
+                            expireSeconds = st + TimeConst.FIVE_DAY_SECONDS;
                         }
                     }
                     if(expireSeconds > 0)
                     {
                         // 预计结束时间
-                        JObject st = (JObject)jo["endTime"];
-                        long blocktime = long.Parse(st["blocktime"].ToString());
+                        JObject ep = (JObject)jo["endTime"];
+                        long blocktime = long.Parse(ep["blocktime"].ToString());
                         long endBlockTime = blocktime + expireSeconds;
-                        st.Remove("blocktime");
+                        ep.Remove("blocktime");
                         jo.Remove("endTime");
-                        st.Add("blocktime", endBlockTime);
-                        jo.Add("endTime", st);
+                        ep.Add("blocktime", endBlockTime);
+                        jo.Add("endTime", ep);
                         //
                         jo.Remove("lastTime");
                     }
