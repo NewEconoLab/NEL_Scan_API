@@ -52,6 +52,8 @@ namespace NEL_Scan_API.Controllers
                         bonusSgasCol = mh.bonusSgasCol_testnet,
                         id_sgas = mh.id_sgas_testnet,
                         auctionStateColl = mh.auctionStateColl_testnet,
+                        bonusAddress = mh.bonusAddress_testnet,
+                        nelJsonRPCUrl = mh.nelJsonRPCUrl_testnet
                     };
                     commonService = new CommonService
                     {
@@ -60,7 +62,6 @@ namespace NEL_Scan_API.Controllers
                         Block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
                         Notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
-                        queryBidListCollection = mh.queryBidListCollection_testnet,
                         auctionStateColl = mh.auctionStateColl_testnet,
                         bonusAddress = mh.bonusAddress_testnet,
                     };
@@ -90,6 +91,8 @@ namespace NEL_Scan_API.Controllers
                         bonusSgasCol = mh.bonusSgasCol_mainnet,
                         id_sgas = mh.id_sgas_mainnet,
                         auctionStateColl = mh.auctionStateColl_mainnet,
+                        bonusAddress = mh.bonusAddress_mainnet,
+                        nelJsonRPCUrl = mh.nelJsonRPCUrl_mainnet
                     };
                     commonService = new CommonService
                     {
@@ -98,7 +101,6 @@ namespace NEL_Scan_API.Controllers
                         Block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
                         Notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
-                        queryBidListCollection = mh.queryBidListCollection_mainnet,
                         auctionStateColl = mh.auctionStateColl_mainnet,
                         bonusAddress = mh.bonusAddress_mainnet,
                     };

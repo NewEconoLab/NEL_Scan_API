@@ -26,19 +26,12 @@ namespace NEL_Scan_API.lib
         public string notify_mongodbConnStr_mainnet = string.Empty;
         public string notify_mongodbDatabase_mainnet = string.Empty;
         public string nelJsonRPCUrl_mainnet = string.Empty;
-
-        public string nnsDomainState_testnet = string.Empty;
-        public string nnsDomainState_mainnet = string.Empty;
-
-        public string queryBidListCollection_testnet = string.Empty;
-        public string queryBidListCollection_mainnet = string.Empty;
+        
         public string auctionStateColl_testnet = string.Empty;
         public string auctionStateColl_mainnet = string.Empty;
         public string bonusAddress_testnet = string.Empty;
         public string bonusAddress_mainnet = string.Empty;
-
-
-
+        
         public string bonusSgas_mongodbConnStr_testnet { set; get; }
         public string bonusSgas_mongodbConnStr_mainnet { set; get; }
         public string bonusSgas_mongodbDatabase_testnet { set; get; }
@@ -71,12 +64,7 @@ namespace NEL_Scan_API.lib
             notify_mongodbConnStr_mainnet = config["notify_mongodbConnStr_mainnet"];
             notify_mongodbDatabase_mainnet = config["notify_mongodbDatabase_mainnet"];
             nelJsonRPCUrl_mainnet = config["nelJsonRPCUrl_mainnet"];
-
-            nnsDomainState_testnet = config["nnsDomainState_testnet"];
-            nnsDomainState_mainnet = config["nnsDomainState_mainnet"];
-
-            queryBidListCollection_testnet = config["queryBidListCollection_testnet"];
-            queryBidListCollection_mainnet = config["queryBidListCollection_mainnet"];
+            
             auctionStateColl_testnet = config["auctionStateColl_testnet"];
             auctionStateColl_mainnet = config["auctionStateColl_mainnet"];
             bonusAddress_testnet = config["bonusAddress_testnet"];

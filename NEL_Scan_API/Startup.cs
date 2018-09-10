@@ -32,8 +32,7 @@ namespace NEL_Scan_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddCors();
-            services.AddCors(_options => _options.AddPolicy("AllowCors", _builder => _builder.AllowAnyOrigin().AllowAnyMethod()));
+            services.AddCors();
 
             services.AddMvc();
         }

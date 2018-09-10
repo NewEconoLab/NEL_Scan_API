@@ -3,6 +3,7 @@ using NEL_Scan_API.Service.dao;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
+using ThinNeo;
 
 namespace NEL_Scan_API.Service
 {
@@ -16,15 +17,24 @@ namespace NEL_Scan_API.Service
         public string auctionStateColl { get; set; }
         public mongoHelper mh { set; get; }
         public string id_sgas { get; set; }
+        public string bonusAddress { get; set; }
+        public string nelJsonRPCUrl { get; set; }
 
         public JArray getStatistic()
         {
             // 奖金池 + 利息累计 + 已使用域名数量 + 正在竞拍域名数量
-            int bonus = 0;
+            decimal bonus = getBonus();
             decimal profit = getProfit();
             long auctingDomainCount = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, toOrFilter("auctionState", new string[] { AuctionState.STATE_CONFIRM, AuctionState.STATE_RANDOM }).ToString());
             long usedDomainCount = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, toOrFilter("auctionState", new string[] { AuctionState.STATE_END }).ToString());
             return new JArray() { { new JObject() { { "bonus", bonus }, { "profit", profit }, { "usedDomainCount", usedDomainCount }, { "auctingDomainCount", auctingDomainCount } } } };
+        }
+        private decimal getBonus()
+        {
+            string addressHash = Helper.Bytes2HexString(Helper.GetPublicKeyHashFromAddress(bonusAddress));
+            var result = TxHelper.api_InvokeScript(nelJsonRPCUrl, new ThinNeo.Hash160(id_sgas), "balanceOf", "(bytes)" + addressHash);
+            var bonusRes = result.Result.value.subItem[0].AsInteger();
+            return decimal.Parse(bonusRes.ToString().getNumStrFromIntStr(8));
         }
         private decimal getProfit()
         {
