@@ -22,8 +22,8 @@ namespace NEL_Scan_API.Service
             // 奖金池 + 利息累计 + 已使用域名数量 + 正在竞拍域名数量
             int bonus = 0;
             decimal profit = getProfit();
-            long usedDomainCount = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, toOrFilter("auctionState", new string[] { AuctionState.STATE_CONFIRM, AuctionState.STATE_RANDOM }).ToString());
-            long auctingDomainCount = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, toOrFilter("auctionState", new string[] { AuctionState.STATE_END }).ToString());
+            long auctingDomainCount = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, toOrFilter("auctionState", new string[] { AuctionState.STATE_CONFIRM, AuctionState.STATE_RANDOM }).ToString());
+            long usedDomainCount = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, toOrFilter("auctionState", new string[] { AuctionState.STATE_END }).ToString());
             return new JArray() { { new JObject() { { "bonus", bonus }, { "profit", profit }, { "usedDomainCount", usedDomainCount }, { "auctingDomainCount", auctingDomainCount } } } };
         }
         private decimal getProfit()
