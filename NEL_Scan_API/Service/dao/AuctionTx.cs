@@ -45,7 +45,7 @@ namespace NEL_Scan_API.Service.dao
         public long blocktime { get; set; }
         public string txid { get; set; }
     }
-    class AuctionState
+    public class AuctionState
     {
         public const string STATE_START = "0101";   // 开标
         public const string STATE_CONFIRM = "0201"; // 确定期

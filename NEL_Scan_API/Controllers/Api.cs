@@ -44,9 +44,8 @@ namespace NEL_Scan_API.Controllers
                     };
                     nnsService = new NNSService
                     {
-                        newNotify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
-                        newNotify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
-                        nnsDomainState = mh.nnsDomainState_testnet,
+                        notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
+                        notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                         mh = mh,
                         bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_testnet,
                         bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_testnet,
@@ -83,9 +82,8 @@ namespace NEL_Scan_API.Controllers
                     };
                     nnsService = new NNSService
                     {
-                        newNotify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
-                        newNotify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
-                        nnsDomainState = mh.nnsDomainState_mainnet,
+                        notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
+                        notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                         mh = mh,
                         bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_mainnet,
                         bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_mainnet,
@@ -140,6 +138,7 @@ namespace NEL_Scan_API.Controllers
                     case "searchbydomain":
                         result = commonService.searchByDomain(req.@params[0].ToString());
                         break;
+                        /*
                     // 根据域名查询域名竞拍详情
                     case "getbiddetailbydomain":
                         if (req.@params.Length < 3)
@@ -161,10 +160,7 @@ namespace NEL_Scan_API.Controllers
                             result = commonService.getBidDetailByAuctionId(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         }
                         break;
-                    // 获取域名信息
-                    case "getdomaininfo":
-                        result = nnsService.getDomainInfo(req.@params[0].ToString());
-                        break;
+                        */
                     // 最具价值域名
                     case "getaucteddomain":
                         if (req.@params.Length < 2)
