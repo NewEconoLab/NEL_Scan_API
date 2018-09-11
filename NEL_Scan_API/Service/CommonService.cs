@@ -136,7 +136,7 @@ namespace NEL_Scan_API.Service
             JArray arr = new JArray();
             JObject jo = new JObject() {
                 { "txid", tx.startTime.txid},
-                { "type", AuctionStaus.AuctionStatus_Start},
+                { "type", AuctionStatus.AuctionStatus_Start},
                 { "address", tx.startAddress},
                 { "amount", "0" },
                 { "time", tx.startTime.blocktime } };
@@ -150,7 +150,7 @@ namespace NEL_Scan_API.Service
                     if (addprice.value <= 0) continue;
                     jo = new JObject();
                     jo.Add("txid", addprice.time.txid);
-                    jo.Add("type", AuctionStaus.AuctionStatus_AddPrice);
+                    jo.Add("type", AuctionStatus.AuctionStatus_AddPrice);
                     jo.Add("address", addwho.address);
                     jo.Add("amount", addprice.value);
                     jo.Add("time", addprice.time.blocktime);
@@ -160,7 +160,7 @@ namespace NEL_Scan_API.Service
                 {
                     jo = new JObject();
                     jo.Add("txid", addwho.accountTime.txid);
-                    jo.Add("type", AuctionStaus.AuctionStatus_Account);
+                    jo.Add("type", AuctionStatus.AuctionStatus_Account);
                     jo.Add("address", addwho.address);
                     jo.Add("amount", "0");
                     jo.Add("time", addwho.accountTime.blocktime);
@@ -170,7 +170,7 @@ namespace NEL_Scan_API.Service
                 {
                     jo = new JObject();
                     jo.Add("txid", addwho.getdomainTime.txid);
-                    jo.Add("type", AuctionStaus.AuctionStatus_GetDomain);
+                    jo.Add("type", AuctionStatus.AuctionStatus_GetDomain);
                     jo.Add("address", addwho.address);
                     jo.Add("amount", "0");
                     jo.Add("time", addwho.getdomainTime.blocktime);
@@ -182,7 +182,7 @@ namespace NEL_Scan_API.Service
             {
                 jo = new JObject() {
                 { "txid", tx.endTime.txid},
-                { "type", AuctionStaus.AuctionStatus_End},
+                { "type", AuctionStatus.AuctionStatus_End},
                 { "address", tx.endAddress},
                 { "amount", "0" },
                 { "time", tx.endTime.blocktime } };
@@ -194,13 +194,13 @@ namespace NEL_Scan_API.Service
             return new JArray() { new JObject() { { "count", count }, { "list", res } } };
         }
 
-        static class AuctionStaus
+        static class AuctionStatus
         {
-            public static string AuctionStatus_Start = "500301";            // 开标
-            public static string AuctionStatus_AddPrice = "500302";         // 加价
-            public static string AuctionStatus_End = "500303";              // 结束
-            public static string AuctionStatus_Account = "500304";          // 取回Gas
-            public static string AuctionStatus_GetDomain = "500305";        // 领取域名
+            public static string AuctionStatus_Start = "4001";            // 开标
+            public static string AuctionStatus_AddPrice = "4002";         // 加价
+            public static string AuctionStatus_End = "4003";              // 结束
+            public static string AuctionStatus_Account = "4004";          // 取回Gas
+            public static string AuctionStatus_GetDomain = "4005";        // 领取域名
         }
         
         private Dictionary<string, long> getBlockTime(long[] blockindexArr)
