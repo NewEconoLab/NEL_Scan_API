@@ -28,6 +28,9 @@ namespace NEL_Scan_API.Service
                 res.Select(p => {
                     JObject jo = (JObject)p;
 
+                    string fulldoamin = p["fulldomain"].ToString();
+                    TimeSetter timeSetter = TimeConst.getTimeSetter(fulldoamin.Substring(fulldoamin.LastIndexOf(".")));
+
                     long st = long.Parse(jo["startTime"]["blocktime"].ToString());
                     long ed = long.Parse(jo["endTime"]["blocktime"].ToString());
                     if(ed > 0)
@@ -39,19 +42,19 @@ namespace NEL_Scan_API.Service
                     long expireSeconds = 0;
                     if (auctionState == "0201")
                     {
-                        expireSeconds = st + TimeConst.THREE_DAY_SECONDS;
+                        expireSeconds = st + timeSetter.THREE_DAY_SECONDS;
                     } else if(auctionState == "0301")
                     {
-                        expireSeconds = st + TimeConst.FIVE_DAY_SECONDS;
+                        expireSeconds = st + timeSetter.FIVE_DAY_SECONDS;
                     } else if(auctionState == "0401")
                     {
                         long lt = long.Parse(jo["lastTime"]["blocktime"].ToString());
-                        if(st + TimeConst.TWO_DAY_SECONDS >= lt)
+                        if(st + timeSetter.TWO_DAY_SECONDS >= lt)
                         {
-                            expireSeconds = st + TimeConst.THREE_DAY_SECONDS;
+                            expireSeconds = st + timeSetter.THREE_DAY_SECONDS;
                         } else
                         {
-                            expireSeconds = st + TimeConst.FIVE_DAY_SECONDS;
+                            expireSeconds = st + timeSetter.FIVE_DAY_SECONDS;
                         }
                     }
                     if(expireSeconds > 0)

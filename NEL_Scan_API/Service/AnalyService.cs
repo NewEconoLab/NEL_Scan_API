@@ -78,7 +78,6 @@ namespace NEL_Scan_API.Service
                 jo.Add("vout", txidVoutDict.GetValueOrDefault(txid));
                 jo.Add("type", txidTypeDict.GetValueOrDefault(txid));
             }
-            //return addrTxRes;
             return new JArray() { new JObject() { { "count", addrTxRes.Count }, { "list", addrTxRes } } };
         }
         
