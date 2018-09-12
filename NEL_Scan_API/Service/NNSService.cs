@@ -94,7 +94,7 @@ namespace NEL_Scan_API.Service
                         JObject jo = (JObject)p;
                         long starttime = long.Parse(jo["startTime"]["blocktime"].ToString());
                         jo.Remove("ttl");
-                        jo.Add("ttl", starttime + timeSetter.ONE_DAY_SECONDS);
+                        jo.Add("ttl", starttime + timeSetter.ONE_YEAR_SECONDS);
                         return jo;
                     }
                     return p;
