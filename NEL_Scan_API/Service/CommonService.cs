@@ -27,9 +27,18 @@ namespace NEL_Scan_API.Service
             return new JArray() {
                 res.Select(p => {
                     JObject jo = (JObject)p;
+                    
 
                     string fulldoamin = p["fulldomain"].ToString();
                     TimeSetter timeSetter = TimeConst.getTimeSetter(fulldoamin.Substring(fulldoamin.LastIndexOf(".")));
+                    
+                    if(fulldoamin.EndsWith(".test"))
+                    {
+                        long starttime = long.Parse(jo["startTime"]["blocktime"].ToString());
+                        jo.Remove("ttl");
+                        jo.Add("ttl", starttime + timeSetter.ONE_YEAR_SECONDS);
+                    }
+
 
                     long st = long.Parse(jo["startTime"]["blocktime"].ToString());
                     long ed = long.Parse(jo["endTime"]["blocktime"].ToString());
