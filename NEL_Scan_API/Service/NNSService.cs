@@ -79,7 +79,27 @@ namespace NEL_Scan_API.Service
                 ja.Add(obj);
             }
             long count = res.Count();
-            return new JArray() { { new JObject() { { "list", ja }, { "count", count } } } };
+            return new JArray() { { new JObject() { { "list", format(ja) }, { "count", count } } } };
+        }
+
+        private JArray format(JArray res)
+        {
+            TimeSetter timeSetter = TimeConst.getTimeSetter(".test");
+            return new JArray()
+            {
+                res.Select(p => {
+                    string fulldomain = p["fulldomain"].ToString();
+                    if(fulldomain.EndsWith(".test"))
+                    {
+                        JObject jo = (JObject)p;
+                        long starttime = long.Parse(jo["startTime"]["blocktime"].ToString());
+                        jo.Remove("ttl");
+                        jo.Add("ttl", starttime + timeSetter.ONE_DAY_SECONDS);
+                        return jo;
+                    }
+                    return p;
+                })
+            };
         }
 
         private JObject toOrFilter(string field, string[] filter)
