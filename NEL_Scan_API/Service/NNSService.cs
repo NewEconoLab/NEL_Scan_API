@@ -2,6 +2,7 @@
 using NEL_Scan_API.Service.dao;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Globalization;
 using System.Linq;
 using ThinNeo;
 
@@ -34,7 +35,7 @@ namespace NEL_Scan_API.Service
             string addressHash = Helper.Bytes2HexString(Helper.GetPublicKeyHashFromAddress(bonusAddress));
             var result = TxHelper.api_InvokeScript(nelJsonRPCUrl, new ThinNeo.Hash160(id_sgas), "balanceOf", "(bytes)" + addressHash);
             var bonusRes = result.Result.value.subItem[0].AsInteger();
-            return decimal.Parse(bonusRes.ToString().getNumStrFromIntStr(8));
+            return decimal.Parse(bonusRes.ToString().getNumStrFromIntStr(8), NumberStyles.Float);
         }
         private decimal getProfit()
         {
@@ -42,7 +43,7 @@ namespace NEL_Scan_API.Service
             JArray rr = mh.GetData(bonusSgas_mongodbConnStr, bonusSgas_mongodbDatabase, bonusSgasCol, filter);
             if(rr != null && rr.Count > 0)
             {
-                return rr.Select(p => Decimal.Parse(p["totalValue"].ToString())).Sum();
+                return rr.Select(p => Decimal.Parse(p["totalValue"].ToString(), NumberStyles.Float)).Sum();
             }
             return 0;
         }
@@ -70,7 +71,7 @@ namespace NEL_Scan_API.Service
             {
                 return new JArray() { };
             }
-            res = new JArray() { res.OrderByDescending(p => decimal.Parse(p["maxPrice"].ToString())).ToArray() };
+            res = new JArray() { res.OrderByDescending(p => decimal.Parse(p["maxPrice"].ToString(), NumberStyles.Float)).ToArray() };
             int num = (pageNum - 1) * pageSize;
             JArray ja = new JArray();
             foreach (JObject obj in res.Skip(num).Take(pageSize))

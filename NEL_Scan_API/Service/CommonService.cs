@@ -1,7 +1,9 @@
 ﻿using NEL_Scan_API.lib;
 using NEL_Scan_API.Service.dao;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using ThinNeo;
 
@@ -122,7 +124,7 @@ namespace NEL_Scan_API.Service
             }).ToArray();
 
 
-            JToken[] arr = jt.Where(p => p["address"].ToString() != bonusAddress).OrderByDescending(p => decimal.Parse(p["totalValue"].ToString())).ToArray();
+            JToken[] arr = jt.Where(p => p["address"].ToString() != bonusAddress).OrderByDescending(p => decimal.Parse(p["totalValue"].ToString(), NumberStyles.Float)).ToArray();
             long count = arr.Count();
             int num = (pageNum - 1) * pageSize; ;
             foreach (JObject obj in arr.Skip(num))
@@ -150,7 +152,7 @@ namespace NEL_Scan_API.Service
                 { "txid", tx.startTime.txid},
                 { "type", AuctionStatus.AuctionStatus_Start},
                 { "address", tx.startAddress},
-                { "amount", "0" },
+                { "amount", 0 },
                 { "time", tx.startTime.blocktime } };
             arr.Add(jo);
             foreach (AuctionAddWho addwho in tx.addwholist)
@@ -174,7 +176,7 @@ namespace NEL_Scan_API.Service
                     jo.Add("txid", addwho.accountTime.txid);
                     jo.Add("type", AuctionStatus.AuctionStatus_Account);
                     jo.Add("address", addwho.address);
-                    jo.Add("amount", "0");
+                    jo.Add("amount", getEndValue(addwho.addpricelist));
                     jo.Add("time", addwho.accountTime.blocktime);
                     arr.Add(jo);
                 }
@@ -184,7 +186,7 @@ namespace NEL_Scan_API.Service
                     jo.Add("txid", addwho.getdomainTime.txid);
                     jo.Add("type", AuctionStatus.AuctionStatus_GetDomain);
                     jo.Add("address", addwho.address);
-                    jo.Add("amount", "0");
+                    jo.Add("amount", getEndValue(addwho.addpricelist));
                     jo.Add("time", addwho.getdomainTime.blocktime);
                     arr.Add(jo);
                 }
@@ -196,7 +198,7 @@ namespace NEL_Scan_API.Service
                 { "txid", tx.endTime.txid},
                 { "type", AuctionStatus.AuctionStatus_End},
                 { "address", tx.endAddress},
-                { "amount", "0" },
+                { "amount", 0 },
                 { "time", tx.endTime.blocktime } };
                 arr.Add(jo);
             }
@@ -204,6 +206,21 @@ namespace NEL_Scan_API.Service
             int count = jt.Count();
             JArray res = new JArray() { jt.Skip(pageSize * (pageNum-1)).Take(pageSize).ToArray() };
             return new JArray() { new JObject() { { "count", count }, { "list", res } } };
+        }
+
+        private decimal getEndValue(List<AuctionAddPrice> list)
+        {
+            if (list == null || list.Count() == 0)
+            {
+                return 0;
+            }
+            AuctionAddPrice[] ls = list.Where(p => p.isEnd == "1").ToArray();
+            if (ls == null || ls.Count() == 0)
+            {
+                return 0;
+            }
+            return Math.Abs(ls[0].value);
+
         }
 
         static class AuctionStatus
