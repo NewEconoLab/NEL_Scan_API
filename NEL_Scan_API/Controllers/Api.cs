@@ -152,6 +152,16 @@ namespace NEL_Scan_API.Controllers
                         }
                         break;
                     // 正在竞拍域名
+                    case "getauctingdomainbymaxprice":
+                        if (req.@params.Length < 2)
+                        {
+                            result = nnsService.getAuctingDomainListNewByMaxPrice();
+                        }
+                        else
+                        {
+                            result = nnsService.getAuctingDomainListNewByMaxPrice(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        }
+                        break;
                     case "getauctingdomain":
                         if (req.@params.Length < 2)
                         {
