@@ -19,7 +19,7 @@ namespace NEL_Scan_API.Service
         public string auctionStateColl { get; set; }
         public string bonusAddress { get; set; }
 
-
+        
         private JArray format(JArray res)
         {
             if(res == null || res.Count == 0)
@@ -81,6 +81,10 @@ namespace NEL_Scan_API.Service
                         //
                         jo.Remove("lastTime");
                     }
+                    string value = jo["maxPrice"].ToString();
+                    value = NumberDecimalHelper.formatDecimal(value);
+                    jo.Remove("maxPrice");
+                    jo.Add("maxPrice", value);
                     return jo;
                 })
             };
@@ -122,12 +126,20 @@ namespace NEL_Scan_API.Service
                 JObject ja = (JObject)p;
                 return (JArray)ja["addwholist"];
             }).ToArray();
-
-
-            JToken[] arr = jt.Where(p => p["address"].ToString() != bonusAddress).OrderByDescending(p => decimal.Parse(p["totalValue"].ToString(), NumberStyles.Float)).ToArray();
+            
+            //JToken[] arr = jt.Where(p => p["address"].ToString() != bonusAddress).OrderByDescending(p => decimal.Parse(p["totalValue"].ToString(), NumberStyles.Float)).ToArray();
+            JToken[] arr = jt.Select(p =>
+            {
+                JObject jo = (JObject)p;
+                string value = jo["totalValue"].ToString();
+                value = NumberDecimalHelper.formatDecimal(value);
+                jo.Remove("totalValue");
+                jo.Add("totalValue", value);
+                return jo;
+            }).Where(p => p["address"].ToString() != bonusAddress).OrderByDescending(p => decimal.Parse(p["totalValue"].ToString(), NumberStyles.Float)).ToArray();
             long count = arr.Count();
             int num = (pageNum - 1) * pageSize; ;
-            foreach (JObject obj in arr.Skip(num))
+            foreach (JObject obj in arr.Skip(num).Take(pageSize))
             {
                 obj.Add("range", ++num);
             }
