@@ -11,6 +11,9 @@ namespace NEL_Scan_API.Service
 {
     public class NNSService
     {
+        public string analy_mongodbConnStr { set; get; }
+        public string analy_mongodbConnDatabase { set; get; }
+        public string bonusStatisticCol { set; get; }
         public string notify_mongodbConnStr { set; get; }
         public string notify_mongodbDatabase { set; get; }
         public string bonusSgas_mongodbConnStr { set; get; }
@@ -33,10 +36,21 @@ namespace NEL_Scan_API.Service
         }
         private decimal getBonus()
         {
+            string findStr = new JObject() { { "addr", bonusAddress }, {"asset", id_sgas } }.ToString();
+            JArray res = mh.GetData(analy_mongodbConnStr, analy_mongodbConnDatabase, bonusStatisticCol, findStr);
+            if(res == null || res.Count == 0)
+            {
+                return 0;
+            }
+            return 
+            decimal.Parse(res[0]["value_pre"].ToString()) +
+            decimal.Parse(res[0]["value_cur"].ToString());
+            /*
             string addressHash = Helper.Bytes2HexString(Helper.GetPublicKeyHashFromAddress(bonusAddress));
             var result = TxHelper.api_InvokeScript(nelJsonRPCUrl, new ThinNeo.Hash160(id_sgas), "balanceOf", "(bytes)" + addressHash);
             var bonusRes = result.Result.value.subItem[0].AsInteger();
             return decimal.Parse(bonusRes.ToString().getNumStrFromIntStr(8), NumberStyles.Float);
+            */
         }
         private decimal getProfit()
         {

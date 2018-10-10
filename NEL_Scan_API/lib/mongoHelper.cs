@@ -31,6 +31,8 @@ namespace NEL_Scan_API.lib
         public string auctionStateColl_mainnet = string.Empty;
         public string bonusAddress_testnet = string.Empty;
         public string bonusAddress_mainnet = string.Empty;
+        public string bonusStatisticCol_testnet = string.Empty;
+        public string bonusStatisticCol_mainnet = string.Empty;
         
         public string bonusSgas_mongodbConnStr_testnet { set; get; }
         public string bonusSgas_mongodbConnStr_mainnet { set; get; }
@@ -69,6 +71,8 @@ namespace NEL_Scan_API.lib
             auctionStateColl_mainnet = config["auctionStateColl_mainnet"];
             bonusAddress_testnet = config["bonusAddress_testnet"];
             bonusAddress_mainnet = config["bonusAddress_mainnet"];
+            bonusStatisticCol_testnet = config["bonusStatisticCol_testnet"];
+            bonusStatisticCol_mainnet = config["bonusStatisticCol_mainnet"];
 
             bonusSgas_mongodbConnStr_testnet = config["bonusSgas_mongodbConnStr_testnet"];
             bonusSgas_mongodbConnStr_mainnet = config["bonusSgas_mongodbConnStr_mainnet"];

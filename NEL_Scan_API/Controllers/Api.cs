@@ -44,6 +44,9 @@ namespace NEL_Scan_API.Controllers
                     };
                     nnsService = new NNSService
                     {
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
+                        analy_mongodbConnDatabase = mh.analy_mongodbDatabase_testnet,
+                        bonusStatisticCol = mh.bonusStatisticCol_testnet,
                         notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
                         notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                         mh = mh,
@@ -83,6 +86,9 @@ namespace NEL_Scan_API.Controllers
                     };
                     nnsService = new NNSService
                     {
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
+                        analy_mongodbConnDatabase = mh.analy_mongodbDatabase_mainnet,
+                        bonusStatisticCol = mh.bonusStatisticCol_mainnet,
                         notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
                         notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                         mh = mh,
