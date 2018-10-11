@@ -43,8 +43,8 @@ namespace NEL_Scan_API.Service
                 return 0;
             }
             return 
-            decimal.Parse(res[0]["value_pre"].ToString()) +
-            decimal.Parse(res[0]["value_cur"].ToString());
+            decimal.Parse(res[0]["value_pre"].ToString(), NumberStyles.Float) +
+            decimal.Parse(res[0]["value_cur"].ToString(), NumberStyles.Float);
             /*
             string addressHash = Helper.Bytes2HexString(Helper.GetPublicKeyHashFromAddress(bonusAddress));
             var result = TxHelper.api_InvokeScript(nelJsonRPCUrl, new ThinNeo.Hash160(id_sgas), "balanceOf", "(bytes)" + addressHash);
