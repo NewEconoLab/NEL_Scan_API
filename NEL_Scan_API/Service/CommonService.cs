@@ -98,6 +98,18 @@ namespace NEL_Scan_API.Service
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "lastTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString();
 
             JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
+            res = new JArray()
+            {
+                res.Select(p =>
+                {
+                    JObject jo = (JObject)p;
+                    string value = jo["maxPrice"].ToString();
+                    value = NumberDecimalHelper.formatDecimal(value);
+                    jo.Remove("maxPrice");
+                    jo.Add("maxPrice", value);
+                    return jo;
+                }).ToArray()
+            };
             return format(res);
         }
         public JArray getAuctionInfo(string auctionId)
@@ -107,6 +119,18 @@ namespace NEL_Scan_API.Service
             string findStr = new JObject() { { "auctionId", auctionId } }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "lastTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString() ;
             JArray res = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
+            res = new JArray()
+            {
+                res.Select(p =>
+                {
+                    JObject jo = (JObject)p;
+                    string value = jo["maxPrice"].ToString();
+                    value = NumberDecimalHelper.formatDecimal(value);
+                    jo.Remove("maxPrice");
+                    jo.Add("maxPrice", value);
+                    return jo;
+                }).ToArray()
+            };
             return format(res);
 
         }
