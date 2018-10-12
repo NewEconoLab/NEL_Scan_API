@@ -174,7 +174,7 @@ namespace NEL_Scan_API.Service
                 obj.Add("maxPrice", value);
                 ja.Add(obj);
             }
-            long count = res.Count();
+            long count = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, findStr);
             return new JArray() { { new JObject() { { "list", format(ja) }, { "count", count } } } };
         }
         public JArray getUsedDomainListNew(int pageNum = 1, int pageSize = 10)
