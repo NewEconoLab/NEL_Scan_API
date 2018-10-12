@@ -138,13 +138,15 @@ namespace NEL_Scan_API.Service
                 return jo;
             }).Where(p => p["address"].ToString() != bonusAddress).OrderByDescending(p => decimal.Parse(p["totalValue"].ToString(), NumberStyles.Float)).ToArray();
             long count = arr.Count();
-            int num = (pageNum - 1) * pageSize; ;
+            int num = (pageNum - 1) * pageSize;
+            JArray js = new JArray();
             foreach (JObject obj in arr.Skip(num).Take(pageSize))
             {
                 obj.Add("range", ++num);
+                js.Add(obj);
             }
-            res = new JArray() { arr };
-            return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
+            //res = new JArray() { arr };
+            return new JArray() { { new JObject() { { "list", js }, { "count", count } } } };
         }
         public JArray getAuctionInfoTx(string auctionId, int pageNum=1, int pageSize=10)
         {
