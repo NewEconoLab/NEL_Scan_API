@@ -91,6 +91,7 @@ namespace NEL_Scan_API.Service
         }
         public JArray searchByDomain(string fulldomain)
         {
+            fulldomain = fulldomain.ToLower();
             // 域名信息:
             // 域名 + 哈希 + 开始时间 + 结束时间 + maxBuyer + maxPrice + auctionState + 开标块
             string findStr = new JObject() { { "fulldomain", fulldomain } }.ToString();
