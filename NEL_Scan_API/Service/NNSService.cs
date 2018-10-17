@@ -58,7 +58,7 @@ namespace NEL_Scan_API.Service
             JArray rr = mh.GetData(bonusSgas_mongodbConnStr, bonusSgas_mongodbDatabase, bonusSgasCol, filter);
             if(rr != null && rr.Count > 0)
             {
-                return rr.Select(p => Decimal.Parse(p["totalValue"].ToString(), NumberStyles.Float)).Sum();
+                return rr.Select(p => decimal.Parse(NumberDecimalHelper.formatDecimal(p["totalValue"].ToString()), NumberStyles.Float)).Sum();
             }
             return 0;
         }
