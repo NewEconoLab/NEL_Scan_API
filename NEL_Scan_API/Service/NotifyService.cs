@@ -77,7 +77,7 @@ namespace NEL_Scan_API.Service
                         dc.saveCode(mail, code);
                     } catch (Exception ex)
                     {
-
+                        Console.WriteLine("errMsg:{0},errStack:{1}", ex.Message, ex.StackTrace);
                     }
                 }
                 Thread.Sleep(1000 * 3);
