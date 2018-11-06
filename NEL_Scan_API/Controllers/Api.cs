@@ -147,7 +147,7 @@ namespace NEL_Scan_API.Controllers
                     case "getAuthenticationCode":
                         result = notifyService.getAuthenticationCode(req.@params[0].ToString());
                         break;
-                    case "subscribDomainNofiy":
+                    case "subscribDomainNotify":
                         if (req.@params.Length < 4)
                         {
                             result = notifyService.subscribeDomainNotify(req.@params[0].ToString(), req.@params[1].ToString(), req.@params[2].ToString());

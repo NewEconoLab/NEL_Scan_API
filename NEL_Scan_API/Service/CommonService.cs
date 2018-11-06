@@ -20,9 +20,10 @@ namespace NEL_Scan_API.Service
         public string bonusAddress { get; set; }
 
         
-        public JArray getDomainInfo(string domain)
+        public JArray getDomainInfo(string fulldomain)
         {
-            string namehash = DomainHelper.nameHashFull(domain);
+            fulldomain = fulldomain.ToLower();
+            string namehash = DomainHelper.nameHashFull(fulldomain);
             string findStr = new JObject() { {"namehash", namehash } }.ToString();
             string fieldStr = new JObject() { {"_id",0 },{"owner",1 }, { "TTL", 1 } }.ToString();
             string sortStr = new JObject() { {"blockindex",-1 } }.ToString();
@@ -39,19 +40,24 @@ namespace NEL_Scan_API.Service
             return new JArray() {
                 res.Select(p => {
                     JObject jo = (JObject)p;
-                    
 
+                    // 格式转换
+                    string value = jo["maxPrice"].ToString();
+                    value = NumberDecimalHelper.formatDecimal(value);
+                    jo.Remove("maxPrice");
+                    jo.Add("maxPrice", value);
+
+                    // 获取ttl
                     string fulldoamin = p["fulldomain"].ToString();
-                    TimeSetter timeSetter = TimeConst.getTimeSetter(fulldoamin.Substring(fulldoamin.LastIndexOf(".")));
-                    
-                    if(fulldoamin.EndsWith(".test"))
+                    var rr = getDomainInfo(fulldoamin);
+                    if(rr != null && rr.Count > 0)
                     {
-                        long starttime = long.Parse(jo["startTime"]["blocktime"].ToString());
+                        long ttl = long.Parse(rr[0]["TTL"].ToString());
                         jo.Remove("ttl");
-                        jo.Add("ttl", starttime + timeSetter.ONE_YEAR_SECONDS);
+                        jo.Add("ttl", ttl);
                     }
-
-
+                    
+                    // 触发结束
                     long st = long.Parse(jo["startTime"]["blocktime"].ToString());
                     long ed = long.Parse(jo["endTime"]["blocktime"].ToString());
                     if(ed > 0)
@@ -59,6 +65,9 @@ namespace NEL_Scan_API.Service
                         jo.Remove("lastTime");
                         return jo;
                     }
+
+                    // 计算预计结束时间
+                    TimeSetter timeSetter = TimeConst.getTimeSetter(fulldoamin.Substring(fulldoamin.LastIndexOf(".")));
                     string auctionState = p["auctionState"].ToString();
                     long expireSeconds = 0;
                     if (auctionState == "0201")
@@ -80,7 +89,6 @@ namespace NEL_Scan_API.Service
                     }
                     if(expireSeconds > 0)
                     {
-                        // 预计结束时间
                         JObject ep = (JObject)jo["endTime"];
                         long blocktime = long.Parse(ep["blocktime"].ToString());
                         long endBlockTime = blocktime + expireSeconds;
@@ -91,10 +99,7 @@ namespace NEL_Scan_API.Service
                         //
                         jo.Remove("lastTime");
                     }
-                    string value = jo["maxPrice"].ToString();
-                    value = NumberDecimalHelper.formatDecimal(value);
-                    jo.Remove("maxPrice");
-                    jo.Add("maxPrice", value);
+                    
                     return jo;
                 })
             };
@@ -107,20 +112,7 @@ namespace NEL_Scan_API.Service
             string findStr = new JObject() { { "fulldomain", fulldomain } }.ToString();
             string sortStr = new JObject() { { "startTime.blockindex", -1} }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "lastTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString();
-
             JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
-            res = new JArray()
-            {
-                res.Select(p =>
-                {
-                    JObject jo = (JObject)p;
-                    string value = jo["maxPrice"].ToString();
-                    value = NumberDecimalHelper.formatDecimal(value);
-                    jo.Remove("maxPrice");
-                    jo.Add("maxPrice", value);
-                    return jo;
-                }).ToArray()
-            };
             return format(res);
         }
         public JArray getAuctionInfo(string auctionId)
@@ -130,18 +122,6 @@ namespace NEL_Scan_API.Service
             string findStr = new JObject() { { "auctionId", auctionId } }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "lastTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString() ;
             JArray res = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
-            res = new JArray()
-            {
-                res.Select(p =>
-                {
-                    JObject jo = (JObject)p;
-                    string value = jo["maxPrice"].ToString();
-                    value = NumberDecimalHelper.formatDecimal(value);
-                    jo.Remove("maxPrice");
-                    jo.Add("maxPrice", value);
-                    return jo;
-                }).ToArray()
-            };
             return format(res);
 
         }
@@ -180,7 +160,6 @@ namespace NEL_Scan_API.Service
                 obj.Add("range", ++num);
                 js.Add(obj);
             }
-            //res = new JArray() { arr };
             return new JArray() { { new JObject() { { "list", js }, { "count", count } } } };
         }
         public JArray getAuctionInfoTx(string auctionId, int pageNum=1, int pageSize=10)
@@ -283,39 +262,12 @@ namespace NEL_Scan_API.Service
         
         private Dictionary<string, long> getBlockTime(long[] blockindexArr)
         {
-            JObject queryFilter = toFilter(blockindexArr, "index", "$or");
-            JObject returnFilter = toReturn(new string[] { "index", "time" });
+            JObject queryFilter = MongoFieldHelper.toFilter(blockindexArr, "index", "$or");
+            JObject returnFilter = MongoFieldHelper.toReturn(new string[] { "index", "time" });
             JArray blocktimeRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "block", returnFilter.ToString(), queryFilter.ToString());
             return blocktimeRes.ToDictionary(key => key["index"].ToString(), val => long.Parse(val["time"].ToString()));
         }
 
-        private JObject toFilter(long[] blockindexArr, string field, string logicalOperator = "$or")
-        {
-            if (blockindexArr.Count() == 1)
-            {
-                return new JObject() { { field, blockindexArr[0] } };
-            }
-            return new JObject() { { logicalOperator, new JArray() { blockindexArr.Select(item => new JObject() { { field, item } }).ToArray() } } };
-        }
-        private JObject toReturn(string[] fieldArr)
-        {
-            JObject obj = new JObject();
-            foreach (var field in fieldArr)
-            {
-                obj.Add(field, 1);
-            }
-            return obj;
-        }
-        private JObject toSort(string[] fieldArr, bool order = false)
-        {
-            int flag = order ? 1 : -1;
-            JObject obj = new JObject();
-            foreach (var field in fieldArr)
-            {
-                obj.Add(field, flag);
-            }
-            return obj;
-        }
         private string getNameHash(string domain)
         {
             return "0x" + Helper.Bytes2HexString(new NNSUrl(domain).namehash.Reverse().ToArray());
