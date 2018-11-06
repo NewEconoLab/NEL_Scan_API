@@ -14,6 +14,7 @@ namespace NEL_Scan_API.Controllers
         private AssetService assetService;
         private NNSService nnsService;
         private CommonService commonService;
+        private NotifyService notifyService;
 
         private mongoHelper mh = new mongoHelper();
 
@@ -28,6 +29,25 @@ namespace NEL_Scan_API.Controllers
             switch (netnode)
             {
                 case "testnet":
+                    notifyService = new NotifyService
+                    {
+                        dc = DBClient.getInstance(
+                            mh,
+                            mh.notify_mongodbConnStr_testnet,
+                            mh.notify_mongodbDatabase_testnet,
+                            mh.notifyCodeColl_testnet,
+                            mh.notifySubsColl_testnet
+                            ),
+                        mc = MailClient.getInstance(
+                            mh.mailFrom_testnet,
+                            mh.mailPwd_testnet,
+                            mh.mailHost_testnet,
+                            int.Parse(mh.mailPort_testnet),
+                            mh.authCodeSubj_testnet,
+                            mh.authCodeBody_testnet
+                            )
+                    };
+                    new System.Threading.Tasks.Task(() => notifyService.SendAuthenticationCodeThread()).Start();
                     analyService = new AnalyService
                     {
                         block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
@@ -121,6 +141,21 @@ namespace NEL_Scan_API.Controllers
             {
                 switch (req.method)
                 {
+                    case "getdomaininfo":
+                        result = commonService.getDomainInfo(req.@params[0].ToString());
+                        break;
+                    case "getAuthenticationCode":
+                        result = notifyService.getAuthenticationCode(req.@params[0].ToString());
+                        break;
+                    case "subscribDomainNofiy":
+                        if (req.@params.Length < 4)
+                        {
+                            result = notifyService.subscribeDomainNotify(req.@params[0].ToString(), req.@params[1].ToString(), req.@params[2].ToString());
+                        } else
+                        {
+                            result = notifyService.subscribeDomainNotify(req.@params[0].ToString(), req.@params[1].ToString(), req.@params[2].ToString(), req.@params[3].ToString());
+                        }
+                        break;
                     case "getauctioninfoTx":
                         if (req.@params.Length < 3)
                         {

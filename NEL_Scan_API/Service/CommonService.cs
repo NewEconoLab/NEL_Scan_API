@@ -20,6 +20,16 @@ namespace NEL_Scan_API.Service
         public string bonusAddress { get; set; }
 
         
+        public JArray getDomainInfo(string domain)
+        {
+            string namehash = DomainHelper.nameHashFull(domain);
+            string findStr = new JObject() { {"namehash", namehash } }.ToString();
+            string fieldStr = new JObject() { {"_id",0 },{"owner",1 }, { "TTL", 1 } }.ToString();
+            string sortStr = new JObject() { {"blockindex",-1 } }.ToString();
+            JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, "0xbd3fa97e2bc841292c1e77f9a97a1393d5208b48", fieldStr, 1,1, sortStr, findStr);
+            return res;
+        }
+
         private JArray format(JArray res)
         {
             if(res == null || res.Count == 0)
