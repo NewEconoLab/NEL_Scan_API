@@ -49,20 +49,27 @@ namespace NEL_Scan_API.Service
 
                     // 获取ttl
                     string fulldoamin = p["fulldomain"].ToString();
+                    long ttl = 0;
                     var rr = getDomainInfo(fulldoamin);
                     if(rr != null && rr.Count > 0)
                     {
-                        long ttl = long.Parse(rr[0]["TTL"].ToString());
+                        ttl = long.Parse(rr[0]["TTL"].ToString());
                         jo.Remove("ttl");
                         jo.Add("ttl", ttl);
                     }
                     
                     // 触发结束
+                    long now = TimeHelper.GetTimeStamp();
                     long st = long.Parse(jo["startTime"]["blocktime"].ToString());
                     long ed = long.Parse(jo["endTime"]["blocktime"].ToString());
                     if(ed > 0)
                     {
                         jo.Remove("lastTime");
+                        if(now >= ed && now <= ttl)
+                        {
+                            jo.Remove("auctionState");
+                            jo.Add("auctionState", "0401");
+                        }
                         return jo;
                     }
 
@@ -86,7 +93,7 @@ namespace NEL_Scan_API.Service
                         {
                             expireSeconds = st + timeSetter.FIVE_DAY_SECONDS;
                         }
-                    }
+                    } 
                     if(expireSeconds > 0)
                     {
                         JObject ep = (JObject)jo["endTime"];
@@ -98,6 +105,11 @@ namespace NEL_Scan_API.Service
                         jo.Add("endTime", ep);
                         //
                         jo.Remove("lastTime");
+                    }
+                    if(now >= expireSeconds && now <= ttl && auctionState == "0601")
+                    {
+                        jo.Remove("auctionState");
+                        jo.Add("auctionState", "0401");
                     }
                     
                     return jo;
