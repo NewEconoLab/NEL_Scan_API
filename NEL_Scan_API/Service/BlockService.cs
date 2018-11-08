@@ -16,7 +16,28 @@ namespace NEL_Scan_API.Service
         public string Notify_mongodbConnStr { get; set; }
         public string Notify_mongodbDatabase { get; set; }
 
-        public JArray gettransactionlist(int pageNum, int pageSize)
+        public JArray getutxolistbyaddress(string address, int pageNum=1, int pageSize=10) {
+
+            string findStr = new JObject() { { "addr", address } }.ToString();
+            long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "utxo", findStr);
+            
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "asset", "txid", "value"}).ToString();
+            string sortStr = new JObject() { {"createHeight", -1 } }.ToString();
+            JArray query = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "utxo", fieldStr,  pageSize, pageNum, sortStr, findStr);
+
+            // assetId --> assetName
+            if(query != null && query.Count > 0)
+            {
+                string[] assetIds = query.Select(p => p["asset"].ToString()).Distinct().ToArray();
+                query = formatAssetNameByIds(query, assetIds);
+            }
+
+            return new JArray
+            {
+                new JObject(){{"count", count }, { "list", query}}
+            };
+        }
+        public JArray gettransactionlist(int pageNum=1, int pageSize=10)
         {
             string findStr = new JObject() { { "blockindex", new JObject() { { "$gt", -1} } } }.ToString();
             long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "tx", findStr);
@@ -84,51 +105,16 @@ namespace NEL_Scan_API.Service
             // assetId-->assetName
             if(assetIds.Count > 0 )
             {
-                findStr = MongoFieldHelper.toFilter(assetIds.Distinct().ToArray(), "id").ToString();
-                fieldStr = new JObject() { { "name.name", 1 }, {"id",1 } }.ToString();
-                query = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "asset", fieldStr, findStr);
-                var nameDict = 
-                    query.ToDictionary(k => k["id"].ToString(), v =>
-                    {
-                        string id = v["id"].ToString();
-                        if (id == AssetConst.id_neo)
-                        {
-                            return AssetConst.id_neo_nick;
-                        }
-                        if(id == AssetConst.id_gas)
-                        {
-                            return AssetConst.id_gas_nick;
-                        }
-                        string name = v["name"][0]["name"].ToString();
-                        return name;
-                    });
+                var nameDict = getAssetName(assetIds.Distinct().ToArray());
                 if(vins != null)
                 {
-                    vins = vins.Select(p =>
-                    {
-                        JObject jo = (JObject)p;
-                        string id = jo["asset"].ToString();
-                        string idName = nameDict.GetValueOrDefault(id);
-                        jo.Remove("asset");
-                        jo.Add("asset", idName);
-                        return jo;
-                    }).ToArray();
                     tx.Remove("vin");
-                    tx.Add("vin", new JArray { vins });
+                    tx.Add("vin", new JArray { formatAssetName(vins, nameDict).ToArray() });
                 }
                 if (vouts != null)
                 {
-                    vouts = vouts.Select(p =>
-                    {
-                        JObject jo = (JObject)p;
-                        string id = jo["asset"].ToString();
-                        string idName = nameDict.GetValueOrDefault(id);
-                        jo.Remove("asset");
-                        jo.Add("asset", idName);
-                        return jo;
-                    }).ToArray();
                     tx.Remove("vout");
-                    tx.Add("vout", new JArray { vouts });
+                    tx.Add("vout", new JArray { formatAssetName(vouts, nameDict).ToArray() });
                 }
             }
 
@@ -142,5 +128,59 @@ namespace NEL_Scan_API.Service
             var query = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "block", fieldStr, findStr);
             return long.Parse(query[0]["time"].ToString());
         }
+
+        private Dictionary<string, string> getAssetName(string[] assetIds)
+        {
+            string findStr = MongoFieldHelper.toFilter(assetIds.Distinct().ToArray(), "id").ToString();
+            string fieldStr = new JObject() { { "name.name", 1 }, { "id", 1 } }.ToString();
+            var query = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "asset", fieldStr, findStr);
+            var nameDict =
+                query.ToDictionary(k => k["id"].ToString(), v =>
+                {
+                    string id = v["id"].ToString();
+                    if (id == AssetConst.id_neo)
+                    {
+                        return AssetConst.id_neo_nick;
+                    }
+                    if (id == AssetConst.id_gas)
+                    {
+                        return AssetConst.id_gas_nick;
+                    }
+                    string name = v["name"][0]["name"].ToString();
+                    return name;
+                });
+            return nameDict;
+        }
+       
+        private JObject[] formatAssetName(JObject[] query, Dictionary<string, string> nameDict)
+        {
+            return query.Select(p =>
+                   {
+                       JObject jo = p;
+                       string id = jo["asset"].ToString();
+                       string idName = nameDict.GetValueOrDefault(id);
+                       jo.Remove("asset");
+                       jo.Add("asset", idName);
+                       return jo;
+                   }).ToArray();
+        }
+
+        private JArray formatAssetNameByIds(JArray query, string[] assetIds)
+        {
+            var nameDict = getAssetName(assetIds);
+            return new JArray
+                {
+                    query.Select(p =>
+                    {
+                        JObject jo = (JObject)p;
+                        string id = jo["asset"].ToString();
+                        string idName = nameDict.GetValueOrDefault(id);
+                        jo.Remove("asset");
+                        jo.Add("asset", idName);
+                        return jo;
+                    }).ToArray()
+                };
+        }
+        
     }
 }

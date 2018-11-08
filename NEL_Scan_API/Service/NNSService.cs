@@ -1,11 +1,8 @@
 ﻿using NEL_Scan_API.lib;
 using NEL_Scan_API.Service.dao;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using ThinNeo;
 
 namespace NEL_Scan_API.Service
 {
@@ -62,12 +59,18 @@ namespace NEL_Scan_API.Service
             }
             return 0;
         }
-
         
-        public JArray getAuctingDomainListNew2(int pageNum = 1, int pageSize = 10)
+        public JArray getAuctingDomainList(int pageNum = 1, int pageSize = 10, bool sortByMaxPrice=false)
         {
             string findStr = MongoFieldHelper.toFilter(new string[] { AuctionState.STATE_CONFIRM, AuctionState.STATE_RANDOM }, "auctionState").ToString();
-            string sortStr = new JObject() { { "startTime.blockindex", -1 } }.ToString();
+            string sortStr = null;
+            if (sortByMaxPrice)
+            {
+                sortStr = new JObject() { { "maxPrice", -1 } }.ToString();
+            } else
+            {
+                sortStr = new JObject() { { "startTime.blockindex", -1 } }.ToString();
+            }
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "auctionState" }).ToString();
             JArray res = mh.GetDataPagesWithField(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, fieldStr, pageSize, pageNum, sortStr, findStr);
             if (res == null || res.Count == 0)
@@ -87,73 +90,14 @@ namespace NEL_Scan_API.Service
             };
             long count = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, findStr);
             return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
-
         }
-        public JArray getAuctingDomainListNew(int pageNum = 1, int pageSize = 10)
+        public JArray getAuctingDomainListByMaxPrice(int pageNum = 1, int pageSize = 10)
         {
-            bool flag = true; if(flag) { return getAuctingDomainListNew2(pageNum, pageSize); }
-            string findStr = MongoFieldHelper.toFilter(new string[] { AuctionState.STATE_CONFIRM, AuctionState.STATE_RANDOM }, "auctionState").ToString();
-            string sortStr = new JObject() { {"startTime.blockindex", -1 } }.ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] {"fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "auctionState" }).ToString();
-            JArray res = mh.GetDataPagesWithField(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, fieldStr, pageSize, pageNum, sortStr, findStr);
-            if(res == null || res.Count == 0)
-            {
-                return new JArray() { };
-            }
-            long count = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, findStr);
-
-            return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
-            
+            return getAuctingDomainList(pageNum, pageSize, true);
         }
-        
-        public JArray getAuctingDomainListNewByMaxPrice2(int pageNum = 1, int pageSize = 10)
-        {
-            // 最高价排序显示
-            string findStr = MongoFieldHelper.toFilter(new string[] { AuctionState.STATE_CONFIRM, AuctionState.STATE_RANDOM }, "auctionState").ToString();
-            string sortStr = new JObject() { { "maxPrice", -1 } }.ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "auctionState" }).ToString();
-            JArray res = mh.GetDataPagesWithField(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, fieldStr, pageSize, pageNum, sortStr, findStr);
-            if (res == null || res.Count() == 0)
-            {
-                return new JArray() { };
-            }
-            res = new JArray() {
-                res.Select(p =>
-                {
-                    JObject jo = (JObject)p;
-                    string value = jo["maxPrice"].ToString();
-                    value = NumberDecimalHelper.formatDecimal(value);
-                    jo.Remove("maxPrice");
-                    jo.Add("maxPrice", value);
-                    return jo;
-                }).ToArray()
-            };
-            long count = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, findStr);
 
-            return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
 
-        }
-        public JArray getAuctingDomainListNewByMaxPrice(int pageNum = 1, int pageSize = 10)
-        {
-            bool flag = true; if(flag) { return getAuctingDomainListNewByMaxPrice2(pageNum, pageSize); }
-            // 最高价排序显示
-            string findStr = MongoFieldHelper.toFilter(new string[] { AuctionState.STATE_CONFIRM, AuctionState.STATE_RANDOM }, "auctionState").ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "auctionState" }).ToString();
-            JArray res = mh.GetDataWithField(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
-            if (res == null || res.Count() == 0)
-            {
-                return new JArray() { };
-            }
-            int num = (pageNum - 1) * pageSize;
-            res = new JArray() { res.OrderByDescending(p => decimal.Parse(p["maxPrice"].ToString(), NumberStyles.Float)).Skip(num).Take(pageSize).ToArray() };
-            
-            long count = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, findStr);
-
-            return new JArray() { { new JObject() { { "list", res }, { "count", count } } } };
-
-        }
-        
-        public JArray getUsedDomainListNew2(int pageNum = 1, int pageSize = 10)
+        public JArray getUsedDomainList(int pageNum = 1, int pageSize = 10)
         {
             string findStr = MongoFieldHelper.toFilter(new string[] { AuctionState.STATE_END }, "auctionState").ToString();
             string sortStr = new JObject() { { "maxPrice", -1 } }.ToString();
@@ -175,27 +119,6 @@ namespace NEL_Scan_API.Service
                 ja.Add(obj);
             }
             long count = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, findStr);
-            return new JArray() { { new JObject() { { "list", format(ja) }, { "count", count } } } };
-        }
-        public JArray getUsedDomainListNew(int pageNum = 1, int pageSize = 10)
-        {
-            bool flag = true; if(flag) { return getUsedDomainListNew2(pageNum, pageSize); }
-            string findStr = MongoFieldHelper.toFilter(new string[] { AuctionState.STATE_END}, "auctionState").ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "lastTime.txid", "maxBuyer", "maxPrice", "startTime.blocktime","ttl"}).ToString();
-            JArray res = mh.GetDataWithField(notify_mongodbConnStr, notify_mongodbDatabase, auctionStateColl, fieldStr, findStr);
-            if(res == null || res.Count() == 0)
-            {
-                return new JArray() { };
-            }
-            res = new JArray() { res.OrderByDescending(p => decimal.Parse(p["maxPrice"].ToString(), NumberStyles.Float)).ToArray() };
-            int num = (pageNum - 1) * pageSize;
-            JArray ja = new JArray();
-            foreach (JObject obj in res.Skip(num).Take(pageSize))
-            {
-                obj.Add("range", ++num);
-                ja.Add(obj);
-            }
-            long count = res.Count();
             return new JArray() { { new JObject() { { "list", format(ja) }, { "count", count } } } };
         }
 

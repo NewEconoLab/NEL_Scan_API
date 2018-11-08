@@ -154,11 +154,28 @@ namespace NEL_Scan_API.Controllers
             {
                 switch (req.method)
                 {
+                    case "getutxolistbyaddress":
+                        if (req.@params.Length < 3)
+                        {
+                            result = blockService.getutxolistbyaddress(req.@params[0].ToString());
+                        } else
+                        {
+                            result = blockService.getutxolistbyaddress(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
+                        break;
                     case "gettransactionlist":
-                        result = blockService.gettransactionlist(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        if (req.@params.Length < 3)
+                        {
+                            result = blockService.gettransactionlist();
+                        } else
+                        {
+                            result = blockService.gettransactionlist(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        }
                         break;
                     case "getutxoinfo":
                         result = blockService.getutxoinfo(req.@params[0].ToString());
+                        break;
+                    case "getnep5transferinfo":
                         break;
                     case "getdomaininfo":
                         result = domainService.getDomainInfo(req.@params[0].ToString());
@@ -204,32 +221,32 @@ namespace NEL_Scan_API.Controllers
                     case "getaucteddomain":
                         if (req.@params.Length < 2)
                         {
-                            result = nnsService.getUsedDomainListNew();
+                            result = nnsService.getUsedDomainList();
                         }
                         else
                         {
-                            result = nnsService.getUsedDomainListNew(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                            result = nnsService.getUsedDomainList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
                         }
                         break;
                     // 正在竞拍域名
                     case "getauctingdomainbymaxprice":
                         if (req.@params.Length < 2)
                         {
-                            result = nnsService.getAuctingDomainListNewByMaxPrice();
+                            result = nnsService.getAuctingDomainListByMaxPrice();
                         }
                         else
                         {
-                            result = nnsService.getAuctingDomainListNewByMaxPrice(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                            result = nnsService.getAuctingDomainListByMaxPrice(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
                         }
                         break;
                     case "getauctingdomain":
                         if (req.@params.Length < 2)
                         {
-                            result = nnsService.getAuctingDomainListNew();
+                            result = nnsService.getAuctingDomainList();
                         }
                         else
                         {
-                            result = nnsService.getAuctingDomainListNew(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                            result = nnsService.getAuctingDomainList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
                         }
                         break;
                     // statistics(奖金池+已领分红+已使用域名数量+正在竞拍域名数量)
