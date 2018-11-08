@@ -13,7 +13,7 @@ namespace NEL_Scan_API.Controllers
         private AnalyService analyService;
         private AssetService assetService;
         private NNSService nnsService;
-        private DomainService commonService;
+        private DomainService domainService;
         private NotifyService notifyService;
         private BlockService blockService;
 
@@ -85,7 +85,7 @@ namespace NEL_Scan_API.Controllers
                         bonusAddress = mh.bonusAddress_testnet,
                         nelJsonRPCUrl = mh.nelJsonRPCUrl_testnet
                     };
-                    commonService = new DomainService
+                    domainService = new DomainService
                     {
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
@@ -133,7 +133,7 @@ namespace NEL_Scan_API.Controllers
                         bonusAddress = mh.bonusAddress_mainnet,
                         nelJsonRPCUrl = mh.nelJsonRPCUrl_mainnet
                     };
-                    commonService = new DomainService
+                    domainService = new DomainService
                     {
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
@@ -154,14 +154,14 @@ namespace NEL_Scan_API.Controllers
             {
                 switch (req.method)
                 {
-                    case "gettransactionslist":
-                        result = blockService.gettransactionslist(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                    case "gettransactionlist":
+                        result = blockService.gettransactionlist(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
                         break;
-                    case "gettransactioninfo":
-                        result = blockService.gettransactioninfo(req.@params[0].ToString());
+                    case "getutxoinfo":
+                        result = blockService.getutxoinfo(req.@params[0].ToString());
                         break;
                     case "getdomaininfo":
-                        result = commonService.getDomainInfo(req.@params[0].ToString());
+                        result = domainService.getDomainInfo(req.@params[0].ToString());
                         break;
                     case "getAuthenticationCode":
                         result = notifyService.getAuthenticationCode(req.@params[0].ToString());
@@ -178,27 +178,27 @@ namespace NEL_Scan_API.Controllers
                     case "getauctioninfoTx":
                         if (req.@params.Length < 3)
                         {
-                            result = commonService.getAuctionInfoTx(req.@params[0].ToString());
+                            result = domainService.getAuctionInfoTx(req.@params[0].ToString());
                         } else
                         {
-                            result = commonService.getAuctionInfoTx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                            result = domainService.getAuctionInfoTx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         }
                             
                         break;
                     case "getauctioninfoRank":
                         if (req.@params.Length < 3)
                         {
-                            result = commonService.getAuctionInfoRank(req.@params[0].ToString());
+                            result = domainService.getAuctionInfoRank(req.@params[0].ToString());
                         } else
                         {
-                            result = commonService.getAuctionInfoRank(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                            result = domainService.getAuctionInfoRank(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         }
                         break;
                     case "getauctioninfo":
-                        result = commonService.getAuctionInfo(req.@params[0].ToString());
+                        result = domainService.getAuctionInfo(req.@params[0].ToString());
                         break;
                     case "searchbydomain":
-                        result = commonService.searchByDomain(req.@params[0].ToString());
+                        result = domainService.searchByDomain(req.@params[0].ToString());
                         break;
                     // 最具价值域名
                     case "getaucteddomain":

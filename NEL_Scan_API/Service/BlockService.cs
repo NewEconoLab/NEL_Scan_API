@@ -16,7 +16,7 @@ namespace NEL_Scan_API.Service
         public string Notify_mongodbConnStr { get; set; }
         public string Notify_mongodbDatabase { get; set; }
 
-        public JArray gettransactionslist(int pageNum, int pageSize)
+        public JArray gettransactionlist(int pageNum, int pageSize)
         {
             string findStr = new JObject() { { "blockindex", new JObject() { { "$gt", -1} } } }.ToString();
             long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "tx", findStr);
@@ -29,7 +29,7 @@ namespace NEL_Scan_API.Service
             };
         }
 
-        public JArray gettransactioninfo(string txid)
+        public JArray getutxoinfo(string txid)
         {
             string findStr = new JObject() { { "txid", txid } }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] {"txid", "type","net_fee","sys_fee","size","blockindex","blocktime","vin","vout" }).ToString();
