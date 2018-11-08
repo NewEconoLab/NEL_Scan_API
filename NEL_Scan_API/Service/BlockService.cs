@@ -37,10 +37,11 @@ namespace NEL_Scan_API.Service
                 new JObject(){{"count", count }, { "list", query}}
             };
         }
-        public JArray gettransactionlist(int pageNum=1, int pageSize=10, string type="all")
+        public JArray gettransactionlist(int pageNum=1, int pageSize=10, string type="")
         {
             JObject findJo = new JObject() { { "blockindex", new JObject() { { "$gt", -1 } } } };
-            if(type != "all")
+            bool addType = type != "" && type != null && type != "all";
+            if (addType)
             {
                 findJo.Add("type", type);
             }
@@ -48,7 +49,7 @@ namespace NEL_Scan_API.Service
             long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "tx", findStr);
             string fieldStr = MongoFieldHelper.toReturn(new string[] {"type", "txid", "blockindex", "size" }).ToString();
             findStr = "{}";
-            if(type != "all")
+            if (addType)
             {
                 findStr = new JObject() { { "type", type } }.ToString();
             }
