@@ -9,7 +9,7 @@ using ThinNeo;
 
 namespace NEL_Scan_API.Service
 {
-    public class CommonService
+    public class DomainService
     {
         public mongoHelper mh { get; set; }
         public string Block_mongodbConnStr { get; set; }

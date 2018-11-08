@@ -13,8 +13,9 @@ namespace NEL_Scan_API.Controllers
         private AnalyService analyService;
         private AssetService assetService;
         private NNSService nnsService;
-        private CommonService commonService;
+        private DomainService commonService;
         private NotifyService notifyService;
+        private BlockService blockService;
 
         private mongoHelper mh = new mongoHelper();
 
@@ -29,6 +30,12 @@ namespace NEL_Scan_API.Controllers
             switch (netnode)
             {
                 case "testnet":
+                    blockService = new BlockService
+                    {
+                        mh = mh,
+                        Block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        Block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
+                    };
                     notifyService = new NotifyService
                     {
                         dc = DBClient.getInstance(
@@ -78,7 +85,7 @@ namespace NEL_Scan_API.Controllers
                         bonusAddress = mh.bonusAddress_testnet,
                         nelJsonRPCUrl = mh.nelJsonRPCUrl_testnet
                     };
-                    commonService = new CommonService
+                    commonService = new DomainService
                     {
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
@@ -90,6 +97,12 @@ namespace NEL_Scan_API.Controllers
                     };
                     break;
                 case "mainnet":
+                    blockService = new BlockService
+                    {
+                        mh = mh,
+                        Block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        Block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                    };
                     analyService = new AnalyService
                     {
                         block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
@@ -120,7 +133,7 @@ namespace NEL_Scan_API.Controllers
                         bonusAddress = mh.bonusAddress_mainnet,
                         nelJsonRPCUrl = mh.nelJsonRPCUrl_mainnet
                     };
-                    commonService = new CommonService
+                    commonService = new DomainService
                     {
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
@@ -141,6 +154,12 @@ namespace NEL_Scan_API.Controllers
             {
                 switch (req.method)
                 {
+                    case "gettransactionslist":
+                        result = blockService.gettransactionslist(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        break;
+                    case "gettransactioninfo":
+                        result = blockService.gettransactioninfo(req.@params[0].ToString());
+                        break;
                     case "getdomaininfo":
                         result = commonService.getDomainInfo(req.@params[0].ToString());
                         break;
