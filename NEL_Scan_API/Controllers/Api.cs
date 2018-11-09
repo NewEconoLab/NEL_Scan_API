@@ -217,6 +217,9 @@ namespace NEL_Scan_API.Controllers
                     case "getauctioninfo":
                         result = domainService.getAuctionInfo(req.@params[0].ToString());
                         break;
+                    case "getauctionres":
+                        result = domainService.getAuctionRes(req.@params[0].ToString());
+                        break;
                     case "searchbydomain":
                         result = domainService.searchByDomain(req.@params[0].ToString());
                         break;

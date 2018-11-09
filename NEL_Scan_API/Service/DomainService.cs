@@ -31,7 +31,7 @@ namespace NEL_Scan_API.Service
             return res;
         }
 
-        private JArray format(JArray res)
+        private JArray format(JArray res, bool isSearch = false)
         {
             if(res == null || res.Count == 0)
             {
@@ -50,13 +50,26 @@ namespace NEL_Scan_API.Service
                     // 获取ttl
                     string fulldoamin = p["fulldomain"].ToString();
                     long ttl = 0;
-                    var rr = getDomainInfo(fulldoamin);
-                    if(rr != null && rr.Count > 0)
+                    if(isSearch)
                     {
-                        ttl = long.Parse(rr[0]["TTL"].ToString());
-                        jo.Remove("ttl");
-                        jo.Add("ttl", ttl);
+                        var rr = getDomainInfo(fulldoamin);
+                        if(rr != null && rr.Count > 0)
+                        {
+                            if(p["auctionState"].ToString() == "0401")
+                            {
+                                return new JObject() {
+                                    {"auctionId", p["auctionId"] },
+                                    {"fulldomain", p["fulldomain"] },
+                                    {"owner", rr[0]["owner"] },
+                                    {"ttl", rr[0]["TTL"] }
+                                };
+                            }
+                            ttl = long.Parse(rr[0]["TTL"].ToString());
+                            jo.Remove("ttl");
+                            jo.Add("ttl", ttl);
+                        }
                     }
+                    
                     
                     // 触发结束
                     long now = TimeHelper.GetTimeStamp();
@@ -125,8 +138,20 @@ namespace NEL_Scan_API.Service
             string sortStr = new JObject() { { "startTime.blockindex", -1} }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "lastTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString();
             JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
+            return format(res, true);
+        }
+        public JArray getAuctionRes(string fulldomain)
+        {
+            fulldomain = fulldomain.ToLower();
+            // 域名信息:
+            // 域名 + 哈希 + 开始时间 + 结束时间 + maxBuyer + maxPrice + auctionState + 开标块
+            string findStr = new JObject() { { "fulldomain", fulldomain } }.ToString();
+            string sortStr = new JObject() { { "startTime.blockindex", -1 } }.ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "lastTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString();
+            JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
             return format(res);
         }
+
         public JArray getAuctionInfo(string auctionId)
         {
             // 域名信息:
