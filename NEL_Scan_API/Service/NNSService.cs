@@ -108,7 +108,7 @@ namespace NEL_Scan_API.Service
                 return new JArray() { };
             }
             JArray ja = new JArray();
-            int num = 0;
+            int num = (pageNum-1)*pageSize;
             foreach (JObject obj in res)
             {
                 obj.Add("range", ++num);
