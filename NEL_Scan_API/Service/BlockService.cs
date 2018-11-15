@@ -39,20 +39,16 @@ namespace NEL_Scan_API.Service
         }
         public JArray gettransactionlist(int pageNum=1, int pageSize=10, string type="")
         {
-            JObject findJo = new JObject() { { "blockindex", new JObject() { { "$gt", -1 } } } };
+            JObject findJo = new JObject() { { "blockindex", new JObject() { { "$gte",0 } } } };
             bool addType = type != "" && type != null && type != "all";
             if (addType)
             {
-                findJo.Add("type", type);
+                //findJo.Add("type", type);
+                findJo = new JObject() { { "type", type } };
             }
             string findStr = findJo.ToString();
             long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "tx", findStr);
             string fieldStr = MongoFieldHelper.toReturn(new string[] {"type", "txid", "blockindex", "size" }).ToString();
-            findStr = "{}";
-            if (addType)
-            {
-                findStr = new JObject() { { "type", type } }.ToString();
-            }
             string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
             JArray query = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "tx", fieldStr, pageSize, pageNum, sortStr, findStr);
             return new JArray
