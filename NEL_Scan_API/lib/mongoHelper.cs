@@ -108,7 +108,8 @@ namespace NEL_Scan_API.lib
             var database = client.GetDatabase(mongodbDatabase);
             var collection = database.GetCollection<BsonDocument>(coll);
 
-            var txCount = collection.Find(BsonDocument.Parse(findBson)).CountDocuments();
+            //var txCount = collection.Find(BsonDocument.Parse(findBson)).CountDocuments();
+            var txCount = collection.Find(BsonDocument.Parse(findBson)).Count();
 
             client = null;
 
