@@ -90,6 +90,7 @@ namespace NEL_Scan_API.Service
                                 if(udb == null)
                                 {
                                     resJo.Add("state", "1010");
+                                    resJo.Add("price", "0");
                                     return resJo;
                                 }
                                 resJo.Add("state", udb["state"]);
