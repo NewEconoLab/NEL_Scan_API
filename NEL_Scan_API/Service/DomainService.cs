@@ -19,7 +19,26 @@ namespace NEL_Scan_API.Service
         public string auctionStateColl { get; set; }
         public string bonusAddress { get; set; }
 
-        
+        private Dictionary<string, string> NNSfixedSellingState = new Dictionary<string, string>
+        {
+            { "NNSfixedSellingLaunched", "1011" },
+            { "NNSfixedSellingDiscontinued", "1012" },
+            { "NNSfixedSellingBuy", "1013" },
+        };
+        private JObject getUpDownBuyInfo(string fulldomain)
+        {
+            string findStr = new JObject() { {"fullDomain", fulldomain } }.ToString();
+            string fieldStr = new JObject() { {"displayName", 1 },{ "price", 1} }.ToString();
+            string sortStr = new JObject() { {"blockindex", -1 } }.ToString();
+            var query = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, "0x7a64879a21b80e96a8bc91e0f07adc49b8f3521e", fieldStr, 1, 1, sortStr, findStr);
+            if (query == null || query.Count == 0) return null;
+
+            string price = query[0]["price"].ToString();
+            string displayName = query[0]["displayName"].ToString();
+            string state = NNSfixedSellingState.GetValueOrDefault(displayName);
+            
+            return new JObject() { { "price", price}, { "state", state } };
+        }
         public JArray getDomainInfo(string fulldomain)
         {
             fulldomain = fulldomain.ToLower();
@@ -57,12 +76,31 @@ namespace NEL_Scan_API.Service
                         {
                             if(p["auctionState"].ToString() == "0401")
                             {
+
+                                JObject resJo = new JObject() {
+                                    {"auctionId", p["auctionId"] },
+                                    {"fulldomain", p["fulldomain"] },
+                                    {"owner", rr[0]["owner"] },
+                                    {"ttl", rr[0]["TTL"] }
+                                };
+
+                                JObject udb = getUpDownBuyInfo(fulldoamin);
+                                if(udb == null)
+                                {
+                                    resJo.Add("state", "1010");
+                                    return resJo;
+                                }
+                                resJo.Add("state", udb["state"]);
+                                resJo.Add("price", udb["price"]);
+                                return resJo;
+                                /*
                                 return new JObject() {
                                     {"auctionId", p["auctionId"] },
                                     {"fulldomain", p["fulldomain"] },
                                     {"owner", rr[0]["owner"] },
                                     {"ttl", rr[0]["TTL"] }
                                 };
+                                */
                             }
                             ttl = long.Parse(rr[0]["TTL"].ToString());
                             jo.Remove("ttl");
