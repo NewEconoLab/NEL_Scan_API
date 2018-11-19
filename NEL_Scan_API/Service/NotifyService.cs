@@ -1,16 +1,5 @@
-﻿using MailKit.Net.Smtp;
-using MimeKit;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Driver;
-using NEL_Scan_API.lib;
+﻿using NEL_Scan_API.lib;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace NEL_Scan_API.Service
 {

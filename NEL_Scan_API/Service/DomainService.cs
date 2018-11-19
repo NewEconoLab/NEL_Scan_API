@@ -18,6 +18,7 @@ namespace NEL_Scan_API.Service
         public string Notify_mongodbDatabase { get; set; }
         public string auctionStateColl { get; set; }
         public string bonusAddress { get; set; }
+        public string NNSfixedSellingColl { get; set; } = "0x7a64879a21b80e96a8bc91e0f07adc49b8f3521e";
 
         private Dictionary<string, string> NNSfixedSellingState = new Dictionary<string, string>
         {
@@ -25,12 +26,13 @@ namespace NEL_Scan_API.Service
             { "NNSfixedSellingDiscontinued", "1012" },
             { "NNSfixedSellingBuy", "1013" },
         };
+        
         private JObject getUpDownBuyInfo(string fulldomain)
         {
             string findStr = new JObject() { {"fullDomain", fulldomain } }.ToString();
             string fieldStr = new JObject() { {"displayName", 1 },{ "price", 1} }.ToString();
             string sortStr = new JObject() { {"blockindex", -1 } }.ToString();
-            var query = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, "0x7a64879a21b80e96a8bc91e0f07adc49b8f3521e", fieldStr, 1, 1, sortStr, findStr);
+            var query = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, NNSfixedSellingColl, fieldStr, 1, 1, sortStr, findStr);
             if (query == null || query.Count == 0) return null;
 
             string price = query[0]["price"].ToString();
