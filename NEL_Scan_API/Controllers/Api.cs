@@ -44,17 +44,8 @@ namespace NEL_Scan_API.Controllers
                             mh.notify_mongodbDatabase_testnet,
                             mh.notifyCodeColl_testnet,
                             mh.notifySubsColl_testnet
-                            ),
-                        mc = MailClient.getInstance(
-                            mh.mailFrom_testnet,
-                            mh.mailPwd_testnet,
-                            mh.mailHost_testnet,
-                            int.Parse(mh.mailPort_testnet),
-                            mh.authCodeSubj_testnet,
-                            mh.authCodeBody_testnet
                             )
                     };
-                    new System.Threading.Tasks.Task(() => notifyService.SendAuthenticationCodeThread()).Start();
                     analyService = new AnalyService
                     {
                         block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
