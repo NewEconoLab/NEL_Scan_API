@@ -18,29 +18,28 @@ namespace NEL_Scan_API.Service
         public string Notify_mongodbDatabase { get; set; }
         public string auctionStateColl { get; set; }
         public string bonusAddress { get; set; }
+        public string domainCenterColl { get; set; } = "0xbd3fa97e2bc841292c1e77f9a97a1393d5208b48";
         public string NNSfixedSellingColl { get; set; } = "0x7a64879a21b80e96a8bc91e0f07adc49b8f3521e";
-
-        private Dictionary<string, string> NNSfixedSellingState = new Dictionary<string, string>
-        {
-            { "NNSfixedSellingLaunched", "1011" },
-            { "NNSfixedSellingDiscontinued", "1012" },
-            { "NNSfixedSellingBuy", "1013" },
-        };
         
-        private JObject getUpDownBuyInfo(string fulldomain)
+        public bool hasNNfixedSelling(string domain, long blockindex, out string price)
         {
-            string findStr = new JObject() { {"fullDomain", fulldomain } }.ToString();
-            string fieldStr = new JObject() { {"displayName", 1 },{ "price", 1} }.ToString();
-            string sortStr = new JObject() { {"blockindex", -1 } }.ToString();
+            string findStr = new JObject() { { "fullDomain", domain.ToLower() }, { "blockindex", new JObject() { { "$gte", blockindex } } } }.ToString();
+            string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
+            string fieldStr = new JObject() { { "state", 0 } }.ToString();
             var query = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, NNSfixedSellingColl, fieldStr, 1, 1, sortStr, findStr);
-            if (query == null || query.Count == 0) return null;
-
-            string price = query[0]["price"].ToString();
-            string displayName = query[0]["displayName"].ToString();
-            string state = NNSfixedSellingState.GetValueOrDefault(displayName);
-            
-            return new JObject() { { "price", price}, { "state", state } };
+            if (query != null && query.Count > 0)
+            {
+                string displayName = query[0]["displayName"].ToString();
+                if (displayName == "NNSfixedSellingLaunched")
+                {
+                    price = query[0]["price"].ToString();
+                    return true;
+                }
+            }
+            price = "0";
+            return false;
         }
+
         public JArray getDomainInfo(string fulldomain)
         {
             fulldomain = fulldomain.ToLower();
@@ -48,7 +47,7 @@ namespace NEL_Scan_API.Service
             string findStr = new JObject() { {"namehash", namehash } }.ToString();
             string fieldStr = new JObject() { {"_id",0 },{"owner",1 }, { "TTL", 1 } }.ToString();
             string sortStr = new JObject() { {"blockindex",-1 } }.ToString();
-            JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, "0xbd3fa97e2bc841292c1e77f9a97a1393d5208b48", fieldStr, 1,1, sortStr, findStr);
+            JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, domainCenterColl, fieldStr, 1,1, sortStr, findStr);
             return res;
         }
 
@@ -85,17 +84,15 @@ namespace NEL_Scan_API.Service
                                     {"owner", rr[0]["owner"] },
                                     {"ttl", rr[0]["TTL"] }
                                 };
-
-                                JObject udb = getUpDownBuyInfo(fulldoamin);
-                                if(udb == null)
+                                string price;
+                                if(hasNNfixedSelling(p["fulldomain"].ToString(), long.Parse(p["startTime"]["blockindex"].ToString()), out price))
                                 {
-                                    resJo.Add("state", "1010");
-                                    resJo.Add("price", "0");
+                                    resJo.Remove("auctionState");
+                                    resJo.Add("auctionState", "0901");
+                                    resJo.Add("price", price);
                                     return resJo;
                                 }
-                                resJo.Add("state", udb["state"]);
-                                resJo.Add("price", udb["price"]);
-                                return resJo;
+                                resJo.Add("price", "0");
                                 /*
                                 return new JObject() {
                                     {"auctionId", p["auctionId"] },
