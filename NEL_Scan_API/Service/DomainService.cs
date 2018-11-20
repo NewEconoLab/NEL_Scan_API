@@ -21,6 +21,70 @@ namespace NEL_Scan_API.Service
         public string domainCenterColl { get; set; } = "0xbd3fa97e2bc841292c1e77f9a97a1393d5208b48";
         public string NNSfixedSellingColl { get; set; } = "0x7a64879a21b80e96a8bc91e0f07adc49b8f3521e";
         
+        public JArray getDomainTransferAndSellingInfo(string domain, int pageNum=1, int pageSize=10)
+        {
+            domain = domain.ToLower();
+            string namehash = DomainHelper.nameHashFull(domain);
+            string findStr = new JObject() { { "namehash", namehash } }.ToString();
+            string fieldStr = new JObject() { {"owner",1 },{ "blockindex", 1},{ "txid", 1} }.ToString();
+            string sortStr = new JObject() { { "blockindex", -1} }.ToString();
+            var count = mh.GetDataCount(Notify_mongodbConnStr, Notify_mongodbDatabase, domainCenterColl, findStr);
+            if (count == 0) return new JArray { };
+
+            var query = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, domainCenterColl, fieldStr, pageSize, pageNum, sortStr, findStr);
+
+            JObject[] res = new JObject[0];
+            if(query != null && query.Count > 0)
+            {
+                // 
+                string[] txids = query.Select(p => p["txid"].ToString()).Distinct().ToArray();
+                var findJo = MongoFieldHelper.toFilter(txids, "txid");
+                findJo.Add("displayName", "NNSfixedSellingBuy");
+                findStr = findJo.ToString();
+                fieldStr = new JObject() { { "price", 1 }, { "txid", 1 } }.ToString();
+                var priceRes = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, NNSfixedSellingColl, fieldStr, findStr);
+                Dictionary<string, string> priceDict = null;
+                if(priceRes != null && priceRes.Count > 0)
+                {
+                    priceDict = priceRes.ToDictionary(k => k["txid"].ToString(), v => v["price"].ToString());
+                }
+                //
+                long[] indexs = query.Select(p => long.Parse(p["blockindex"].ToString())).Distinct().ToArray();
+                findStr = MongoFieldHelper.toFilter(indexs, "index").ToString();
+                fieldStr = new JObject() { { "time", 1 }, { "index", 1 } }.ToString();
+                var timeRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "block", fieldStr, findStr);
+                Dictionary<string, long> timeDict = null;
+                if (timeRes!= null && timeRes.Count >0)
+                {
+                    timeDict = timeRes.ToDictionary(k => k["index"].ToString(), v=>long.Parse(v["time"].ToString()));
+                }
+
+                res = query.Select(p =>
+                {
+                    JObject jo = (JObject)p;
+                    string price = "0";
+                    string txid = jo["txid"].ToString();
+                    if (priceDict != null && priceDict.TryGetValue(txid, out string priceVal))
+                    {
+                        price = priceVal;
+                    }
+                    jo.Add("price", price);
+                    jo.Remove("txid");
+                    long time = 0;
+                    string index = jo["blockindex"].ToString();
+                    if (timeDict != null && timeDict.TryGetValue(index, out long timeVal))
+                    {
+                        time = timeVal;
+                    }
+                    jo.Add("time", time);
+                    jo.Remove("blockindex");
+                    return jo;
+                }).ToArray();
+
+            }
+            return new JArray() { new JObject() { { "count", count }, { "list", new JArray { res } } } };
+        }
+
         public bool hasNNfixedSelling(string domain, long blockindex, out string price)
         {
             string findStr = new JObject() { { "fullDomain", domain.ToLower() }, { "blockindex", new JObject() { { "$gte", blockindex } } } }.ToString();

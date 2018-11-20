@@ -145,6 +145,16 @@ namespace NEL_Scan_API.Controllers
             {
                 switch (req.method)
                 {
+                    case "getDomainTransferHistAndSellingInfo":
+                        if (req.@params.Length < 3)
+                        {
+                            result = domainService.getDomainTransferAndSellingInfo(req.@params[0].ToString());
+                        }
+                        else
+                        {
+                            result = domainService.getDomainTransferAndSellingInfo(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
+                        break;
                     case "getutxolistbyaddress":
                         if (req.@params.Length < 3)
                         {
@@ -255,6 +265,7 @@ namespace NEL_Scan_API.Controllers
                     case "fuzzysearchasset":
                         result = assetService.fuzzySearchAsset(req.@params[0].ToString());
                         break;
+                    // 
                     case "getaddresstxs":
                         result = analyService.getAddressTxsNew(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         break;

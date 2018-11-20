@@ -45,12 +45,6 @@ namespace NEL_Scan_API.lib
 
         public string notifyCodeColl_testnet {set; get;}
         public string notifySubsColl_testnet { set; get; }
-        public string mailFrom_testnet { set; get; }
-        public string mailPwd_testnet { set; get; }
-        public string mailHost_testnet { set; get; }
-        public string mailPort_testnet { set; get; }
-        public string authCodeSubj_testnet { set; get; }
-        public string authCodeBody_testnet { set; get; }
 
         public mongoHelper()
         {
@@ -94,12 +88,6 @@ namespace NEL_Scan_API.lib
 
             notifyCodeColl_testnet = config["notifyCodeColl_testnet"];
             notifySubsColl_testnet = config["notifySubsColl_testnet"];
-            mailFrom_testnet = config["mailFrom_testnet"];
-            mailPwd_testnet = config["mailPwd_testnet"];
-            mailHost_testnet = config["mailHost_testnet"];
-            mailPort_testnet = config["mailPort_testnet"];
-            authCodeSubj_testnet = config["authCodeSubj_testnet"];
-            authCodeBody_testnet = config["authCodeBody_testnet"];
         }
 
         public long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll, string findBson = "{}")
@@ -115,7 +103,7 @@ namespace NEL_Scan_API.lib
 
             return txCount;
         }
-
+        
         public JArray GetData(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter)
         {
             var client = new MongoClient(mongodbConnStr);
