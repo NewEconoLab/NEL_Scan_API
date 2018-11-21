@@ -46,6 +46,9 @@ namespace NEL_Scan_API.lib
         public string notifyCodeColl_testnet {set; get;}
         public string notifySubsColl_testnet { set; get; }
 
+        public string NNsfixedSellingAddr_testnet { get; set; }
+        public string NNsfixedSellingAddr_mainnet { get; set; }
+
         public mongoHelper()
         {
             var config = new ConfigurationBuilder()
@@ -88,6 +91,9 @@ namespace NEL_Scan_API.lib
 
             notifyCodeColl_testnet = config["notifyCodeColl_testnet"];
             notifySubsColl_testnet = config["notifySubsColl_testnet"];
+
+            NNsfixedSellingAddr_testnet = config["NNsfixedSellingAddr_testnet"];
+            NNsfixedSellingAddr_mainnet = config["NNsfixedSellingAddr_mainnet"];
         }
 
         public long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll, string findBson = "{}")

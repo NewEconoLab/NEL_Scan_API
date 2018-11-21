@@ -20,12 +20,53 @@ namespace NEL_Scan_API.Service
         public string bonusAddress { get; set; }
         public string domainCenterColl { get; set; } = "0xbd3fa97e2bc841292c1e77f9a97a1393d5208b48";
         public string NNSfixedSellingColl { get; set; } = "0x7a64879a21b80e96a8bc91e0f07adc49b8f3521e";
+        public string NNsfixedSellingAddr { get; set; }
         
-        public JArray getDomainTransferAndSellingInfo(string domain, int pageNum=1, int pageSize=10)
+        public JArray getDomainTransferAndSellingInfoNew(string domain, int pageNum=1, int pageSize=10)
         {
             domain = domain.ToLower();
             string namehash = DomainHelper.nameHashFull(domain);
-            string findStr = new JObject() { { "namehash", namehash } }.ToString();
+            string findStr = new JObject() { { "fullHash", namehash },{"displayName", "NNSfixedSellingBuy" } }.ToString();
+            var count = mh.GetDataCount(Notify_mongodbConnStr, Notify_mongodbDatabase, NNSfixedSellingColl, findStr);
+            if (count == 0) return new JArray { };
+            
+            string fieldStr = new JObject() { { "seller", 1 }, { "blockindex", 1 }, { "price", 1 } }.ToString();
+            string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
+            var query = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, NNSfixedSellingColl, fieldStr, pageSize, pageNum, sortStr, findStr);
+
+            JObject[] res = new JObject[0];
+            if (query != null && query.Count > 0)
+            {
+                long[] indexs = query.Select(p => long.Parse(p["blockindex"].ToString())).Distinct().ToArray();
+                findStr = MongoFieldHelper.toFilter(indexs, "index").ToString();
+                fieldStr = new JObject() { { "time", 1 }, { "index", 1 } }.ToString();
+                var timeRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "block", fieldStr, findStr);
+                Dictionary<string, long> timeDict = null;
+                if (timeRes != null && timeRes.Count > 0)
+                {
+                    timeDict = timeRes.ToDictionary(k => k["index"].ToString(), v => long.Parse(v["time"].ToString()));
+                }
+                res = query.Select(p =>
+                {
+                    JObject jo = (JObject)p;
+                    long time = timeDict.GetValueOrDefault(jo["blockindex"].ToString());
+                    jo.Add("time", time);
+                    jo.Remove("blockindex");
+                    return jo;
+                }).ToArray();
+            }
+            return new JArray() { new JObject() { { "count", count }, { "list", new JArray { res } } } };
+        }
+        public JArray getDomainTransferAndSellingInfo(string domain, int pageNum=1, int pageSize=10)
+        {
+            bool flag = true;
+            if(flag)
+            {
+                return getDomainTransferAndSellingInfoNew(domain, pageNum, pageSize);
+            }
+            domain = domain.ToLower();
+            string namehash = DomainHelper.nameHashFull(domain);
+            string findStr = new JObject() { { "namehash", namehash },{"owner", new JObject() { {"$ne", NNsfixedSellingAddr } } } }.ToString();
             string fieldStr = new JObject() { {"owner",1 },{ "blockindex", 1},{ "txid", 1} }.ToString();
             string sortStr = new JObject() { { "blockindex", -1} }.ToString();
             var count = mh.GetDataCount(Notify_mongodbConnStr, Notify_mongodbDatabase, domainCenterColl, findStr);

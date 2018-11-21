@@ -85,6 +85,7 @@ namespace NEL_Scan_API.Controllers
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                         auctionStateColl = mh.auctionStateColl_testnet,
                         bonusAddress = mh.bonusAddress_testnet,
+                        NNsfixedSellingAddr = mh.NNsfixedSellingAddr_testnet,
                     };
                     break;
                 case "mainnet":
@@ -133,6 +134,7 @@ namespace NEL_Scan_API.Controllers
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                         auctionStateColl = mh.auctionStateColl_mainnet,
                         bonusAddress = mh.bonusAddress_mainnet,
+                        NNsfixedSellingAddr = mh.NNsfixedSellingAddr_mainnet,
                     };
                     break;
             }
