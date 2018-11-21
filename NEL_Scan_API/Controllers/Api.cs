@@ -145,7 +145,8 @@ namespace NEL_Scan_API.Controllers
             {
                 switch (req.method)
                 {
-                    case "getDomainTransferHistAndSellingInfo":
+                    // 获取域名流转历史
+                    case "getDomainTransferHist":
                         if (req.@params.Length < 3)
                         {
                             result = domainService.getDomainTransferAndSellingInfo(req.@params[0].ToString());
