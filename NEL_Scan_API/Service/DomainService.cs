@@ -157,6 +157,7 @@ namespace NEL_Scan_API.Service
                                     return resJo;
                                 }
                                 resJo.Add("price", "0");
+                                return resJo;
                                 /*
                                 return new JObject() {
                                     {"auctionId", p["auctionId"] },
