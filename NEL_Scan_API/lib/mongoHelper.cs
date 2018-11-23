@@ -17,6 +17,8 @@ namespace NEL_Scan_API.lib
         public string analy_mongodbDatabase_testnet = string.Empty;
         public string notify_mongodbConnStr_testnet = string.Empty;
         public string notify_mongodbDatabase_testnet = string.Empty;
+        public string snapshot_mongodbConnStr_testnet = string.Empty;
+        public string snapshot_mongodbDatabase_testnet = string.Empty;
         public string nelJsonRPCUrl_testnet = string.Empty;
 
         public string block_mongodbConnStr_mainnet = string.Empty;
@@ -25,6 +27,8 @@ namespace NEL_Scan_API.lib
         public string analy_mongodbDatabase_mainnet = string.Empty;
         public string notify_mongodbConnStr_mainnet = string.Empty;
         public string notify_mongodbDatabase_mainnet = string.Empty;
+        public string snapshot_mongodbConnStr_mainnet = string.Empty;
+        public string snapshot_mongodbDatabase_mainnet = string.Empty;
         public string nelJsonRPCUrl_mainnet = string.Empty;
 
         public string auctionStateColl_testnet = string.Empty;
@@ -34,10 +38,13 @@ namespace NEL_Scan_API.lib
         public string bonusStatisticCol_testnet = string.Empty;
         public string bonusStatisticCol_mainnet = string.Empty;
 
+        /*
         public string bonusSgas_mongodbConnStr_testnet { set; get; }
         public string bonusSgas_mongodbConnStr_mainnet { set; get; }
         public string bonusSgas_mongodbDatabase_testnet { set; get; }
         public string bonusSgas_mongodbDatabase_mainnet { set; get; }
+        */
+
         public string bonusSgasCol_testnet { set; get; }
         public string bonusSgasCol_mainnet { set; get; }
         public string id_sgas_testnet { set; get; }
@@ -62,6 +69,8 @@ namespace NEL_Scan_API.lib
             analy_mongodbDatabase_testnet = config["analy_mongodbDatabase_testnet"];
             notify_mongodbConnStr_testnet = config["notify_mongodbConnStr_testnet"];
             notify_mongodbDatabase_testnet = config["notify_mongodbDatabase_testnet"];
+            snapshot_mongodbConnStr_testnet = config["snapshot_mongodbConnStr_testnet"];
+            snapshot_mongodbDatabase_testnet = config["snapshot_mongodbDatabase_testnet"];
             nelJsonRPCUrl_testnet = config["nelJsonRPCUrl_testnet"];
 
             block_mongodbConnStr_mainnet = config["block_mongodbConnStr_mainnet"];
@@ -70,6 +79,8 @@ namespace NEL_Scan_API.lib
             analy_mongodbDatabase_mainnet = config["analy_mongodbDatabase_mainnet"];
             notify_mongodbConnStr_mainnet = config["notify_mongodbConnStr_mainnet"];
             notify_mongodbDatabase_mainnet = config["notify_mongodbDatabase_mainnet"];
+            snapshot_mongodbConnStr_mainnet = config["snapshot_mongodbConnStr_mainnet"];
+            snapshot_mongodbDatabase_mainnet = config["snapshot_mongodbDatabase_mainnet"];
             nelJsonRPCUrl_mainnet = config["nelJsonRPCUrl_mainnet"];
             
             auctionStateColl_testnet = config["auctionStateColl_testnet"];
@@ -79,10 +90,13 @@ namespace NEL_Scan_API.lib
             bonusStatisticCol_testnet = config["bonusStatisticCol_testnet"];
             bonusStatisticCol_mainnet = config["bonusStatisticCol_mainnet"];
 
+            /*
             bonusSgas_mongodbConnStr_testnet = config["bonusSgas_mongodbConnStr_testnet"];
             bonusSgas_mongodbConnStr_mainnet = config["bonusSgas_mongodbConnStr_mainnet"];
             bonusSgas_mongodbDatabase_testnet = config["bonusSgas_mongodbDatabase_testnet"];
             bonusSgas_mongodbDatabase_mainnet = config["bonusSgas_mongodbDatabase_mainnet"];
+            */
+
             bonusSgasCol_testnet = config["bonusSgasCol_testnet"];
             bonusSgasCol_mainnet = config["bonusSgasCol_mainnet"];
             id_sgas_testnet = config["id_sgas_testnet"];

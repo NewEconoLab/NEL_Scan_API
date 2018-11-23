@@ -48,28 +48,30 @@ namespace NEL_Scan_API.Controllers
                     };
                     analyService = new AnalyService
                     {
+                        mh = mh,
                         block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
                         block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
                         analy_mongodbDatabase = mh.analy_mongodbDatabase_testnet,
-                        mh = mh
                     };
                     assetService = new AssetService
                     {
+                        mh = mh,
                         mongodbConnStr = mh.block_mongodbConnStr_testnet,
                         mongodbDatabase = mh.block_mongodbDatabase_testnet,
-                        mh = mh
                     };
                     nnsService = new NNSService
                     {
+                        mh = mh,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
                         analy_mongodbConnDatabase = mh.analy_mongodbDatabase_testnet,
-                        bonusStatisticCol = mh.bonusStatisticCol_testnet,
                         notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
                         notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
-                        mh = mh,
-                        bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_testnet,
-                        bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_testnet,
+                        //bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_testnet,
+                        bonusSgas_mongodbConnStr = mh.snapshot_mongodbConnStr_testnet,
+                        //bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_testnet,
+                        bonusSgas_mongodbDatabase = mh.snapshot_mongodbDatabase_testnet,
+                        bonusStatisticCol = mh.bonusStatisticCol_testnet,
                         bonusSgasCol = mh.bonusSgasCol_testnet,
                         id_sgas = mh.id_sgas_testnet,
                         auctionStateColl = mh.auctionStateColl_testnet,
@@ -97,28 +99,30 @@ namespace NEL_Scan_API.Controllers
                     };
                     analyService = new AnalyService
                     {
+                        mh = mh,
                         block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
                         block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
                         analy_mongodbDatabase = mh.analy_mongodbDatabase_mainnet,
-                        mh = mh
                     };
                     assetService = new AssetService
                     {
+                        mh = mh,
                         mongodbConnStr = mh.block_mongodbConnStr_mainnet,
                         mongodbDatabase = mh.block_mongodbDatabase_mainnet,
-                        mh = mh
                     };
                     nnsService = new NNSService
                     {
+                        mh = mh,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
                         analy_mongodbConnDatabase = mh.analy_mongodbDatabase_mainnet,
-                        bonusStatisticCol = mh.bonusStatisticCol_mainnet,
                         notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
                         notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
-                        mh = mh,
-                        bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_mainnet,
-                        bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_mainnet,
+                        //bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_mainnet,
+                        bonusSgas_mongodbConnStr = mh.snapshot_mongodbConnStr_mainnet,
+                        //bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_mainnet,
+                        bonusSgas_mongodbDatabase = mh.snapshot_mongodbDatabase_mainnet,
+                        bonusStatisticCol = mh.bonusStatisticCol_mainnet,
                         bonusSgasCol = mh.bonusSgasCol_mainnet,
                         id_sgas = mh.id_sgas_mainnet,
                         auctionStateColl = mh.auctionStateColl_mainnet,
