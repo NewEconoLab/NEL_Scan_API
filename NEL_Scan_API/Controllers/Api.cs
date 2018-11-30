@@ -88,6 +88,8 @@ namespace NEL_Scan_API.Controllers
                         auctionStateColl = mh.auctionStateColl_testnet,
                         bonusAddress = mh.bonusAddress_testnet,
                         NNsfixedSellingAddr = mh.NNsfixedSellingAddr_testnet,
+                        NNSfixedSellingColl = mh.NNSfixedSellingColl_testnet,
+                        domainCenterColl = mh.domainCenterColl_testnet,
                     };
                     break;
                 case "mainnet":
@@ -139,6 +141,8 @@ namespace NEL_Scan_API.Controllers
                         auctionStateColl = mh.auctionStateColl_mainnet,
                         bonusAddress = mh.bonusAddress_mainnet,
                         NNsfixedSellingAddr = mh.NNsfixedSellingAddr_mainnet,
+                        NNSfixedSellingColl = mh.NNSfixedSellingColl_mainnet,
+                        domainCenterColl = mh.domainCenterColl_mainnet,
                     };
                     break;
             }
