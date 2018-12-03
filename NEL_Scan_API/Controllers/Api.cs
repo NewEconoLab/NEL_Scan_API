@@ -63,8 +63,10 @@ namespace NEL_Scan_API.Controllers
                     nnsService = new NNSService
                     {
                         mh = mh,
+                        block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
-                        analy_mongodbConnDatabase = mh.analy_mongodbDatabase_testnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_testnet,
                         notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
                         notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                         //bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_testnet,
@@ -116,8 +118,10 @@ namespace NEL_Scan_API.Controllers
                     nnsService = new NNSService
                     {
                         mh = mh,
+                        block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
-                        analy_mongodbConnDatabase = mh.analy_mongodbDatabase_mainnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_mainnet,
                         notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
                         notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                         //bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_mainnet,
@@ -155,6 +159,19 @@ namespace NEL_Scan_API.Controllers
             {
                 switch (req.method)
                 {
+                    // 
+                    case "getNNSFixedSellingList":
+                        if (req.@params.Length < 1)
+                        {
+                            result = nnsService.getNNSFixedSellingList();
+                        } else if (req.@params.Length < 2)
+                        {
+                            result = nnsService.getNNSFixedSellingList(req.@params[0].ToString());
+                        } else
+                        {
+                            result = nnsService.getNNSFixedSellingList(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
+                        break;
                     // 获取域名流转历史
                     case "getDomainTransferHist":
                         if (req.@params.Length < 3)
