@@ -164,12 +164,12 @@ namespace NEL_Scan_API.Controllers
                         if (req.@params.Length < 1)
                         {
                             result = nnsService.getNNSFixedSellingList();
-                        } else if (req.@params.Length < 2)
+                        } else if (req.@params.Length < 3)
                         {
-                            result = nnsService.getNNSFixedSellingList(req.@params[0].ToString());
+                            result = nnsService.getNNSFixedSellingList(req.@params[0].ToString(), req.@params[1].ToString());
                         } else
                         {
-                            result = nnsService.getNNSFixedSellingList(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                            result = nnsService.getNNSFixedSellingList(req.@params[0].ToString(), req.@params[1].ToString(), int.Parse(req.@params[2].ToString()), int.Parse(req.@params[3].ToString()));
                         }
                         break;
                     // 获取域名流转历史

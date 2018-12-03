@@ -27,7 +27,7 @@ namespace NEL_Scan_API.Service
         public string nelJsonRPCUrl { get; set; }
 
 
-        public JArray getNNSFixedSellingList(string orderBy = "1", int pageNum = 1, int pageSize = 10)
+        public JArray getNNSFixedSellingList(string orderField = "price"/* time/price */, string orderType = "high"/* hight/low */, int pageNum = 1, int pageSize = 10)
         {
             string findStr = new JObject() { { "displayName", "NNSfixedSellingLaunched" } }.ToString();
             long count = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, "nnsFixedSellingState", findStr);
@@ -37,12 +37,12 @@ namespace NEL_Scan_API.Service
             // domain + price + launchtime + owner + ttl
             string fieldStr = MongoFieldHelper.toReturn(new string[] {"fullDomain", "price", "launchTime", "owner", "ttl" }).ToString();
             string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
-            if (orderBy == "1")
+            if (orderField == "time")
             {
                 // default
-            } else if(orderBy == "2")
+            } else if(orderField == "price")
             {
-                sortStr = new JObject() { { "price", -1 } }.ToString();
+                sortStr = new JObject() { { "price", orderType == "high" ? -1:1 } }.ToString();
             } 
 
             var query = mh.GetDataPagesWithField(notify_mongodbConnStr, notify_mongodbDatabase, "nnsFixedSellingState", fieldStr, pageSize, pageNum, sortStr, findStr);
