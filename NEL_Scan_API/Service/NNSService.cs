@@ -29,7 +29,8 @@ namespace NEL_Scan_API.Service
 
         public JArray getNNSFixedSellingList(string orderField = "price"/* time/price */, string orderType = "high"/* hight/low */, int pageNum = 1, int pageSize = 10)
         {
-            string findStr = new JObject() { { "displayName", "NNSfixedSellingLaunched" } }.ToString();
+            long nowtime = TimeHelper.GetTimeStamp();
+            string findStr = new JObject() { { "displayName", "NNSfixedSellingLaunched" },{ "ttl", new JObject() { {"$gte", nowtime } } } }.ToString();
             long count = mh.GetDataCount(notify_mongodbConnStr, notify_mongodbDatabase, "nnsFixedSellingState", findStr);
             if (count == 0) return new JArray { };
 
