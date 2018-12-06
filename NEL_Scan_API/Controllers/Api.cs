@@ -23,6 +23,7 @@ namespace NEL_Scan_API.Controllers
         private static Api mainApi = new Api("mainnet");
         public static Api getTestApi() { return testApi; }
         public static Api getMainApi() { return mainApi; }
+        private Monitor monitor;
 
         public Api(string node)
         {
@@ -150,6 +151,8 @@ namespace NEL_Scan_API.Controllers
                     };
                     break;
             }
+
+            initMonitor();
         }
 
         public object getRes(JsonRPCrequest req, string reqAddr)
@@ -157,6 +160,7 @@ namespace NEL_Scan_API.Controllers
             JArray result = null;
             try
             {
+                point(req.method);
                 switch (req.method)
                 {
                     // 
@@ -328,6 +332,22 @@ namespace NEL_Scan_API.Controllers
             res.result = result;
 
             return res;
+        }
+
+        private void initMonitor()
+        {
+            string startMonitorFlag = mh.startMonitorFlag ;
+            if (startMonitorFlag == "1")
+            {
+                monitor = new Monitor();
+            }
+        }
+        private void point(string method)
+        {
+            if(monitor != null)
+            {
+                monitor.point(netnode, method);
+            }
         }
     }
 }

@@ -60,6 +60,8 @@ namespace NEL_Scan_API.lib
         public string domainCenterColl_testnet = string.Empty;
         public string domainCenterColl_mainnet = string.Empty;
 
+        public string startMonitorFlag = string.Empty;
+
         public mongoHelper()
         {
             var config = new ConfigurationBuilder()
@@ -116,6 +118,8 @@ namespace NEL_Scan_API.lib
             NNSfixedSellingColl_mainnet = config["NNSfixedSellingColl_mainnet"];
             domainCenterColl_testnet = config["domainCenterColl_testnet"];
             domainCenterColl_mainnet = config["domainCenterColl_mainnet"];
+
+            startMonitorFlag = config["startMonitorFlag"];
         }
 
         public long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll, string findBson = "{}")
