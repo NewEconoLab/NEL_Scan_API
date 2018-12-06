@@ -56,6 +56,8 @@ namespace NEL_Scan_API.Controllers
                     sum += tt;
                     sb.Append(key.PadLeft(48)).Append(": ").Append(tt.ToString().PadLeft(6)).Append("/s, ").Append("testnet="+t1.ToString().PadLeft(5)).Append(",mainnet="+t2.ToString().PadLeft(5)).Append("\r\n");
                 }
+                if (sum == 0) continue;
+
                 sb.Append("sum:" + sum + "\r\n");
 
                 //
@@ -66,8 +68,8 @@ namespace NEL_Scan_API.Controllers
 
         private void log(DateTime now, StringBuilder sb)
         {
-            string path = string.Format("tps_{0}.txt", now.ToShortDateString().Replace("/", ""));
-            string data = sb.Append(now.ToString()).Append("\r\n").ToString();
+            string path = string.Format("tps_{0}.txt", now.ToString("yyyyMMdd"));
+            string data = sb.Append(now.ToString("yyyyMMdd HH:mm:ss.fff")).Append("\r\n").ToString();
             File.AppendAllText(path, data);
         }
 
