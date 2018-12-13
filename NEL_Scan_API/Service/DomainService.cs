@@ -162,6 +162,7 @@ namespace NEL_Scan_API.Service
             {
                 return new JArray() { };
             }
+            long nowtime = TimeHelper.GetTimeStamp();
             return new JArray() {
                 res.Select(p => {
                     JObject jo = (JObject)p;
@@ -180,7 +181,7 @@ namespace NEL_Scan_API.Service
                         var rr = getDomainInfo(fulldoamin);
                         if(rr != null && rr.Count > 0)
                         {
-                            if(p["auctionState"].ToString() == "0401")
+                            if(p["auctionState"].ToString() == "0401" || p["auctionState"].ToString() == "0601")
                             {
 
                                 JObject resJo = new JObject() {
@@ -211,6 +212,12 @@ namespace NEL_Scan_API.Service
                             ttl = long.Parse(rr[0]["TTL"].ToString());
                             jo.Remove("ttl");
                             jo.Add("ttl", ttl);
+                            if(ttl > nowtime)
+                            {
+                                // 过期域名续约后状态需更新为0401
+                                jo.Remove("auctionState");
+                                jo.Add("auctionState", "0401");
+                            }
                         }
                     }
                     
