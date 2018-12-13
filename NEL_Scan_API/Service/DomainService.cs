@@ -300,7 +300,28 @@ namespace NEL_Scan_API.Service
             string sortStr = new JObject() { { "startTime.blockindex", -1 } }.ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "fulldomain", "auctionId", "startTime.blocktime", "endTime.blocktime", "lastTime.blocktime", "maxBuyer", "maxPrice", "auctionState", "startTime.blockindex", "ttl" }).ToString();
             JArray res = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, auctionStateColl, fieldStr, 1, 1, sortStr, findStr);
-            return format(res);
+            res = format(res);
+
+            if(res != null && res.Count > 0 && (res[0]["auctionState"].ToString() == "0401" || res[0]["auctionState"].ToString() == "0601"))
+            {
+                findStr = new JObject() { { "namehash", DomainHelper.nameHashFullDomain(fulldomain) } }.ToString();
+                sortStr = new JObject() { { "blockindex", -1 } }.ToString();
+                fieldStr = new JObject() { { "TTL", 1 } }.ToString();
+                var ttlRes = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, domainCenterColl, fieldStr, 1, 1, sortStr, findStr);
+                if (ttlRes != null && ttlRes.Count > 0)
+                {
+                    if ((long)ttlRes[0]["TTL"] > TimeHelper.GetTimeStamp())
+                    {
+                        var jo = (JObject)res[0];
+                        jo.Remove("auctionState");
+                        jo.Add("auctionState", "0401");
+                        jo.Remove("ttl");
+                        jo.Add("ttl", ttlRes[0]["TTL"]);
+                        res = new JArray() { jo };
+                    }
+                }
+            }
+            return res;
         }
 
         public JArray getAuctionInfo(string auctionId)
