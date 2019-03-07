@@ -173,7 +173,7 @@ namespace NEL_Scan_API.Controllers
                         {
                             result = nnsService.getNNSFixedSellingList(req.@params[0].ToString(), req.@params[1].ToString());
                         }
-                        else if(req.@params.Length < 4)
+                        else if(req.@params.Length < 5)
                         {
                             result = nnsService.getNNSFixedSellingList(req.@params[0].ToString(), req.@params[1].ToString(), int.Parse(req.@params[2].ToString()), int.Parse(req.@params[3].ToString()));
                         } else
