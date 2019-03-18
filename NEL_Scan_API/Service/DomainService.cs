@@ -30,7 +30,7 @@ namespace NEL_Scan_API.Service
             var count = mh.GetDataCount(Notify_mongodbConnStr, Notify_mongodbDatabase, NNSfixedSellingColl, findStr);
             if (count == 0) return new JArray { };
             
-            string fieldStr = new JObject() { { "seller", 1 }, { "blockindex", 1 }, { "price", 1 } }.ToString();
+            string fieldStr = new JObject() { { "addr", 1 }, { "blockindex", 1 }, { "price", 1 } }.ToString();
             string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
             var query = mh.GetDataPagesWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, NNSfixedSellingColl, fieldStr, pageSize, pageNum, sortStr, findStr);
 
@@ -52,6 +52,9 @@ namespace NEL_Scan_API.Service
                     long time = timeDict.GetValueOrDefault(jo["blockindex"].ToString());
                     jo.Add("time", time);
                     jo.Remove("blockindex");
+                    var addr = jo["addr"].ToString();
+                    jo.Remove("addr");
+                    jo.Add("seller", addr);
                     return jo;
                 }).ToArray();
             }
