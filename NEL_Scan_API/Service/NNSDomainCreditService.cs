@@ -12,7 +12,7 @@ namespace NEL_Scan_API.Service
         public JArray getMappingDomain(string address)
         {
             string findStr = new JObject() { {"address", address } }.ToString();
-            string fieldStr = new JObject() { {"fulldomain", 1 },{ "ttl", 1 },{ "_id",0} }.ToString();
+            string fieldStr = new JObject() { {"fulldomain", 1 }, { "namehash", 1 },{ "ttl", 1 },{ "_id",0} }.ToString();
             var queryRes = mh.GetDataWithField(mongodbConnStr, mongodbDatabase, "nnsDomainCreditState", fieldStr, findStr);
 
             var item = queryRes[0];
