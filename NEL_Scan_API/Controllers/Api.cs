@@ -16,6 +16,7 @@ namespace NEL_Scan_API.Controllers
         private DomainService domainService;
         private NotifyService notifyService;
         private BlockService blockService;
+        private NNSDomainCreditService nnsDomainCrediteService;
 
         private mongoHelper mh = new mongoHelper();
 
@@ -31,6 +32,12 @@ namespace NEL_Scan_API.Controllers
             switch (netnode)
             {
                 case "testnet":
+                    nnsDomainCrediteService = new NNSDomainCreditService
+                    {
+                        mh = mh,
+                        mongodbConnStr = mh.notify_mongodbConnStr_testnet,
+                        mongodbDatabase = mh.notify_mongodbDatabase_testnet,
+                    };
                     blockService = new BlockService
                     {
                         mh = mh,
@@ -96,6 +103,12 @@ namespace NEL_Scan_API.Controllers
                     };
                     break;
                 case "mainnet":
+                    nnsDomainCrediteService = new NNSDomainCreditService
+                    {
+                        mh = mh,
+                        mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
+                        mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
+                    };
                     blockService = new BlockService
                     {
                         mh = mh,
@@ -163,6 +176,10 @@ namespace NEL_Scan_API.Controllers
                 point(req.method);
                 switch (req.method)
                 {
+                    //
+                    case "getMappingDomain":
+                        result = nnsDomainCrediteService.getMappingDomain(req.@params[0].ToString());
+                        break;
                     // 
                     case "getNNSFixedSellingList":
                         if (req.@params.Length < 1)
