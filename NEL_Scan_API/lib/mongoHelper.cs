@@ -17,6 +17,8 @@ namespace NEL_Scan_API.lib
         public string analy_mongodbDatabase_testnet = string.Empty;
         public string notify_mongodbConnStr_testnet = string.Empty;
         public string notify_mongodbDatabase_testnet = string.Empty;
+        public string snapshot_mongodbConnStr_testnet = string.Empty;
+        public string snapshot_mongodbDatabase_testnet = string.Empty;
         public string nelJsonRPCUrl_testnet = string.Empty;
 
         public string block_mongodbConnStr_mainnet = string.Empty;
@@ -25,22 +27,40 @@ namespace NEL_Scan_API.lib
         public string analy_mongodbDatabase_mainnet = string.Empty;
         public string notify_mongodbConnStr_mainnet = string.Empty;
         public string notify_mongodbDatabase_mainnet = string.Empty;
+        public string snapshot_mongodbConnStr_mainnet = string.Empty;
+        public string snapshot_mongodbDatabase_mainnet = string.Empty;
         public string nelJsonRPCUrl_mainnet = string.Empty;
-        
+
         public string auctionStateColl_testnet = string.Empty;
         public string auctionStateColl_mainnet = string.Empty;
         public string bonusAddress_testnet = string.Empty;
         public string bonusAddress_mainnet = string.Empty;
-        
+        public string bonusStatisticCol_testnet = string.Empty;
+        public string bonusStatisticCol_mainnet = string.Empty;
+
+        /*
         public string bonusSgas_mongodbConnStr_testnet { set; get; }
         public string bonusSgas_mongodbConnStr_mainnet { set; get; }
         public string bonusSgas_mongodbDatabase_testnet { set; get; }
         public string bonusSgas_mongodbDatabase_mainnet { set; get; }
+        */
+
         public string bonusSgasCol_testnet { set; get; }
         public string bonusSgasCol_mainnet { set; get; }
         public string id_sgas_testnet { set; get; }
         public string id_sgas_mainnet { set; get; }
 
+        public string notifyCodeColl_testnet {set; get;}
+        public string notifySubsColl_testnet { set; get; }
+
+        public string NNsfixedSellingAddr_testnet { get; set; }
+        public string NNsfixedSellingAddr_mainnet { get; set; }
+        public string NNSfixedSellingColl_testnet = string.Empty;
+        public string NNSfixedSellingColl_mainnet = string.Empty;
+        public string domainCenterColl_testnet = string.Empty;
+        public string domainCenterColl_mainnet = string.Empty;
+
+        public string startMonitorFlag = string.Empty;
 
         public mongoHelper()
         {
@@ -55,6 +75,8 @@ namespace NEL_Scan_API.lib
             analy_mongodbDatabase_testnet = config["analy_mongodbDatabase_testnet"];
             notify_mongodbConnStr_testnet = config["notify_mongodbConnStr_testnet"];
             notify_mongodbDatabase_testnet = config["notify_mongodbDatabase_testnet"];
+            snapshot_mongodbConnStr_testnet = config["snapshot_mongodbConnStr_testnet"];
+            snapshot_mongodbDatabase_testnet = config["snapshot_mongodbDatabase_testnet"];
             nelJsonRPCUrl_testnet = config["nelJsonRPCUrl_testnet"];
 
             block_mongodbConnStr_mainnet = config["block_mongodbConnStr_mainnet"];
@@ -63,23 +85,57 @@ namespace NEL_Scan_API.lib
             analy_mongodbDatabase_mainnet = config["analy_mongodbDatabase_mainnet"];
             notify_mongodbConnStr_mainnet = config["notify_mongodbConnStr_mainnet"];
             notify_mongodbDatabase_mainnet = config["notify_mongodbDatabase_mainnet"];
+            snapshot_mongodbConnStr_mainnet = config["snapshot_mongodbConnStr_mainnet"];
+            snapshot_mongodbDatabase_mainnet = config["snapshot_mongodbDatabase_mainnet"];
             nelJsonRPCUrl_mainnet = config["nelJsonRPCUrl_mainnet"];
             
             auctionStateColl_testnet = config["auctionStateColl_testnet"];
             auctionStateColl_mainnet = config["auctionStateColl_mainnet"];
             bonusAddress_testnet = config["bonusAddress_testnet"];
             bonusAddress_mainnet = config["bonusAddress_mainnet"];
+            bonusStatisticCol_testnet = config["bonusStatisticCol_testnet"];
+            bonusStatisticCol_mainnet = config["bonusStatisticCol_mainnet"];
 
+            /*
             bonusSgas_mongodbConnStr_testnet = config["bonusSgas_mongodbConnStr_testnet"];
             bonusSgas_mongodbConnStr_mainnet = config["bonusSgas_mongodbConnStr_mainnet"];
             bonusSgas_mongodbDatabase_testnet = config["bonusSgas_mongodbDatabase_testnet"];
             bonusSgas_mongodbDatabase_mainnet = config["bonusSgas_mongodbDatabase_mainnet"];
+            */
+
             bonusSgasCol_testnet = config["bonusSgasCol_testnet"];
             bonusSgasCol_mainnet = config["bonusSgasCol_mainnet"];
             id_sgas_testnet = config["id_sgas_testnet"];
             id_sgas_mainnet = config["id_sgas_mainnet"];
+
+
+            notifyCodeColl_testnet = config["notifyCodeColl_testnet"];
+            notifySubsColl_testnet = config["notifySubsColl_testnet"];
+
+            NNsfixedSellingAddr_testnet = config["NNsfixedSellingAddr_testnet"];
+            NNsfixedSellingAddr_mainnet = config["NNsfixedSellingAddr_mainnet"];
+            NNSfixedSellingColl_testnet = config["NNSfixedSellingColl_testnet"];
+            NNSfixedSellingColl_mainnet = config["NNSfixedSellingColl_mainnet"];
+            domainCenterColl_testnet = config["domainCenterColl_testnet"];
+            domainCenterColl_mainnet = config["domainCenterColl_mainnet"];
+
+            startMonitorFlag = config["startMonitorFlag"];
         }
 
+        public long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll, string findBson = "{}")
+        {
+            var client = new MongoClient(mongodbConnStr);
+            var database = client.GetDatabase(mongodbDatabase);
+            var collection = database.GetCollection<BsonDocument>(coll);
+
+            //var txCount = collection.Find(BsonDocument.Parse(findBson)).CountDocuments();
+            var txCount = collection.Find(BsonDocument.Parse(findBson)).Count();
+
+            client = null;
+
+            return txCount;
+        }
+        
         public JArray GetData(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter)
         {
             var client = new MongoClient(mongodbConnStr);
@@ -125,27 +181,6 @@ namespace NEL_Scan_API.lib
             else { return new JArray(); }
         }
 
-        public JArray GetDataPagesWithField(string mongodbConnStr, string mongodbDatabase, string coll, string fieldBson, int pageCount, int pageNum, string sortStr = "{}", string findBson = "{}")
-        {
-            var client = new MongoClient(mongodbConnStr);
-            var database = client.GetDatabase(mongodbDatabase);
-            var collection = database.GetCollection<BsonDocument>(coll);
-
-            List<BsonDocument> query = collection.Find(BsonDocument.Parse(findBson)).Project(BsonDocument.Parse(fieldBson)).Sort(sortStr).Skip(pageCount * (pageNum - 1)).Limit(pageCount).ToList();
-            client = null;
-
-            if (query.Count > 0)
-            {
-                var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-                JArray JA = JArray.Parse(query.ToJson(jsonWriterSettings));
-                foreach (JObject j in JA)
-                {
-                    j.Remove("_id");
-                }
-                return JA;
-            }
-            else { return new JArray(); }
-        }
         public JArray GetDataWithField(string mongodbConnStr, string mongodbDatabase, string coll, string fieldBson, string findBson = "{}")
         {
             var client = new MongoClient(mongodbConnStr);
@@ -168,18 +203,28 @@ namespace NEL_Scan_API.lib
             else { return new JArray(); }
         }
 
-        public long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll, string findBson="{}")
+        public JArray GetDataPagesWithField(string mongodbConnStr, string mongodbDatabase, string coll, string fieldBson, int pageCount, int pageNum, string sortStr = "{}", string findBson = "{}")
         {
             var client = new MongoClient(mongodbConnStr);
             var database = client.GetDatabase(mongodbDatabase);
             var collection = database.GetCollection<BsonDocument>(coll);
 
-            var txCount = collection.Find(BsonDocument.Parse(findBson)).CountDocuments();
-
+            List<BsonDocument> query = collection.Find(BsonDocument.Parse(findBson)).Project(BsonDocument.Parse(fieldBson)).Sort(sortStr).Skip(pageCount * (pageNum - 1)).Limit(pageCount).ToList();
             client = null;
 
-            return txCount;
+            if (query.Count > 0)
+            {
+                var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+                JArray JA = JArray.Parse(query.ToJson(jsonWriterSettings));
+                foreach (JObject j in JA)
+                {
+                    j.Remove("_id");
+                }
+                return JA;
+            }
+            else { return new JArray(); }
         }
+        
         public List<T> GetData<T>(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter = "{}", string sortFliter = "{}", int skip = 0, int limit = 0)
         {
             var client = new MongoClient(mongodbConnStr);
@@ -189,7 +234,7 @@ namespace NEL_Scan_API.lib
             List<T> query = null;
             if (limit == 0)
             {
-                query = collection.Find(BsonDocument.Parse(findFliter)).ToList();
+                query = collection.Find(BsonDocument.Parse(findFliter)).Sort(sortFliter).ToList();
             }
             else
             {
@@ -200,46 +245,40 @@ namespace NEL_Scan_API.lib
             return query;
         }
 
-
-        public string InsertOneData(string mongodbConnStr, string mongodbDatabase, string coll, string insertBson)
+        public List<T> GetDataWithField<T>(string mongodbConnStr, string mongodbDatabase, string coll, string fieldBson, string findFliter = "{}", string sortFliter = "{}", int skip = 0, int limit = 0)
         {
             var client = new MongoClient(mongodbConnStr);
             var database = client.GetDatabase(mongodbDatabase);
-            var collection = database.GetCollection<BsonDocument>(coll);
-            try
-            {
-                var query = collection.Find(BsonDocument.Parse(insertBson)).ToList();
-                if (query.Count == 0)
-                {
-                    BsonDocument bson = BsonDocument.Parse(insertBson);
-                    collection.InsertOne(bson);
-                }
-                client = null;
-                return "suc";
-            }
-            catch (Exception e)
-            {
-                return e.ToString();
-            }
+            var collection = database.GetCollection<T>(coll);
 
+            List<T> query = null;
+            if (limit == 0)
+            {
+                query = collection.Find(BsonDocument.Parse(findFliter)).Project<T>(BsonDocument.Parse(fieldBson)).Sort(sortFliter).ToList();
+            }
+            else
+            {
+                query = collection.Find(BsonDocument.Parse(findFliter)).Project<T>(BsonDocument.Parse(fieldBson)).Sort(sortFliter).Skip(skip).Limit(limit).ToList();
+            }
+            client = null;
+
+            return query;
         }
 
-        public string InsertOneData(string mongodbConnStr, string mongodbDatabase, string coll, BsonDocument insertBson)
+        
+        public void PutData(string mongodbConnStr, string mongodbDatabase, string coll, string dataBson)
         {
             var client = new MongoClient(mongodbConnStr);
             var database = client.GetDatabase(mongodbDatabase);
             var collection = database.GetCollection<BsonDocument>(coll);
-            try
+
+            var bson = BsonDocument.Parse(dataBson);
+            var query = collection.Find(bson).ToList();
+            if (query.Count == 0)
             {
-                collection.InsertOne(insertBson);
-                client = null;
-                return "suc";
+                collection.InsertOne(bson);
             }
-            catch (Exception e)
-            {
-                client = null;
-                return "faild"; ;
-            }
+            client = null;
 
         }
 
@@ -362,6 +401,67 @@ namespace NEL_Scan_API.lib
                 {
                     j.Remove("_id");
                 }
+                return JA;
+            }
+            else { return new JArray(); }
+        }
+
+        public JArray GetData(string mongodbConnStr, string mongodbDatabase, string coll, string findBson = "{}", string sortBson = "{}", int skip = 0, int limit = 0)
+        {
+            var client = new MongoClient(mongodbConnStr);
+            var database = client.GetDatabase(mongodbDatabase);
+            var collection = database.GetCollection<BsonDocument>(coll);
+
+            List<BsonDocument> query = null;
+            if (limit == 0)
+            {
+                query = collection.Find(BsonDocument.Parse(findBson)).Sort(sortBson).Skip(skip).ToList();
+            }
+            else
+            {
+                query = collection.Find(BsonDocument.Parse(findBson)).Sort(sortBson).Skip(skip).Limit(limit).ToList();
+            }
+            client = null;
+
+            if (query != null && query.Count > 0)
+            {
+                var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+                JArray JA = JArray.Parse(query.ToJson(jsonWriterSettings));
+                foreach (JObject j in JA)
+                {
+                    j.Remove("_id");
+                }
+                return JA;
+            }
+            else { return new JArray(); }
+        }
+        
+        public JArray GetDataWithField(string mongodbConnStr, string mongodbDatabase, string coll, string fieldBson, string findBson = "{}", string sortBson = "{}", int skip = 0, int limit = 0)
+        {
+            var client = new MongoClient(mongodbConnStr);
+            var database = client.GetDatabase(mongodbDatabase);
+            var collection = database.GetCollection<BsonDocument>(coll);
+
+            List<BsonDocument> query = null;
+            if (limit == 0)
+            {
+                query = collection.Find(BsonDocument.Parse(findBson)).Project(BsonDocument.Parse(fieldBson)).Sort(sortBson).ToList();
+            }
+            else
+            {
+                query = collection.Find(BsonDocument.Parse(findBson)).Project(BsonDocument.Parse(fieldBson)).Sort(sortBson).Skip(skip).Limit(limit).ToList();
+            }
+            client = null;
+
+            if (query.Count > 0)
+            {
+                var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+                JArray JA = JArray.Parse(query.ToJson(jsonWriterSettings));
+                /*
+                foreach (JObject j in JA)
+                {
+                    j.Remove("_id");
+                }*/
                 return JA;
             }
             else { return new JArray(); }

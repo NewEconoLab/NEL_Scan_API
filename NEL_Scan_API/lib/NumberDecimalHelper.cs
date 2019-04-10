@@ -13,15 +13,15 @@ namespace NEL_Scan_API.lib
             {
                 value = Convert.ToString(JObject.Parse(numberDecimalStr)["$numberDecimal"]);
             }
-            if (numberDecimalStr.Contains("_csharpnull"))
-            {
-                value = "0";
-            }
             if (value.Contains("E"))
             {
                 value = decimal.Parse(value, NumberStyles.Float).ToString();
             }
             return value;
+        }
+        public static decimal formatDecimalDouble(string numberDecimalStr)
+        {
+            return decimal.Parse(formatDecimal(numberDecimalStr), NumberStyles.Float);
         }
     }
 }

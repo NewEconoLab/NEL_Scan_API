@@ -13,7 +13,10 @@ namespace NEL_Scan_API.Controllers
         private AnalyService analyService;
         private AssetService assetService;
         private NNSService nnsService;
-        private CommonService commonService;
+        private DomainService domainService;
+        private NotifyService notifyService;
+        private BlockService blockService;
+        private NNSDomainCreditService nnsDomainCrediteService;
 
         private mongoHelper mh = new mongoHelper();
 
@@ -21,6 +24,7 @@ namespace NEL_Scan_API.Controllers
         private static Api mainApi = new Api("mainnet");
         public static Api getTestApi() { return testApi; }
         public static Api getMainApi() { return mainApi; }
+        private Monitor monitor;
 
         public Api(string node)
         {
@@ -28,34 +32,63 @@ namespace NEL_Scan_API.Controllers
             switch (netnode)
             {
                 case "testnet":
+                    nnsDomainCrediteService = new NNSDomainCreditService
+                    {
+                        mh = mh,
+                        mongodbConnStr = mh.notify_mongodbConnStr_testnet,
+                        mongodbDatabase = mh.notify_mongodbDatabase_testnet,
+                    };
+                    blockService = new BlockService
+                    {
+                        mh = mh,
+                        Block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        Block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
+                    };
+                    notifyService = new NotifyService
+                    {
+                        dc = DBClient.getInstance(
+                            mh,
+                            mh.notify_mongodbConnStr_testnet,
+                            mh.notify_mongodbDatabase_testnet,
+                            mh.notifyCodeColl_testnet,
+                            mh.notifySubsColl_testnet
+                            )
+                    };
                     analyService = new AnalyService
                     {
+                        mh = mh,
                         block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
                         block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
                         analy_mongodbDatabase = mh.analy_mongodbDatabase_testnet,
-                        mh = mh
                     };
                     assetService = new AssetService
                     {
+                        mh = mh,
                         mongodbConnStr = mh.block_mongodbConnStr_testnet,
                         mongodbDatabase = mh.block_mongodbDatabase_testnet,
-                        mh = mh
                     };
                     nnsService = new NNSService
                     {
+                        mh = mh,
+                        block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_testnet,
                         notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
                         notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
-                        mh = mh,
-                        bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_testnet,
-                        bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_testnet,
+                        //bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_testnet,
+                        bonusSgas_mongodbConnStr = mh.snapshot_mongodbConnStr_testnet,
+                        //bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_testnet,
+                        bonusSgas_mongodbDatabase = mh.snapshot_mongodbDatabase_testnet,
+                        bonusStatisticCol = mh.bonusStatisticCol_testnet,
                         bonusSgasCol = mh.bonusSgasCol_testnet,
                         id_sgas = mh.id_sgas_testnet,
                         auctionStateColl = mh.auctionStateColl_testnet,
                         bonusAddress = mh.bonusAddress_testnet,
                         nelJsonRPCUrl = mh.nelJsonRPCUrl_testnet
                     };
-                    commonService = new CommonService
+                    domainService = new DomainService
                     {
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
@@ -64,37 +97,59 @@ namespace NEL_Scan_API.Controllers
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
                         auctionStateColl = mh.auctionStateColl_testnet,
                         bonusAddress = mh.bonusAddress_testnet,
+                        NNsfixedSellingAddr = mh.NNsfixedSellingAddr_testnet,
+                        NNSfixedSellingColl = mh.NNSfixedSellingColl_testnet,
+                        domainCenterColl = mh.domainCenterColl_testnet,
                     };
                     break;
                 case "mainnet":
+                    nnsDomainCrediteService = new NNSDomainCreditService
+                    {
+                        mh = mh,
+                        mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
+                        mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
+                    };
+                    blockService = new BlockService
+                    {
+                        mh = mh,
+                        Block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        Block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                    };
                     analyService = new AnalyService
                     {
+                        mh = mh,
                         block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
                         block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
                         analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
                         analy_mongodbDatabase = mh.analy_mongodbDatabase_mainnet,
-                        mh = mh
                     };
                     assetService = new AssetService
                     {
+                        mh = mh,
                         mongodbConnStr = mh.block_mongodbConnStr_mainnet,
                         mongodbDatabase = mh.block_mongodbDatabase_mainnet,
-                        mh = mh
                     };
                     nnsService = new NNSService
                     {
+                        mh = mh,
+                        block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_mainnet,
                         notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
                         notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
-                        mh = mh,
-                        bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_mainnet,
-                        bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_mainnet,
+                        //bonusSgas_mongodbConnStr = mh.bonusSgas_mongodbConnStr_mainnet,
+                        bonusSgas_mongodbConnStr = mh.snapshot_mongodbConnStr_mainnet,
+                        //bonusSgas_mongodbDatabase = mh.bonusSgas_mongodbDatabase_mainnet,
+                        bonusSgas_mongodbDatabase = mh.snapshot_mongodbDatabase_mainnet,
+                        bonusStatisticCol = mh.bonusStatisticCol_mainnet,
                         bonusSgasCol = mh.bonusSgasCol_mainnet,
                         id_sgas = mh.id_sgas_mainnet,
                         auctionStateColl = mh.auctionStateColl_mainnet,
                         bonusAddress = mh.bonusAddress_mainnet,
                         nelJsonRPCUrl = mh.nelJsonRPCUrl_mainnet
                     };
-                    commonService = new CommonService
+                    domainService = new DomainService
                     {
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
@@ -103,9 +158,14 @@ namespace NEL_Scan_API.Controllers
                         Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                         auctionStateColl = mh.auctionStateColl_mainnet,
                         bonusAddress = mh.bonusAddress_mainnet,
+                        NNsfixedSellingAddr = mh.NNsfixedSellingAddr_mainnet,
+                        NNSfixedSellingColl = mh.NNSfixedSellingColl_mainnet,
+                        domainCenterColl = mh.domainCenterColl_mainnet,
                     };
                     break;
             }
+
+            initMonitor();
         }
 
         public object getRes(JsonRPCrequest req, string reqAddr)
@@ -113,53 +173,141 @@ namespace NEL_Scan_API.Controllers
             JArray result = null;
             try
             {
+                point(req.method);
                 switch (req.method)
                 {
+                    //
+                    case "getMappingDomain":
+                        result = nnsDomainCrediteService.getMappingDomain(req.@params[0].ToString());
+                        break;
+                    // 
+                    case "getNNSFixedSellingList":
+                        if (req.@params.Length < 1)
+                        {
+                            result = nnsService.getNNSFixedSellingList();
+                        }
+                        else if (req.@params.Length < 3)
+                        {
+                            result = nnsService.getNNSFixedSellingList(req.@params[0].ToString(), req.@params[1].ToString());
+                        }
+                        else if(req.@params.Length < 5)
+                        {
+                            result = nnsService.getNNSFixedSellingList(req.@params[0].ToString(), req.@params[1].ToString(), int.Parse(req.@params[2].ToString()), int.Parse(req.@params[3].ToString()));
+                        } else
+                        {
+                            result = nnsService.getNNSFixedSellingList(req.@params[0].ToString(), req.@params[1].ToString(), int.Parse(req.@params[2].ToString()), int.Parse(req.@params[3].ToString()), req.@params[4].ToString());
+                        }
+                        break;
+                    // 获取域名流转历史
+                    case "getDomainTransferHist":
+                        if (req.@params.Length < 3)
+                        {
+                            result = domainService.getDomainTransferAndSellingInfo(req.@params[0].ToString());
+                        }
+                        else
+                        {
+                            result = domainService.getDomainTransferAndSellingInfo(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
+                        break;
+                    case "getutxolistbyaddress":
+                        if (req.@params.Length < 3)
+                        {
+                            result = blockService.getutxolistbyaddress(req.@params[0].ToString());
+                        } else
+                        {
+                            result = blockService.getutxolistbyaddress(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
+                        break;
+                    case "gettransactionlist":
+                        if (req.@params.Length < 2)
+                        {
+                            result = blockService.gettransactionlist();
+                        } else if(req.@params.Length < 3)
+                        {
+                            result = blockService.gettransactionlist(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        } else
+                        {
+                            result = blockService.gettransactionlist(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()), req.@params[2].ToString());
+                        }
+                        break;
+                    case "getutxoinfo":
+                        result = blockService.getutxoinfo(req.@params[0].ToString());
+                        break;
+                    case "getnep5transferinfo":
+                        break;
+                    case "getdomaininfo":
+                        result = domainService.getDomainInfo(req.@params[0].ToString());
+                        break;
+                    case "getAuthenticationCode":
+                        result = notifyService.getAuthenticationCode(req.@params[0].ToString());
+                        break;
+                    case "subscribDomainNotify":
+                        if (req.@params.Length < 4)
+                        {
+                            result = notifyService.subscribeDomainNotify(req.@params[0].ToString(), req.@params[1].ToString(), req.@params[2].ToString());
+                        } else
+                        {
+                            result = notifyService.subscribeDomainNotify(req.@params[0].ToString(), req.@params[1].ToString(), req.@params[2].ToString(), req.@params[3].ToString());
+                        }
+                        break;
                     case "getauctioninfoTx":
                         if (req.@params.Length < 3)
                         {
-                            result = commonService.getAuctionInfoTx(req.@params[0].ToString());
+                            result = domainService.getAuctionInfoTx(req.@params[0].ToString());
                         } else
                         {
-                            result = commonService.getAuctionInfoTx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                            result = domainService.getAuctionInfoTx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         }
                             
                         break;
                     case "getauctioninfoRank":
                         if (req.@params.Length < 3)
                         {
-                            result = commonService.getAuctionInfoRank(req.@params[0].ToString());
+                            result = domainService.getAuctionInfoRank(req.@params[0].ToString());
                         } else
                         {
-                            result = commonService.getAuctionInfoRank(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                            result = domainService.getAuctionInfoRank(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         }
                         break;
                     case "getauctioninfo":
-                        result = commonService.getAuctionInfo(req.@params[0].ToString());
+                        result = domainService.getAuctionInfo(req.@params[0].ToString());
+                        break;
+                    case "getauctionres":
+                        result = domainService.getAuctionRes(req.@params[0].ToString());
                         break;
                     case "searchbydomain":
-                        result = commonService.searchByDomain(req.@params[0].ToString());
+                        result = domainService.searchByDomain(req.@params[0].ToString());
                         break;
                     // 最具价值域名
                     case "getaucteddomain":
                         if (req.@params.Length < 2)
                         {
-                            result = nnsService.getUsedDomainListNew();
+                            result = nnsService.getUsedDomainList();
                         }
                         else
                         {
-                            result = nnsService.getUsedDomainListNew(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                            result = nnsService.getUsedDomainList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
                         }
                         break;
                     // 正在竞拍域名
-                    case "getauctingdomain":
+                    case "getauctingdomainbymaxprice":
                         if (req.@params.Length < 2)
                         {
-                            result = nnsService.getAuctingDomainListNew();
+                            result = nnsService.getAuctingDomainListByMaxPrice();
                         }
                         else
                         {
-                            result = nnsService.getAuctingDomainListNew(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                            result = nnsService.getAuctingDomainListByMaxPrice(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        }
+                        break;
+                    case "getauctingdomain":
+                        if (req.@params.Length < 2)
+                        {
+                            result = nnsService.getAuctingDomainList();
+                        }
+                        else
+                        {
+                            result = nnsService.getAuctingDomainList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
                         }
                         break;
                     // statistics(奖金池+已领分红+已使用域名数量+正在竞拍域名数量)
@@ -171,6 +319,7 @@ namespace NEL_Scan_API.Controllers
                     case "fuzzysearchasset":
                         result = assetService.fuzzySearchAsset(req.@params[0].ToString());
                         break;
+                    // 
                     case "getaddresstxs":
                         result = analyService.getAddressTxsNew(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         break;
@@ -205,6 +354,22 @@ namespace NEL_Scan_API.Controllers
             res.result = result;
 
             return res;
+        }
+
+        private void initMonitor()
+        {
+            string startMonitorFlag = mh.startMonitorFlag ;
+            if (startMonitorFlag == "1")
+            {
+                monitor = new Monitor();
+            }
+        }
+        private void point(string method)
+        {
+            if(monitor != null)
+            {
+                monitor.point(netnode, method);
+            }
         }
     }
 }

@@ -26,6 +26,28 @@ namespace NEL_Scan_API.lib
             var ps = nameHash(parent);
             return nameHashSub(ps.data, domain);
         }
+        public static string nameHashFull(string domain)
+        {
+            int index = domain.IndexOf(".");
+            if(index > 0)
+            {
+                return nameHashFull(domain.Substring(0, index), domain.Substring(index+1)).ToString();
+            } else
+            {
+                return nameHash(domain).ToString();
+            }
+        }
+        public static string nameHashFullDomain(string fulldomain)
+        {
+            int split = fulldomain.LastIndexOf(".");
+            if (split == -1)
+            {
+                return nameHash(fulldomain).ToString();
+            }
+            var domain = fulldomain.Substring(0, split);
+            var parent = fulldomain.Substring(split + 1);
+            return nameHashFull(domain, parent).ToString();
+        }
     }
     public class Hash256 : IComparable<Hash256>
     {
