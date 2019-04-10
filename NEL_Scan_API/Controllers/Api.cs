@@ -176,6 +176,24 @@ namespace NEL_Scan_API.Controllers
                 point(req.method);
                 switch (req.method)
                 {
+                    case "getNep5TxlistByAddress":
+                        if(req.@params.Length < 3)
+                        {
+                            result = blockService.getNep5TxlistByAddress(req.@params[0].ToString());
+                        } else
+                        {
+                            result = blockService.getNep5TxlistByAddress(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        }
+                        break;
+                    case "getNep5Txlist":
+                        if (req.@params.Length < 2)
+                        {
+                            result = blockService.getNep5Txlist();
+                        } else
+                        {
+                            result = blockService.getNep5Txlist(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        }
+                        break;
                     //
                     case "getMappingDomain":
                         result = nnsDomainCrediteService.getMappingDomain(req.@params[0].ToString());
