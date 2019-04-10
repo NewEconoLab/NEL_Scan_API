@@ -83,15 +83,20 @@ namespace NEL_Scan_API.Service
         
         public JArray getRankByAsset(string asset, int pageSize, int pageNum)
         {
-            JObject filter = new JObject() { { "asset", asset } };
-            JObject sort = new JObject() { { "balance", -1 } };
-            JArray res = mh.GetDataPages(analy_mongodbConnStr, analy_mongodbDatabase, "allAssetRank", sort.ToString(), pageSize, pageNum, filter.ToString());
+            JObject filter = new JObject() { { "AssetHash", asset } };
+            JObject sort = new JObject() { { "Balance", -1 } };
+            JArray res = mh.GetDataPages(analy_mongodbConnStr, analy_mongodbDatabase, "address_assetid_balance", sort.ToString(), pageSize, pageNum, filter.ToString());
+            for (var i = 0;i<res.Count;i++)
+            {
+                JObject jo = (JObject)res[i];
+                res[i] = new JObject() { { "asset", (string)jo["AssetHash"] }, { "balance",jo["Balance"]["$numberDecimal"] } ,{ "addr",jo["Address"]} };
+            }
             return res;
         }
         public JArray getRankByAssetCount(string asset)
         {
-            JObject filter = new JObject() { { "asset", asset } };
-            long res = mh.GetDataCount(analy_mongodbConnStr, analy_mongodbDatabase, "allAssetRank", filter.ToString());
+            JObject filter = new JObject() { { "AssetHash", asset } };
+            long res = mh.GetDataCount(analy_mongodbConnStr, analy_mongodbDatabase, "address_assetid_balance", filter.ToString());
             return getJAbyKV("count", res);
         }
 
