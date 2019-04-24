@@ -107,15 +107,17 @@ namespace NEL_Scan_API.Service
         }
         private decimal getBonus()
         {
-            string findStr = new JObject() { { "addr", bonusAddress }, {"asset", id_sgas } }.ToString();
+            //string findStr = new JObject() { { "addr", bonusAddress }, {"asset", id_sgas } }.ToString();
+            string findStr = new JObject() { { "Address", bonusAddress }, { "AssetHash", id_sgas } }.ToString();
             JArray res = mh.GetData(analy_mongodbConnStr, analy_mongodbDatabase, bonusStatisticCol, findStr);
             if(res == null || res.Count == 0)
             {
                 return 0;
             }
-            return 
-            decimal.Parse(res[0]["value_pre"].ToString(), NumberStyles.Float) +
-            decimal.Parse(res[0]["value_cur"].ToString(), NumberStyles.Float);
+            //return 
+            //decimal.Parse(res[0]["value_pre"].ToString(), NumberStyles.Float) +
+            //decimal.Parse(res[0]["value_cur"].ToString(), NumberStyles.Float);
+            return NumberDecimalHelper.formatDecimalDouble(res[0]["Balance"].ToString());
             /*
             string addressHash = Helper.Bytes2HexString(Helper.GetPublicKeyHashFromAddress(bonusAddress));
             var result = TxHelper.api_InvokeScript(nelJsonRPCUrl, new ThinNeo.Hash160(id_sgas), "balanceOf", "(bytes)" + addressHash);
