@@ -342,10 +342,10 @@ namespace NEL_Scan_API.Controllers
                         result = analyService.getAddressTxsNew(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         break;
                     case "getrankbyasset":
-                        result = analyService.getRankByAsset(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        result = analyService.getRankByAsset(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()), netnode);
                         break;
                     case "getrankbyassetcount":
-                        result = analyService.getRankByAssetCount(req.@params[0].ToString());
+                        result = analyService.getRankByAssetCount(req.@params[0].ToString(), netnode);
                         break;
                     
                     // test
