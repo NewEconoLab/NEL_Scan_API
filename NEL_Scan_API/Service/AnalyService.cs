@@ -83,7 +83,7 @@ namespace NEL_Scan_API.Service
         
         public JArray getRankByAsset(string asset, int pageSize, int pageNum, string network="testnet")
         {
-            if (network != "testnet") return getRankByAssetOld(asset, pageSize, pageNum);
+            //if (network != "testnet") return getRankByAssetOld(asset, pageSize, pageNum);
 
             JObject filter = new JObject() { { "AssetHash", asset } };
             JObject sort = new JObject() { { "Balance", -1 } };
@@ -97,7 +97,7 @@ namespace NEL_Scan_API.Service
         }
         public JArray getRankByAssetCount(string asset, string network = "testnet")
         {
-            if (network != "testnet") return getRankByAssetCountOld(asset);
+            //if (network != "testnet") return getRankByAssetCountOld(asset);
 
             JObject filter = new JObject() { { "AssetHash", asset } };
             long res = mh.GetDataCount(analy_mongodbConnStr, analy_mongodbDatabase, "address_assetid_balance", filter.ToString());
