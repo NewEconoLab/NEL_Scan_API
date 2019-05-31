@@ -69,7 +69,7 @@ namespace NEL_Scan_API.Service
 
         public JArray getutxolistbyaddress(string address, int pageNum=1, int pageSize=10) {
 
-            string findStr = new JObject() { { "addr", address } }.ToString();
+            string findStr = new JObject() { { "addr", address },{ "used",""} }.ToString();
             long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "utxo", findStr);
             
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "asset", "txid", "value"}).ToString();
