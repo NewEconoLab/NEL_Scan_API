@@ -11,6 +11,9 @@ namespace NEL_Scan_API.lib
 {
     public class mongoHelper
     {
+        public string dao_mongodbConnStr_testnet = string.Empty;
+        public string dao_mongodbDatabase_testnet = string.Empty;
+
         public string block_mongodbConnStr_testnet = string.Empty;
         public string block_mongodbDatabase_testnet = string.Empty;
         public string analy_mongodbConnStr_testnet = string.Empty;
@@ -95,6 +98,9 @@ namespace NEL_Scan_API.lib
             bonusAddress_mainnet = config["bonusAddress_mainnet"];
             bonusStatisticCol_testnet = config["bonusStatisticCol_testnet"];
             bonusStatisticCol_mainnet = config["bonusStatisticCol_mainnet"];
+
+            dao_mongodbConnStr_testnet = config["dao_mongodbConnStr_testnet"];
+            dao_mongodbDatabase_testnet = config["dao_mongodbDatabase_testnet"];
 
             /*
             bonusSgas_mongodbConnStr_testnet = config["bonusSgas_mongodbConnStr_testnet"];

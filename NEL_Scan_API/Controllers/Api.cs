@@ -17,6 +17,7 @@ namespace NEL_Scan_API.Controllers
         private NotifyService notifyService;
         private BlockService blockService;
         private NNSDomainCreditService nnsDomainCrediteService;
+        private DaoService daoService;
 
         private mongoHelper mh = new mongoHelper();
 
@@ -32,6 +33,12 @@ namespace NEL_Scan_API.Controllers
             switch (netnode)
             {
                 case "testnet":
+                    daoService = new DaoService
+                    {
+                        mh = mh,
+                        mongodbConnStr = mh.dao_mongodbConnStr_testnet,
+                        mongodbDatabase = mh.dao_mongodbDatabase_testnet
+                    };
                     nnsDomainCrediteService = new NNSDomainCreditService
                     {
                         mh = mh,
@@ -176,6 +183,41 @@ namespace NEL_Scan_API.Controllers
                 point(req.method);
                 switch (req.method)
                 {
+                    // 获取服务列表
+                    case "getServiceList":
+                        result = daoService.getServiceList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        break;
+                    case "getUserInfo":
+                        result = daoService.getUserInfo(req.@params[0].ToString());
+                        break;
+                    case "getHashInfoByVoteHash":
+                        result = daoService.getHashInfoByVoteHash(req.@params[0].ToString());
+                        break;
+                    // 获取治理信息列表(治理)
+                    case "getVoteTxHistList":
+                        result = daoService.getVoteTxHistList(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        break;
+                    // 获取治理信息(治理)
+                    case "getVoteInfo":
+                        result = daoService.getVoteInfo(req.@params[0].ToString());
+                        break;
+                    // 获取项目交易历史列表(众筹)
+                    case "getProjTxHistList":
+                        result = daoService.getProjTxHistList(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        break;
+                    // 获取项目信息(众筹)
+                    case "getProjInfo":
+                        result = daoService.getProjInfo(req.@params[0].ToString());
+                        break;
+                    // 存储治理信息(治理)
+                    case "storeVoteInfo":
+                        result = daoService.storeVoteInfo(req.@params[0].ToString(), req.@params[1].ToString(), req.@params[2].ToString(), req.@params[3].ToString(), req.@params[4].ToString(), req.@params[5].ToString(), req.@params[6].ToString(), req.@params[7].ToString());
+                        break;
+                    // 存储项目信息(众筹)
+                    case "storeProjInfo":
+                        result = daoService.storeProjInfo(req.@params[0].ToString(), req.@params[1].ToString(), req.@params[2].ToString(), req.@params[3].ToString(), req.@params[4].ToString(), req.@params[5].ToString(), req.@params[5].ToString());
+                        break;
+                    // .....
                     case "getNep5TxlistByAddress":
                         if(req.@params.Length < 3)
                         {
