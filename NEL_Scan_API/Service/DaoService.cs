@@ -1,5 +1,6 @@
 ﻿using NEL_Scan_API.lib;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -74,6 +75,7 @@ namespace NEL_Scan_API.Service
             string fieldStr = new JObject { { "address", 1 } }.ToString();
             var queryRes = mh.GetDataWithField(mongodbConnStr, mongodbDatabase, ethPriceStateCol, fieldStr, findStr);
             int joinCount = 0;
+            var perFrom24h = getFntAmountUtilTodayZeroClockPri(hash).ToString(); 
             if (queryRes != null && queryRes.Count > 0)
             {
                 joinCount = queryRes.Select(p => p["address"].ToString()).Distinct().Count();
@@ -96,12 +98,18 @@ namespace NEL_Scan_API.Service
                 projDetail = subres[0]["projDetail"].ToString();
             }
 
-            return new JArray { new JObject { { "voteHash", voteHash }, { "address", address }, { "creator", creator }, { "projName", projName }, { "projDetail", projDetail }, { "joinCount", joinCount } } };
+            return new JArray { new JObject { { "voteHash", voteHash }, { "address", address }, { "creator", creator }, { "projName", projName }, { "projDetail", projDetail }, { "joinCount", joinCount }, { "perFrom24h", perFrom24h } } };
         }
-        public JArray getProjTxHistList(string hash, int pageNum = 1, int pageSize = 10)
+        public JArray getProjTxHistList(string hash, int pageNum = 1, int pageSize = 10, string address="")
         {
             //time/txid/height/address/eventName/ethAmount/fndAmount
-            string findStr = new JObject { { "hash", hash } }.ToString();
+            //string findStr = new JObject { { "hash", hash } }.ToString();
+            var findJo = new JObject { { "hash", hash } };
+            if (address != "")
+            {
+                findJo.Add("address", address);
+            }
+            string findStr = findJo.ToString();
             string sortStr = new JObject { { "blocktime", -1 } }.ToString();
             var queryRes = mh.GetDataPages(mongodbConnStr, mongodbDatabase, ethPriceStateCol, sortStr, pageSize, pageNum, findStr);
             if (queryRes == null || queryRes.Count == 0) return new JArray { };
@@ -205,6 +213,7 @@ namespace NEL_Scan_API.Service
             var res = queryRes.Select(p =>
             {
                 JObject jo = (JObject)p;
+                /*
                 var perFrom24h = "0";
                 var subfindStr = new JObject { { "hash", jo["hash"].ToString().ToLower() } }.ToString();
                 var subsortStr = new JObject { { "blocktime", -1 } }.ToString();
@@ -215,10 +224,23 @@ namespace NEL_Scan_API.Service
                     perFrom24h = subres[0]["perFrom24h"].ToString();
                 }
                 jo.Add("perFrom24h", perFrom24h);
+                */
+                jo.Add("perFrom24h", getFntAmountUtilTodayZeroClockPri(jo["hash"].ToString().ToLower()));
                 return jo;
             }).ToArray();
             var count = mh.GetDataCount(mongodbConnStr, mongodbDatabase, ethPriceStateCol, findStr);
             return new JArray { new JObject { { "count", count }, { "list", new JArray { res } } } };
+        }
+        private decimal getFntAmountUtilTodayZeroClockPri(string hash)
+        {
+            string findStr = new JObject { { "hash", hash }, { "blocktime", new JObject { { "$lte", TimeHelper.GetTimeStampZero() } } } }.ToString();
+            string fieldStr = new JObject { { "fndAmount", 1 } }.ToString();
+            var queryRes = mh.GetDataWithField(mongodbConnStr, mongodbDatabase, ethPriceStateCol, fieldStr, findStr);
+            if (queryRes != null && queryRes.Count > 0)
+            {
+                return queryRes.Sum(p => decimal.Parse(p["fndAmount"].ToString()));
+            }
+            return 0;
         }
     }
 }

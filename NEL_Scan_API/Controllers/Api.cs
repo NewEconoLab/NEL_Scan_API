@@ -203,6 +203,11 @@ namespace NEL_Scan_API.Controllers
                         break;
                     // 获取项目交易历史列表(众筹)
                     case "getProjTxHistList":
+                        if (req.@params.Length > 3)
+                        {
+                            result = daoService.getProjTxHistList(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()), req.@params[3].ToString());
+                            break;
+                        }
                         result = daoService.getProjTxHistList(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         break;
                     // 获取项目信息(众筹)
