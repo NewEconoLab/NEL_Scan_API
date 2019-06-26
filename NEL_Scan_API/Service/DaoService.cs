@@ -233,7 +233,7 @@ namespace NEL_Scan_API.Service
         }
         private decimal getFntAmountUtilTodayZeroClockPri(string hash)
         {
-            string findStr = new JObject { { "hash", hash }, { "blocktime", new JObject { { "$lte", TimeHelper.GetTimeStampZero() } } } }.ToString();
+            string findStr = new JObject { { "hash", hash }, { "blocktime", new JObject { { "$lte", TimeHelper.GetTimeStampZeroBj() } } } }.ToString();
             string fieldStr = new JObject { { "fndAmount", 1 } }.ToString();
             var queryRes = mh.GetDataWithField(mongodbConnStr, mongodbDatabase, ethPriceStateCol, fieldStr, findStr);
             if (queryRes != null && queryRes.Count > 0)
