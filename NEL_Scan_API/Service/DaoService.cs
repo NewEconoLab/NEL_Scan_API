@@ -225,7 +225,7 @@ namespace NEL_Scan_API.Service
                 }
                 jo.Add("perFrom24h", perFrom24h);
                 */
-                jo.Add("perFrom24h", getFntAmountUtilTodayZeroClockPri(jo["hash"].ToString().ToLower()));
+                jo.Add("perFrom24h", getFntAmountUtilTodayZeroClockPri(jo["hash"].ToString().ToLower()).ToString());
                 return jo;
             }).ToArray();
             var count = mh.GetDataCount(mongodbConnStr, mongodbDatabase, ethPriceStateCol, findStr);
