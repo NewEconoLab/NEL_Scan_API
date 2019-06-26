@@ -72,13 +72,14 @@ namespace NEL_Scan_API.Service
         {
             //发起人/已筹资金/ 目标资金/ 剩余时间 /总参与人数/ 已售出股份数
             string findStr = new JObject { { "hash", hash } }.ToString();
-            string fieldStr = new JObject { { "address", 1 } }.ToString();
+            string fieldStr = new JObject { { "address", 1 },{ "blockindex", 1 },{ "perFrom24h",1} }.ToString();
             var queryRes = mh.GetDataWithField(mongodbConnStr, mongodbDatabase, ethPriceStateCol, fieldStr, findStr);
             int joinCount = 0;
-            var perFrom24h = getFntAmountUtilTodayZeroClockPri(hash).ToString(); 
+            var perFrom24h = "0";//getFntAmountUtilTodayZeroClockPri(hash).ToString(); 
             if (queryRes != null && queryRes.Count > 0)
             {
                 joinCount = queryRes.Select(p => p["address"].ToString()).Distinct().Count();
+                perFrom24h = queryRes.OrderByDescending(p => p["blockindex"]).ToArray()[0]["perFrom24h"].ToString();
             }
 
             var voteHash = "";
@@ -213,7 +214,7 @@ namespace NEL_Scan_API.Service
             var res = queryRes.Select(p =>
             {
                 JObject jo = (JObject)p;
-                /*
+                
                 var perFrom24h = "0";
                 var subfindStr = new JObject { { "hash", jo["hash"].ToString().ToLower() } }.ToString();
                 var subsortStr = new JObject { { "blocktime", -1 } }.ToString();
@@ -224,8 +225,7 @@ namespace NEL_Scan_API.Service
                     perFrom24h = subres[0]["perFrom24h"].ToString();
                 }
                 jo.Add("perFrom24h", perFrom24h);
-                */
-                jo.Add("perFrom24h", getFntAmountUtilTodayZeroClockPri(jo["hash"].ToString().ToLower()).ToString());
+                //jo.Add("perFrom24h", getFntAmountUtilTodayZeroClockPri(jo["hash"].ToString().ToLower()).ToString());
                 return jo;
             }).ToArray();
             var count = mh.GetDataCount(mongodbConnStr, mongodbDatabase, ethPriceStateCol, findStr);
