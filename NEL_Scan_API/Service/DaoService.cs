@@ -108,7 +108,7 @@ namespace NEL_Scan_API.Service
             var findJo = new JObject { { "hash", hash } };
             if (address != "")
             {
-                findJo.Add("address", address);
+                findJo.Add("address", address.ToLower());
             }
             string findStr = findJo.ToString();
             string sortStr = new JObject { { "blocktime", -1 } }.ToString();
