@@ -18,6 +18,7 @@ namespace NEL_Scan_API.Controllers
         private BlockService blockService;
         private NNSDomainCreditService nnsDomainCrediteService;
         private DaoService daoService;
+        private ContractService contractService;
 
         private mongoHelper mh = new mongoHelper();
 
@@ -33,6 +34,16 @@ namespace NEL_Scan_API.Controllers
             switch (netnode)
             {
                 case "testnet":
+                    contractService = new ContractService
+                    {
+                        mh = mh,
+                        Block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        Block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
+                        Notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
+                        Notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
+                        Analysis_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
+                        Analysis_mongodbDatabase = mh.analy_mongodbDatabase_testnet
+                    };
                     daoService = new DaoService
                     {
                         mh = mh,
@@ -110,6 +121,16 @@ namespace NEL_Scan_API.Controllers
                     };
                     break;
                 case "mainnet":
+                    contractService = new ContractService
+                    {
+                        mh = mh,
+                        Block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        Block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                        Notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
+                        Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
+                        Analysis_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
+                        Analysis_mongodbDatabase = mh.analy_mongodbDatabase_mainnet
+                    };
                     nnsDomainCrediteService = new NNSDomainCreditService
                     {
                         mh = mh,
@@ -183,6 +204,19 @@ namespace NEL_Scan_API.Controllers
                 point(req.method);
                 switch (req.method)
                 {
+                    // 获取合约信息
+                    case "getContractNep5Tx":
+                        result = contractService.getContractNep5Tx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        break;
+                    // 获取合约信息
+                    case "getContractCallTx":
+                        result = contractService.getContractCallTx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        break;
+                    // 获取合约信息
+                    case "getContractInfo":
+                        result = contractService.getContractInfo(req.@params[0].ToString());
+                        break;
+                    
                     // 获取服务列表
                     case "getServiceList":
                         result = daoService.getServiceList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
