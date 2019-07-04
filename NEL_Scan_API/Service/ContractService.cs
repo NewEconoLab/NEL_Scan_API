@@ -33,13 +33,13 @@ namespace NEL_Scan_API.Service
                     {"name", p["name"] },
                     {"hash", p["hash"] },
                     {"author", p["author"] },
-                    {"createDate", 1501234567 },
+                    {"createDate", p["createDate"].ToString() == "0" ? 1501234567:p["createDate"]},
                     {"version", p["version"] },
                     {"description", p["description"] },
-                    {"txCount", 0 },
-                    {"txCount24h", 0 },
-                    {"usrCount", 0 },
-                    {"usrCount24h", 0 },
+                    {"txCount", p["txCount"] },
+                    {"txCount24h", p["txCount24h"] },
+                    {"usrCount", p["usrCount"]},
+                    {"usrCount24h", p["usrCount24h"] },
                 };
             return new JArray { res };
         }
@@ -68,7 +68,7 @@ namespace NEL_Scan_API.Service
                     { "from", p["address"]},
                     { "to", "当前合约"},
                     { "value", value},
-                    { "net_fee", p["net_fee"]}
+                    { "net_fee", NumberDecimalHelper.formatDecimal(p["net_fee"].ToString())}
                 };
             }).ToArray();
 
