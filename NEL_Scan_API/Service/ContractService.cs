@@ -86,8 +86,40 @@ namespace NEL_Scan_API.Service
             } };
         }
 
+        public JArray getContractNep5TxNew(string address, int pageNum=1, int pageSize=10)
+        {
+            if (mh == null) return new JArray { };
+            string findStr = new JObject { { "$or", new JArray { new JObject { { "from", address} }, new JObject { { "to", address } } } } }.ToString();
+            string sortStr = new JObject { { "time", -1 } }.ToString();
+            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, sortStr, pageSize, pageNum, findStr); ;
+            if (queryRes == null || queryRes.Count == 0) return new JArray { };
+
+            var indexs = queryRes.Select(p => (long)p["blockindex"]).ToArray();
+            var assets = queryRes.Select(p => p["asset"].ToString()).ToArray();
+            var indexDict = getBlockTime(indexs);
+            var assetDict = getAssetName(assets);
+
+            var res = queryRes.Select(p => new JObject {
+                { "txid", p["txid"]},
+                { "time", indexDict.GetValueOrDefault((long)p["blockindex"])},
+                { "from", p["from"]},
+                { "to", p["to"]},
+                { "value", p["value"]},
+                { "assetHash", p["asset"]},
+                { "assetName", assetDict.GetValueOrDefault(p["asset"].ToString())},
+            }).ToArray();
+
+            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, findStr);
+
+            return new JArray { new JObject {
+                { "count", count},
+                { "list", new JArray{ res } }
+            } };
+        }
         public JArray getContractNep5Tx(string hash, int pageNum=1, int pageSize=10)
         {
+            bool flag = true;
+            if (flag) return getContractNep5TxNew(hash, pageNum, pageSize);
             if (mh == null) return new JArray { };
             // txid + time + from + to + amount + assetName
             string findStr = new JObject { { "asset", hash } }.ToString();
