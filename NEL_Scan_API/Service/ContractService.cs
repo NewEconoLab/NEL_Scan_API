@@ -28,11 +28,17 @@ namespace NEL_Scan_API.Service
             var queryRes = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, contractInfoCol, fieldStr, findStr);
             if (queryRes == null || queryRes.Count == 0) return new JArray { };
 
+            var isNep5 = isNep5Asset(hash, out string assetName, out string assetSymbol);
+
             var p = queryRes[0];
             var res = new JObject {
                     {"name", p["name"] },
                     {"hash", p["hash"] },
+                    {"isNep5Asset", isNep5 },
+                    {"assetName", assetName },
+                    {"assetSymbol", assetSymbol },
                     {"author", p["author"] },
+                    {"email", p["email"] },
                     {"createDate", p["createDate"].ToString() == "0" ? 1501234567:p["createDate"]},
                     {"version", p["version"] },
                     {"description", p["description"] },
@@ -112,7 +118,6 @@ namespace NEL_Scan_API.Service
             } };
         }
 
-
         private Dictionary<long, long> getBlockTime(long[] indexs)
         {
             string findStr = MongoFieldHelper.toFilter(indexs, "index").ToString();
@@ -127,5 +132,21 @@ namespace NEL_Scan_API.Service
             var queryRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "NEP5asset", fieldStr, findStr);
             return queryRes.ToDictionary(k => k["assetid"].ToString(), v => v["symbol"].ToString());
         }
+
+        private bool isNep5Asset(string hash, out string name, out string symbol)
+        {
+            string findStr = new JObject { { "assetid", hash } }.ToString();
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "NEP5asset", findStr);
+            if(queryRes == null || queryRes.Count == 0)
+            {
+                name = "";
+                symbol = "";
+                return false;
+            }
+            name = queryRes[0]["name"].ToString();
+            symbol = queryRes[0]["symbol"].ToString();
+            return true;
+        }
     }
+
 }
