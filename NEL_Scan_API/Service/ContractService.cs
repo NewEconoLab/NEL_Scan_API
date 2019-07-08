@@ -40,7 +40,7 @@ namespace NEL_Scan_API.Service
                     {"author", p["author"] },
                     {"email", p["email"] },
                     {"createDate", p["createDate"].ToString() == "0" ? 1501234567:p["createDate"]},
-                    {"version", p["version"] },
+                    {"version", p["code_version"] },
                     {"description", p["description"] },
                     {"txCount", p["txCount"] },
                     {"txCount24h", p["txCount24h"] },
@@ -74,7 +74,7 @@ namespace NEL_Scan_API.Service
                     { "from", p["address"]},
                     { "to", "当前合约"},
                     { "value", value},
-                    { "net_fee", NumberDecimalHelper.formatDecimal(p["net_fee"].ToString())}
+                    { "net_fee", NumberDecimalHelper.formatDecimal(p["net_fee"].ToString()) + " CGAS"}
                 };
             }).ToArray();
 
