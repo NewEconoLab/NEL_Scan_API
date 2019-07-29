@@ -79,9 +79,9 @@ dotnet NEL_Scan_API.dll
 
 ## 依赖工程 :
 ```
-[爬虫工程]：(https://github.com/NewEconoLab/NeoBlock-Mongo-Storage)
-[分析工程]：(https://github.com/NewEconoLab/NeoBlockAnalysis)
-[合约通知工程]：(https://github.com/NewEconoLab/ContractNotifyCollector)
+[爬虫工程](https://github.com/NewEconoLab/NeoBlock-Mongo-Storage)
+[分析工程](https://github.com/NewEconoLab/NeoBlockAnalysis)
+[合约通知工程](https://github.com/NewEconoLab/ContractNotifyCollector)
 ```
 
 <a name="en">English</a>
@@ -164,7 +164,7 @@ dotnet NEL_Scan_API.dll
 
 ## dependency project :
 ```
-[reptile project]：(https://github.com/NewEconoLab/NeoBlock-Mongo-Storage)
-[analysis project]：(https://github.com/NewEconoLab/NeoBlockAnalysis)
-[contract notify project]：(https://github.com/NewEconoLab/ContractNotifyCollector)
+[reptile project](https://github.com/NewEconoLab/NeoBlock-Mongo-Storage)
+[analysis project](https://github.com/NewEconoLab/NeoBlockAnalysis)
+[contract notify project](https://github.com/NewEconoLab/ContractNotifyCollector)
 ```
