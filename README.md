@@ -65,10 +65,7 @@ git clone https://github.com/NewEconoLab/NEL_Scan_API.git
   "bonusSgasCol_testnet": "测试网分红sgas表",
   "bonusSgasCol_mainnet": "主网分红sgas表",
   "id_sgas_testnet": "测试网sgas哈希",
-  "id_sgas_mainnet": "主网sgas哈希",
-  "bonusSgas_mongodbConnStr_testnet": "",
-  "bonusSgas_mongodbDatabase_testnet": "",
-  "bonusSgas_mongodbConnStr_mainnet": ""
+  "id_sgas_mainnet": "主网sgas哈希"
 }
 ```
 
