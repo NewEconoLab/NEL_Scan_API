@@ -14,7 +14,6 @@ namespace NEL_Scan_API.Controllers
         private AssetService assetService;
         private NNSService nnsService;
         private DomainService domainService;
-        private NotifyService notifyService;
         private BlockService blockService;
         private NNSDomainCreditService nnsDomainCrediteService;
         private DaoService daoService;
@@ -61,16 +60,6 @@ namespace NEL_Scan_API.Controllers
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
                         Block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
-                    };
-                    notifyService = new NotifyService
-                    {
-                        dc = DBClient.getInstance(
-                            mh,
-                            mh.notify_mongodbConnStr_testnet,
-                            mh.notify_mongodbDatabase_testnet,
-                            mh.notifyCodeColl_testnet,
-                            mh.notifySubsColl_testnet
-                            )
                     };
                     analyService = new AnalyService
                     {
@@ -336,18 +325,6 @@ namespace NEL_Scan_API.Controllers
                         break;
                     case "getdomaininfo":
                         result = domainService.getDomainInfo(req.@params[0].ToString());
-                        break;
-                    case "getAuthenticationCode":
-                        result = notifyService.getAuthenticationCode(req.@params[0].ToString());
-                        break;
-                    case "subscribDomainNotify":
-                        if (req.@params.Length < 4)
-                        {
-                            result = notifyService.subscribeDomainNotify(req.@params[0].ToString(), req.@params[1].ToString(), req.@params[2].ToString());
-                        } else
-                        {
-                            result = notifyService.subscribeDomainNotify(req.@params[0].ToString(), req.@params[1].ToString(), req.@params[2].ToString(), req.@params[3].ToString());
-                        }
                         break;
                     case "getauctioninfoTx":
                         if (req.@params.Length < 3)

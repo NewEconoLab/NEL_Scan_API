@@ -41,20 +41,10 @@ namespace NEL_Scan_API.lib
         public string bonusStatisticCol_testnet = string.Empty;
         public string bonusStatisticCol_mainnet = string.Empty;
 
-        /*
-        public string bonusSgas_mongodbConnStr_testnet { set; get; }
-        public string bonusSgas_mongodbConnStr_mainnet { set; get; }
-        public string bonusSgas_mongodbDatabase_testnet { set; get; }
-        public string bonusSgas_mongodbDatabase_mainnet { set; get; }
-        */
-
         public string bonusSgasCol_testnet { set; get; }
         public string bonusSgasCol_mainnet { set; get; }
         public string id_sgas_testnet { set; get; }
         public string id_sgas_mainnet { set; get; }
-
-        public string notifyCodeColl_testnet {set; get;}
-        public string notifySubsColl_testnet { set; get; }
 
         public string NNsfixedSellingAddr_testnet { get; set; }
         public string NNsfixedSellingAddr_mainnet { get; set; }
@@ -102,21 +92,10 @@ namespace NEL_Scan_API.lib
             dao_mongodbConnStr_testnet = config["dao_mongodbConnStr_testnet"];
             dao_mongodbDatabase_testnet = config["dao_mongodbDatabase_testnet"];
 
-            /*
-            bonusSgas_mongodbConnStr_testnet = config["bonusSgas_mongodbConnStr_testnet"];
-            bonusSgas_mongodbConnStr_mainnet = config["bonusSgas_mongodbConnStr_mainnet"];
-            bonusSgas_mongodbDatabase_testnet = config["bonusSgas_mongodbDatabase_testnet"];
-            bonusSgas_mongodbDatabase_mainnet = config["bonusSgas_mongodbDatabase_mainnet"];
-            */
-
             bonusSgasCol_testnet = config["bonusSgasCol_testnet"];
             bonusSgasCol_mainnet = config["bonusSgasCol_mainnet"];
             id_sgas_testnet = config["id_sgas_testnet"];
             id_sgas_mainnet = config["id_sgas_mainnet"];
-
-
-            notifyCodeColl_testnet = config["notifyCodeColl_testnet"];
-            notifySubsColl_testnet = config["notifySubsColl_testnet"];
 
             NNsfixedSellingAddr_testnet = config["NNsfixedSellingAddr_testnet"];
             NNsfixedSellingAddr_mainnet = config["NNsfixedSellingAddr_mainnet"];
