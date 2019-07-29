@@ -36,29 +36,103 @@ vi mongodbsettings.json
 配置文件大致如下 :
 ```json
 {
-  "mongodbConnStr_testnet": "mongodb://**",
-  "mongodbDatabase_testnet": "NeoBlockBaseData",
-  "neoCliJsonRPCUrl_testnet": ", ",
-  "mongodbConnStr_mainnet": "mongodb://**",
-  "mongodbDatabase_mainnet": "NeoBlockData_mainnet",
-  "neoCliJsonRPCUrl_mainnet": ""
+  "block_mongodbConnStr_testnet": "",
+  "block_mongodbDatabase_testnet": "",
+  "analy_mongodbConnStr_testnet": "",
+  "analy_mongodbDatabase_testnet": "",
+  "notify_mongodbConnStr_testnet": "",
+  "notify_mongodbDatabase_testnet": "",
+  "snapshot_mongodbConnStr_testnet": "",
+  "snapshot_mongodbDatabase_testnet": "",
+  "nelJsonRPCUrl_testnet": "",
+  "block_mongodbConnStr_mainnet": "",
+  "block_mongodbDatabase_mainnet": "",
+  "analy_mongodbConnStr_mainnet": "",
+  "analy_mongodbDatabase_mainnet": "",
+  "notify_mongodbDatabase_mainnet": "",
+  "snapshot_mongodbConnStr_mainnet": "",
+  "snapshot_mongodbDatabase_mainnet": "",
+  "nelJsonRPCUrl_mainnet": "",
+   "dao_mongodbConnStr_testnet": "",
+  "dao_mongodbDatabase_testnet": "",
+  "auctionStateColl_testnet": "",
+  "auctionStateColl_mainnet": "",
+  "bonusAddress_testnet": "",
+  "bonusAddress_mainnet": "",
+  "bonusStatisticCol_testnet": "",
+  "bonusStatisticCol_mainnet": "",
+  "NNsfixedSellingAddr_testnet": "",
+  "NNsfixedSellingAddr_mainnet": "",
+  "NNSfixedSellingColl_testnet": "",
+  "NNSfixedSellingColl_mainnet": "",
+  "domainCenterColl_testnet": "",
+  "domainCenterColl_mainnet": "",
+  "bonusSgasCol_testnet": "",
+  "bonusSgasCol_mainnet": "",
+  "id_sgas_testnet": "",
+  "id_sgas_mainnet": "",
+  "notifyCodeColl_testnet": "",
+  "notifySubsColl_testnet": "",
+  "bonusSgas_mongodbConnStr_testnet": "",
+  "bonusSgas_mongodbDatabase_testnet": "",
+  "bonusSgas_mongodbConnStr_mainnet": "",
+  "bonusSgas_mongodbDatabase_mainnet": "",
+  "startMonitorFlag": "1",
+  "test":""
 }
 ```
 ```
 >
->mongodbConnStr_testnet:测试网数据库地址
->mongodbDatabase_testnet:测试网数据库库名
->neoCliJsonRPCUrl_testnet:测试网节点所在服务器地址
->mongodbConnStr_mainnet:主网数据库地址
->mongodbDatabase_mainnet:主网数据库库名
->neoCliJsonRPCUrl_mainnet:主网节点所在服务器地址
+>block_mongodbConnStr_testnet:
+>block_mongodbDatabase_testnet:
+>analy_mongodbConnStr_testnet:
+>analy_mongodbDatabase_testnet:
+>notify_mongodbConnStr_testnet:
+>notify_mongodbDatabase_testnet:
+>snapshot_mongodbConnStr_testnet:
+>snapshot_mongodbDatabase_testnet:
+>nelJsonRPCUrl_testnet:
+>block_mongodbConnStr_mainnet:
+>block_mongodbDatabase_mainnet:
+>analy_mongodbConnStr_mainnet:
+>analy_mongodbDatabase_mainnet:
+>notify_mongodbDatabase_mainnet:
+>snapshot_mongodbConnStr_mainnet:
+>snapshot_mongodbDatabase_mainnet:
+>nelJsonRPCUrl_mainnet:
+>dao_mongodbConnStr_testnet:
+>dao_mongodbDatabase_testnet:
+>auctionStateColl_testnet:
+>auctionStateColl_mainnet:
+>bonusAddress_testnet:
+>bonusAddress_mainnet:
+>bonusStatisticCol_testnet:
+>bonusStatisticCol_mainnet:
+>NNsfixedSellingAddr_testnet:
+>NNsfixedSellingAddr_mainnet:
+>NNSfixedSellingColl_testnet:
+>NNSfixedSellingColl_mainnet:
+>domainCenterColl_testnet:
+>domainCenterColl_mainnet:
+>bonusSgasCol_testnet:
+>bonusSgasCol_mainnet:
+>id_sgas_testnet:
+>id_sgas_mainnet:
+>notifyCodeColl_testnet:
+>notifySubsColl_testnet:
+>bonusSgas_mongodbConnStr_testnet:
+>bonusSgas_mongodbDatabase_testnet:
+>bonusSgas_mongodbConnStr_mainnet:
+>bonusSgas_mongodbDatabase_mainnet:
+>startMonitorFlag:
+>test:
 >
 ```
 
 编译并运行
 ```
 dotnet publish
-cd NEL_Scan_API/NEL_Scan_API/NEL_Scan_API/bin/Debug/netcoreapp2.0
+cd NEL_Scan_API/NEL_Scan_API/bin/Debug/netcoreapp2.0
 dotnet NEL_Scan_API.dll
 ```
 
@@ -98,28 +172,102 @@ vi mongodbsettings.json
 Introduction of the configuration file :
 ```json
 {
-  "mongodbConnStr_testnet": "mongodb://**",
-  "mongodbDatabase_testnet": "NeoBlockBaseData", 
-  "neoCliJsonRPCUrl_testnet": ", ",
-  "mongodbConnStr_mainnet": "mongodb://**",
-  "mongodbDatabase_mainnet": "NeoBlockData_mainnet",
-  "neoCliJsonRPCUrl_mainnet": ""
+  "block_mongodbConnStr_testnet": "",
+  "block_mongodbDatabase_testnet": "",
+  "analy_mongodbConnStr_testnet": "",
+  "analy_mongodbDatabase_testnet": "",
+  "notify_mongodbConnStr_testnet": "",
+  "notify_mongodbDatabase_testnet": "",
+  "snapshot_mongodbConnStr_testnet": "",
+  "snapshot_mongodbDatabase_testnet": "",
+  "nelJsonRPCUrl_testnet": "",
+  "block_mongodbConnStr_mainnet": "",
+  "block_mongodbDatabase_mainnet": "",
+  "analy_mongodbConnStr_mainnet": "",
+  "analy_mongodbDatabase_mainnet": "",
+  "notify_mongodbDatabase_mainnet": "",
+  "snapshot_mongodbConnStr_mainnet": "",
+  "snapshot_mongodbDatabase_mainnet": "",
+  "nelJsonRPCUrl_mainnet": "",
+   "dao_mongodbConnStr_testnet": "",
+  "dao_mongodbDatabase_testnet": "",
+  "auctionStateColl_testnet": "",
+  "auctionStateColl_mainnet": "",
+  "bonusAddress_testnet": "",
+  "bonusAddress_mainnet": "",
+  "bonusStatisticCol_testnet": "",
+  "bonusStatisticCol_mainnet": "",
+  "NNsfixedSellingAddr_testnet": "",
+  "NNsfixedSellingAddr_mainnet": "",
+  "NNSfixedSellingColl_testnet": "",
+  "NNSfixedSellingColl_mainnet": "",
+  "domainCenterColl_testnet": "",
+  "domainCenterColl_mainnet": "",
+  "bonusSgasCol_testnet": "",
+  "bonusSgasCol_mainnet": "",
+  "id_sgas_testnet": "",
+  "id_sgas_mainnet": "",
+  "notifyCodeColl_testnet": "",
+  "notifySubsColl_testnet": "",
+  "bonusSgas_mongodbConnStr_testnet": "",
+  "bonusSgas_mongodbDatabase_testnet": "",
+  "bonusSgas_mongodbConnStr_mainnet": "",
+  "bonusSgas_mongodbDatabase_mainnet": "",
+  "startMonitorFlag": "1",
+  "test":""
 }
 ```
 ```
 >
->mongodbConnStr_testnet:Test network database address
->mongodbDatabase_testnet:Test network database name
->neoCliJsonRPCUrl_testnet:Test network cli ip
->mongodbConnStr_mainnet:Main network database address
->mongodbDatabase_mainnet:Main network database name
->neoCliJsonRPCUrl_mainnet:Main network cli ip
+>block_mongodbConnStr_testnet:
+>block_mongodbDatabase_testnet:
+>analy_mongodbConnStr_testnet:
+>analy_mongodbDatabase_testnet:
+>notify_mongodbConnStr_testnet:
+>notify_mongodbDatabase_testnet:
+>snapshot_mongodbConnStr_testnet:
+>snapshot_mongodbDatabase_testnet:
+>nelJsonRPCUrl_testnet:
+>block_mongodbConnStr_mainnet:
+>block_mongodbDatabase_mainnet:
+>analy_mongodbConnStr_mainnet:
+>analy_mongodbDatabase_mainnet:
+>notify_mongodbDatabase_mainnet:
+>snapshot_mongodbConnStr_mainnet:
+>snapshot_mongodbDatabase_mainnet:
+>nelJsonRPCUrl_mainnet:
+>dao_mongodbConnStr_testnet:
+>dao_mongodbDatabase_testnet:
+>auctionStateColl_testnet:
+>auctionStateColl_mainnet:
+>bonusAddress_testnet:
+>bonusAddress_mainnet:
+>bonusStatisticCol_testnet:
+>bonusStatisticCol_mainnet:
+>NNsfixedSellingAddr_testnet:
+>NNsfixedSellingAddr_mainnet:
+>NNSfixedSellingColl_testnet:
+>NNSfixedSellingColl_mainnet:
+>domainCenterColl_testnet:
+>domainCenterColl_mainnet:
+>bonusSgasCol_testnet:
+>bonusSgasCol_mainnet:
+>id_sgas_testnet:
+>id_sgas_mainnet:
+>notifyCodeColl_testnet:
+>notifySubsColl_testnet:
+>bonusSgas_mongodbConnStr_testnet:
+>bonusSgas_mongodbDatabase_testnet:
+>bonusSgas_mongodbConnStr_mainnet:
+>bonusSgas_mongodbDatabase_mainnet:
+>startMonitorFlag:
+>test:
 >
 ```
 
 Compile and run :
 ```
 dotnet publish
-cd NEL_Scan_API/NEL_Scan_API/NEL_Scan_API/bin/Debug/netcoreapp2.0
+cd NEL_Scan_API/NEL_Scan_API/bin/Debug/netcoreapp2.0
 dotnet NEL_Scan_API.dll
 ```
