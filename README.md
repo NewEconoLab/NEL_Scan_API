@@ -31,7 +31,7 @@ git clone https://github.com/NewEconoLab/NEL_Scan_API.git
 修改配置文件放在执行文件下，配置文件大致如下 :
 ```json
 {
-  "block_mongodbConnStr_testnet": "",//基础数据库
+  "block_mongodbConnStr_testnet": "基础数据库",
   "block_mongodbDatabase_testnet": "", 
   "analy_mongodbConnStr_testnet": "",
   "analy_mongodbDatabase_testnet": "",
