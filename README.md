@@ -3,7 +3,7 @@
 
 <a name="zh">简体中文</a>
 ## 概述 :
-本项目主要是给_[NEL浏览器](https://scan.nel.group/)提供接口服务。
+本项目主要是给 _[NEL浏览器](https://scan.nel.group/)提供接口服务。
 
 ## 接口详情 :
 我们将接口文档用小幺鸡进行了整理,详细可以参阅 _[接口文档](http://www.xiaoyaoji.cn/doc/2veptPpn9o/edit)_
@@ -78,11 +78,9 @@ dotnet NEL_Scan_API.dll
 ```
 
 ## 依赖工程 :
-```
-[爬虫工程](https://github.com/NewEconoLab/NeoBlock-Mongo-Storage)
-[分析工程](https://github.com/NewEconoLab/NeoBlockAnalysis)
-[合约通知工程](https://github.com/NewEconoLab/ContractNotifyCollector)
-```
+- [爬虫工程](https://github.com/NewEconoLab/NeoBlock-Mongo-Storage)
+- [分析工程](https://github.com/NewEconoLab/NeoBlockAnalysis)
+- [合约通知工程](https://github.com/NewEconoLab/ContractNotifyCollector)
 
 <a name="en">English</a>
 ## Overview :
@@ -163,8 +161,6 @@ dotnet NEL_Scan_API.dll
 ```
 
 ## dependency project :
-```
-[reptile project](https://github.com/NewEconoLab/NeoBlock-Mongo-Storage)
-[analysis project](https://github.com/NewEconoLab/NeoBlockAnalysis)
-[contract notify project](https://github.com/NewEconoLab/ContractNotifyCollector)
-```
+- [reptile project](https://github.com/NewEconoLab/NeoBlock-Mongo-Storage)
+- [analysis project](https://github.com/NewEconoLab/NeoBlockAnalysis)
+- [contract notify project](https://github.com/NewEconoLab/ContractNotifyCollector)
