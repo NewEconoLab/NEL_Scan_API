@@ -28,7 +28,7 @@ yum install dotnet-sdk-2.1.200 -y
 git clone https://github.com/NewEconoLab/NEL_Scan_API.git
 ```
 
-修改配置文件放在执行文件瞎，配置文件大致如下 :
+修改配置文件放在执行文件下，配置文件大致如下 :
 ```json
 {
   "block_mongodbConnStr_testnet": "",
@@ -113,7 +113,7 @@ clone to the server :
 git clone https://github.com/NewEconoLab/NEL_Scan_API.git
 ```
 
-After modifying the configuration file and putting it in the execution file, the configuration file is roughly as follows :
+Modify the configuration file under the execution file, the configuration file is roughly as follows:
 ```json
 {
   "block_mongodbConnStr_testnet": "",
