@@ -38,7 +38,7 @@ vi mongodbsettings.json
 {
   "mongodbConnStr_testnet": "mongodb://**", //测试网数据库地址
   "mongodbDatabase_testnet": "NeoBlockBaseData", //测试网数据库库名
-  "neoCliJsonRPCUrl_testnet": ", "//测试网节点所在服务器地址
+  "neoCliJsonRPCUrl_testnet": ", ",//测试网节点所在服务器地址
   "mongodbConnStr_mainnet": "mongodb://**", //主网数据库地址
   "mongodbDatabase_mainnet": "NeoBlockData_mainnet", //主网数据库库名
   "neoCliJsonRPCUrl_mainnet": "" //主网节点所在服务器地址
@@ -90,7 +90,7 @@ Introduction of the configuration file :
 {
   "mongodbConnStr_testnet": "mongodb://**", //Test network database address
   "mongodbDatabase_testnet": "NeoBlockBaseData", //Test network database name
-  "neoCliJsonRPCUrl_testnet": ", "//Test network cli ip
+  "neoCliJsonRPCUrl_testnet": ", ",//Test network cli ip
   "mongodbConnStr_mainnet": "mongodb://**", //Main network database address
   "mongodbDatabase_mainnet": "NeoBlockData_mainnet",//Main network database name
   "neoCliJsonRPCUrl_mainnet": "" //Main network cli ip
