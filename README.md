@@ -87,7 +87,7 @@ dotnet NEL_Scan_API.dll
 This project mainly provides interface services for _[NEL-Scan](https://scan.nel.group/)_ .
 
 ## Interface details
-We have compiled the interface documentation. For details, please refer to _[Interface details](http://www.xiaoyaoji.cn/doc/2veptPpn9o/edit)_
+We have compiled the interface documentation. For details, please refer to _[Interface details](http://www.xiaoyaoji.cn/doc/2veptPpn9o)_
 
 ## Deployment
 
