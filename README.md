@@ -6,7 +6,7 @@
 本项目主要是给 _[NEL浏览器](https://scan.nel.group/)_ 提供接口服务。
 
 ## 接口详情 :
-我们将接口文档用小幺鸡进行了整理,详细可以参阅 _[接口文档](http://www.xiaoyaoji.cn/doc/2veptPpn9o/edit)_
+我们将接口文档用小幺鸡进行了整理,详细可以参阅 _[接口文档](http://www.xiaoyaoji.cn/doc/2veptPpn9o)_
 
 ## 部署演示 :
 
