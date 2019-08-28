@@ -24,7 +24,7 @@ namespace NEL_Scan_API.Service
         
         public string id_sgas { get; set; }
         public string bonusAddress { get; set; }
-        public string nelJsonRPCUrl { get; set; }
+        //public string nelJsonRPCUrl { get; set; }
 
 
         private bool parseDisplayNameId(string id, out string displayName)

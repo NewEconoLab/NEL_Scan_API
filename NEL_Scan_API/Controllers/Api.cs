@@ -93,7 +93,7 @@ namespace NEL_Scan_API.Controllers
                         id_sgas = mh.id_sgas_testnet,
                         auctionStateColl = mh.auctionStateColl_testnet,
                         bonusAddress = mh.bonusAddress_testnet,
-                        nelJsonRPCUrl = mh.nelJsonRPCUrl_testnet
+                        //nelJsonRPCUrl = mh.nelJsonRPCUrl_testnet
                     };
                     domainService = new DomainService
                     {
@@ -164,7 +164,7 @@ namespace NEL_Scan_API.Controllers
                         id_sgas = mh.id_sgas_mainnet,
                         auctionStateColl = mh.auctionStateColl_mainnet,
                         bonusAddress = mh.bonusAddress_mainnet,
-                        nelJsonRPCUrl = mh.nelJsonRPCUrl_mainnet
+                        //nelJsonRPCUrl = mh.nelJsonRPCUrl_mainnet
                     };
                     domainService = new DomainService
                     {

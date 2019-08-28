@@ -22,7 +22,7 @@ namespace NEL_Scan_API.lib
         public string notify_mongodbDatabase_testnet = string.Empty;
         public string snapshot_mongodbConnStr_testnet = string.Empty;
         public string snapshot_mongodbDatabase_testnet = string.Empty;
-        public string nelJsonRPCUrl_testnet = string.Empty;
+        //public string nelJsonRPCUrl_testnet = string.Empty;
 
         public string block_mongodbConnStr_mainnet = string.Empty;
         public string block_mongodbDatabase_mainnet = string.Empty;
@@ -32,7 +32,7 @@ namespace NEL_Scan_API.lib
         public string notify_mongodbDatabase_mainnet = string.Empty;
         public string snapshot_mongodbConnStr_mainnet = string.Empty;
         public string snapshot_mongodbDatabase_mainnet = string.Empty;
-        public string nelJsonRPCUrl_mainnet = string.Empty;
+        //public string nelJsonRPCUrl_mainnet = string.Empty;
 
         public string auctionStateColl_testnet = string.Empty;
         public string auctionStateColl_mainnet = string.Empty;
@@ -70,7 +70,7 @@ namespace NEL_Scan_API.lib
             notify_mongodbDatabase_testnet = config["notify_mongodbDatabase_testnet"];
             snapshot_mongodbConnStr_testnet = config["snapshot_mongodbConnStr_testnet"];
             snapshot_mongodbDatabase_testnet = config["snapshot_mongodbDatabase_testnet"];
-            nelJsonRPCUrl_testnet = config["nelJsonRPCUrl_testnet"];
+            //nelJsonRPCUrl_testnet = config["nelJsonRPCUrl_testnet"];
 
             block_mongodbConnStr_mainnet = config["block_mongodbConnStr_mainnet"];
             block_mongodbDatabase_mainnet = config["block_mongodbDatabase_mainnet"];
@@ -80,7 +80,7 @@ namespace NEL_Scan_API.lib
             notify_mongodbDatabase_mainnet = config["notify_mongodbDatabase_mainnet"];
             snapshot_mongodbConnStr_mainnet = config["snapshot_mongodbConnStr_mainnet"];
             snapshot_mongodbDatabase_mainnet = config["snapshot_mongodbDatabase_mainnet"];
-            nelJsonRPCUrl_mainnet = config["nelJsonRPCUrl_mainnet"];
+            //nelJsonRPCUrl_mainnet = config["nelJsonRPCUrl_mainnet"];
             
             auctionStateColl_testnet = config["auctionStateColl_testnet"];
             auctionStateColl_mainnet = config["auctionStateColl_mainnet"];
@@ -450,6 +450,48 @@ namespace NEL_Scan_API.lib
                 return JA;
             }
             else { return new JArray(); }
+        }
+
+        private string countFilterStr = new JObject { { "$group", new JObject { { "_id", 1 }, { "sum", new JObject { { "$sum", 1 } } } } } }.ToString();
+        public long AggregateCount(string mongodbConnStr, string mongodbDatabase, string coll, IEnumerable<string> collection, bool isUseDefaultGroup = true)
+        {
+            var res = Aggregate(mongodbConnStr, mongodbDatabase, coll, collection, isUseDefaultGroup);
+            if (res != null && res.Count > 0)
+            {
+                return long.Parse(res[0]["sum"].ToString());
+            }
+            return 0;
+        }
+
+        public JArray Aggregate(string mongodbConnStr, string mongodbDatabase, string coll, IEnumerable<string> collection, bool isGetCount = false)
+        {
+            IList<IPipelineStageDefinition> stages = new List<IPipelineStageDefinition>();
+            foreach (var item in collection)
+            {
+                stages.Add(new JsonPipelineStageDefinition<BsonDocument, BsonDocument>(item));
+            }
+            if (isGetCount)
+            {
+                stages.Add(new JsonPipelineStageDefinition<BsonDocument, BsonDocument>(countFilterStr));
+            }
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = new PipelineStagePipelineDefinition<BsonDocument, BsonDocument>(stages);
+            var queryRes = Aggregate(mongodbConnStr, mongodbDatabase, coll, pipeline);
+            if (queryRes != null && queryRes.Count > 0)
+            {
+                return JArray.Parse(queryRes.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict }));
+            }
+            return new JArray { };
+        }
+
+        public List<BsonDocument> Aggregate(string mongodbConnStr, string mongodbDatabase, string coll, PipelineDefinition<BsonDocument, BsonDocument> pipeline)
+        {
+            var client = new MongoClient(mongodbConnStr);
+            var database = client.GetDatabase(mongodbDatabase);
+            var collection = database.GetCollection<BsonDocument>(coll);
+            var query = collection.Aggregate(pipeline).ToList();
+
+            client = null;
+            return query;
         }
 
     }

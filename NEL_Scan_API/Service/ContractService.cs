@@ -29,7 +29,7 @@ namespace NEL_Scan_API.Service
             if (queryRes == null || queryRes.Count == 0) return new JArray { };
 
             var isNep5 = isNep5Asset(hash, out string assetName, out string assetSymbol);
-
+            var beforIndex = getBlockHeightBefore24h();
             var p = queryRes[0];
             var res = new JObject {
                     {"name", p["name"] },
@@ -42,12 +42,46 @@ namespace NEL_Scan_API.Service
                     {"createDate", p["createDate"].ToString() == "0" ? 1501234567:p["createDate"]},
                     {"version", p["code_version"] },
                     {"description", p["description"] },
-                    {"txCount", p["txCount"] },
-                    {"txCount24h", p["txCount24h"] },
-                    {"usrCount", p["usrCount"]},
-                    {"usrCount24h", p["usrCount24h"] },
+                    {"txCount", getTxCount(hash) },//p["txCount"] },
+                    {"txCount24h", getTxCount(hash,true, beforIndex)},//p["txCount24h"] },
+                    {"usrCount", getUsrCount(hash) },//p["usrCount"]},
+                    {"usrCount24h", getUsrCount(hash,true, beforIndex)},//p["usrCount24h"] },
                 };
             return new JArray { res };
+        }
+
+        private long getTxCount(string hash, bool isOnly24h = false, long indexBefore24h = 0)
+        {
+            var findJo = new JObject { { "contractHash", hash } };
+            if (isOnly24h)
+            {
+                findJo.Add("blockIndex", new JObject { { "$gte", indexBefore24h } });
+            }
+            return mh.GetDataCount(Analysis_mongodbConnStr, Analysis_mongodbDatabase, "contract_call_info", findJo.ToString());
+        }
+        private long getUsrCount(string hash, bool isOnly24h = false, long indexBefore24h = 0)
+        {
+            var findJo = new JObject { { "contractHash", hash } };
+            if (isOnly24h)
+            {
+                findJo.Add("blockIndex", new JObject { { "$gte", indexBefore24h } });
+            }
+            var list = new List<string>();
+            list.Add(new JObject { { "$match", findJo } }.ToString());
+            list.Add(new JObject { { "$group", new JObject { { "_id", "$address" }, { "sum", new JObject { { "$sum", 1 } } } } } }.ToString());
+            list.Add(new JObject { { "$group", new JObject { { "_id", "$id" }, { "sum", new JObject { { "$sum", 1 } } } } } }.ToString());
+            return mh.AggregateCount(Analysis_mongodbConnStr, Analysis_mongodbDatabase, "contract_call_info", list, false);
+        }
+        private long getBlockHeightBefore24h()
+        {
+            long now = TimeHelper.GetTimeStamp();
+            long bfr = now - 24 * 60 * 60;
+            string findStr = new JObject { { "time", new JObject { { "$gte", bfr } } } }.ToString();
+            string sortStr = new JObject { { "time", 1 } }.ToString();
+            string fieldStr = new JObject { { "index", 1 } }.ToString();
+            var queryRes = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "block", fieldStr, 1, 1, sortStr, findStr);
+            if (queryRes == null || queryRes.Count == 0) return 0;
+            return (long)queryRes[0]["index"];
         }
 
         public JArray getContractCallTx(string hash, int pageNum=1, int pageSize=10)
