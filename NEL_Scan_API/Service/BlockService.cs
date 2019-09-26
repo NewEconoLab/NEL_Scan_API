@@ -65,29 +65,7 @@ namespace NEL_Scan_API.Service
                 { "list", new JArray{res} }
             } };
         }
-        
 
-        public JArray getutxolistbyaddress(string address, int pageNum=1, int pageSize=10) {
-
-            string findStr = new JObject() { { "addr", address },{ "used",""} }.ToString();
-            long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "utxo", findStr);
-            
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "asset", "txid", "value"}).ToString();
-            string sortStr = new JObject() { {"createHeight", -1 } }.ToString();
-            JArray query = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "utxo", fieldStr,  pageSize, pageNum, sortStr, findStr);
-
-            // assetId --> assetName
-            if(query != null && query.Count > 0)
-            {
-                string[] assetIds = query.Select(p => p["asset"].ToString()).Distinct().ToArray();
-                query = formatAssetNameByIds(query, assetIds);
-            }
-
-            return new JArray
-            {
-                new JObject(){{"count", count }, { "list", query}}
-            };
-        }
         public JArray gettransactionlist(int pageNum=1, int pageSize=10, string type="")
         {
             string findStr = "{}";
@@ -97,7 +75,7 @@ namespace NEL_Scan_API.Service
                 findStr = new JObject() { { "type", type } }.ToString();
             }
             long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "tx", findStr);
-            string fieldStr = MongoFieldHelper.toReturn(new string[] {"type", "txid", "blockindex", "size" }).ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] {"sender", "txid", "blockindex", "size" }).ToString();
             string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
             JArray query = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "tx", fieldStr, pageSize, pageNum, sortStr, findStr);
             
@@ -105,77 +83,6 @@ namespace NEL_Scan_API.Service
             {
                 new JObject(){{"count", count }, { "list", query}}
             };
-        }
-
-        public JArray getutxoinfo(string txid)
-        {
-            string findStr = new JObject() { { "txid", txid } }.ToString();
-            string fieldStr = MongoFieldHelper.toReturn(new string[] {"txid", "type","net_fee","sys_fee","size","blockindex","blocktime","vin","vout" }).ToString();
-            var query = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "tx", fieldStr, findStr);
-            if (query == null || query.Count == 0) return new JArray();
-
-            var tx = (JObject)query[0];
-            // 更新时间
-            if (tx["blocktime"] == null)
-            {
-                long blockindex = long.Parse(tx["blockindex"].ToString());
-                long blocktime = getBlockTime(blockindex);
-                tx.Remove("blocktime");
-                tx.Add("blocktime", blocktime);
-            }
-
-            List<string> assetIds = new List<string>();
-
-            // 更新vin
-            JObject[] vins = null;
-            if (tx["vin"] != null && tx["vin"].ToString() != "[]")
-            {
-                vins = ((JArray)tx["vin"]).Select(p => {
-                    JObject jo = (JObject)p;
-                    string vintxid = jo["txid"].ToString();
-                    string vinn = jo["vout"].ToString();
-                    string subfindStr = new JObject() {{ "txid", vintxid} }.ToString();
-                    string subfieldStr = new JObject() { { "vout", 1 } }.ToString();
-                    var subquery = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "tx", subfieldStr, subfindStr);
-
-                    var vinVouts = (JArray)subquery[0]["vout"];
-                    var vinVout = (JObject)vinVouts.Where(ps => ps["n"].ToString() == vinn).ToArray()[0];
-                    vinVout.Remove("n");
-                    return vinVout;
-                }).ToArray();
-                
-                assetIds.AddRange(vins.Select(p => p["asset"].ToString()).ToList().Distinct());
-            }
-            // 删除vout.n
-            JObject[] vouts = null;
-            if (tx["vout"] != null && tx["vout"].ToString() != "[]")
-            {
-                vouts = ((JArray)tx["vout"]).Select(p => {
-                    JObject jo = (JObject)p;
-                    jo.Remove("n");
-                    return jo;
-                }).ToArray();
-
-                assetIds.AddRange(vouts.Select(p => p["asset"].ToString()).ToList().Distinct());
-            }
-
-            // assetId-->assetName
-            if(assetIds.Count > 0 )
-            {
-                var nameDict = getAssetName(assetIds.Distinct().ToArray());
-                if(vins != null)
-                {
-                    tx.Remove("vin");
-                    tx.Add("vin", new JArray { formatAssetName(vins, nameDict).ToArray() });
-                }
-                if (vouts != null)
-                {
-                    tx.Remove("vout");
-                    tx.Add("vout", new JArray { formatAssetName(vouts, nameDict).ToArray() });
-                }
-            }
-
-            return new JArray { tx };
         }
 
         private long getBlockTime(long index)

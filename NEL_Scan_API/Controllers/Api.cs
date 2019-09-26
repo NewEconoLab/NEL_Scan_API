@@ -297,15 +297,6 @@ namespace NEL_Scan_API.Controllers
                             result = domainService.getDomainTransferAndSellingInfo(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         }
                         break;
-                    case "getutxolistbyaddress":
-                        if (req.@params.Length < 3)
-                        {
-                            result = blockService.getutxolistbyaddress(req.@params[0].ToString());
-                        } else
-                        {
-                            result = blockService.getutxolistbyaddress(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
-                        }
-                        break;
                     case "gettransactionlist":
                         if (req.@params.Length < 2)
                         {
@@ -317,9 +308,6 @@ namespace NEL_Scan_API.Controllers
                         {
                             result = blockService.gettransactionlist(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()), req.@params[2].ToString());
                         }
-                        break;
-                    case "getutxoinfo":
-                        result = blockService.getutxoinfo(req.@params[0].ToString());
                         break;
                     case "getnep5transferinfo":
                         break;

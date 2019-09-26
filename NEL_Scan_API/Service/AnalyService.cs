@@ -19,66 +19,7 @@ namespace NEL_Scan_API.Service
             string findBson = "{'addr':'" + address + "'}";
             string sortStr = "{'blockindex' : -1}";
             JArray addrTxRes = mh.GetDataPages(block_mongodbConnStr, block_mongodbDatabase, "address_tx", sortStr, pageSize, pageNum, findBson);
-            if (addrTxRes == null || addrTxRes.Count == 0)
-            {
-                return null;
-            }
-            string[] txidArr = addrTxRes.Select(p => p["txid"].ToString()).ToArray();
-            findBson = MongoFieldHelper.toFilter(txidArr, "txid").ToString();
-            JArray txRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "tx", findBson);
-            if (txRes == null || txRes.Count == 0)
-            {
-                return null;
-            }
-            var txResNew = txRes.Where(p =>
-            {
-                if (p["vin"] == null)
-                {
-                    return false;
-                }
-                JArray ja = (JArray)p["vin"];
-                if (ja == null || ja.Count == 0)
-                {
-                    return false;
-                }
-                return true;
-            }).ToArray();
-
-            Dictionary<string, JArray> txidVinOutDict = null;
-            if (txResNew != null && txResNew.Count() > 0)
-            {
-                int[] vinIndex = txResNew.SelectMany(p => p["vin"].Select(pk => (int)pk["vout"])).ToArray();
-                string[] vinTxid = txResNew.SelectMany(p => p["vin"].Select(pk => pk["txid"].ToString())).ToArray();
-                findBson = MongoFieldHelper.toFilter(vinTxid, "txid").ToString();
-                JArray txVinRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "tx", findBson);
-                if (txVinRes != null && txVinRes.Count > 0)
-                {
-                    txidVinOutDict = txVinRes.ToDictionary(k => k["txid"].ToString(), v => (JArray)v["vout"]);
-                }
-            }
-            
-
-            Dictionary<string, JArray> txidVinOutIndexDict = txRes.ToDictionary(k => k["txid"].ToString(), v => {
-                if(txidVinOutDict == null || txidVinOutDict.Count == 0)
-                {
-                    return new JArray();
-                }
-                JArray vin = (JArray)v["vin"];
-                JArray vinOut = new JArray() {
-                    vin.Select(p => (JObject)(txidVinOutDict.GetValueOrDefault(p["txid"].ToString())[(int)p["vout"]]))
-                };
-                return vinOut;
-            });
-            Dictionary<string, JArray> txidVoutDict = txRes.ToDictionary(k => k["txid"].ToString(), v => (JArray)v["vout"]);
-            Dictionary<string, string> txidTypeDict = txRes.ToDictionary(k => k["txid"].ToString(), v => v["type"].ToString());
-            foreach (JObject jo in addrTxRes)
-            {
-                string txid = jo["txid"].ToString();
-                jo.Add("vin", txidVinOutIndexDict.GetValueOrDefault(txid));
-                jo.Add("vout", txidVoutDict.GetValueOrDefault(txid));
-                jo.Add("type", txidTypeDict.GetValueOrDefault(txid));
-            }
-            return new JArray() { new JObject() { { "count", addrTxRes.Count }, { "list", addrTxRes } } };
+            return addrTxRes;
         }
         
         public JArray getRankByAsset(string asset, int pageSize, int pageNum, string network="testnet")
