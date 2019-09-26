@@ -19,7 +19,10 @@ namespace NEL_Scan_API.Service
             string findBson = "{'addr':'" + address + "'}";
             string sortStr = "{'blockindex' : -1}";
             JArray addrTxRes = mh.GetDataPages(block_mongodbConnStr, block_mongodbDatabase, "address_tx", sortStr, pageSize, pageNum, findBson);
-            return addrTxRes;
+            return new JArray
+            {
+                new JObject(){{"count", addrTxRes.Count }, { "list", addrTxRes } }
+            }; ;
         }
         
         public JArray getRankByAsset(string asset, int pageSize, int pageNum, string network="testnet")
