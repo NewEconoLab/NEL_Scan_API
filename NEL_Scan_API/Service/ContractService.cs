@@ -99,7 +99,11 @@ namespace NEL_Scan_API.Service
                 var gasAmount = NumberDecimalHelper.formatDecimal(p["gasAmount"].ToString());
                 var value = "";
                 if (neoAmount != "0") value += neoAmount + " NEO";
-                if (gasAmount != "0") value += ", " + gasAmount + " GAS";
+                if (gasAmount != "0")
+                {
+                    if (value != "") value += ", ";
+                    value += gasAmount + " GAS";
+                }
                 if (value == "") value = "0";
 
                 return new JObject {
