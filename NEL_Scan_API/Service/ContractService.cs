@@ -16,7 +16,7 @@ namespace NEL_Scan_API.Service
         public string Analysis_mongodbDatabase { get; set; }
 
         private string contractCallInfoCol = "contract_call_info";
-        private string contractTxInfoCol = "NEP5transfer";
+        private string contractTxInfoCol = "Nep5Transfer";
         private string contractInfoCol = "contractCallState";
 
 
@@ -195,14 +195,14 @@ namespace NEL_Scan_API.Service
         {
             string findStr = MongoFieldHelper.toFilter(assets, "assetid").ToString();
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "assetid", "symbol" }).ToString();
-            var queryRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "NEP5asset", fieldStr, findStr);
+            var queryRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "Nep5AssetInfo", fieldStr, findStr);
             return queryRes.ToDictionary(k => k["assetid"].ToString(), v => v["symbol"].ToString());
         }
 
         private bool isNep5Asset(string hash, out string name, out string symbol)
         {
             string findStr = new JObject { { "assetid", hash } }.ToString();
-            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "NEP5asset", findStr);
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "Nep5AssetInfo", findStr);
             if(queryRes == null || queryRes.Count == 0)
             {
                 name = "";

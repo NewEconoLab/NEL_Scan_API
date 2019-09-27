@@ -16,7 +16,7 @@ namespace NEL_Scan_API.Service
         public JArray fuzzySearchAsset(string name, int pageNum = 1, int pageSize = 6)
         {
             JArray res1 = search(false, "asset", name, pageNum, pageSize);
-            JArray res2 = search(true, "NEP5asset", name, pageNum, pageSize);
+            JArray res2 = search(true, "Nep5AssetInfo", name, pageNum, pageSize);
             List<JToken> list7 = new List<JToken>();
             foreach (var item in res1)
             {

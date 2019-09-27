@@ -22,13 +22,11 @@ namespace NEL_Scan_API.Service
             return new JArray
             {
                 new JObject(){{"count", addrTxRes.Count }, { "list", addrTxRes } }
-            }; ;
+            }; 
         }
         
         public JArray getRankByAsset(string asset, int pageSize, int pageNum, string network="testnet")
         {
-            //if (network != "testnet") return getRankByAssetOld(asset, pageSize, pageNum);
-
             JObject filter = new JObject() { { "AssetHash", asset } };
             JObject sort = new JObject() { { "Balance", -1 } };
             JArray res = mh.GetDataPages(analy_mongodbConnStr, analy_mongodbDatabase, "address_assetid_balance", sort.ToString(), pageSize, pageNum, filter.ToString());

@@ -26,7 +26,7 @@ namespace NEL_Scan_API.Service
         private JArray getNep5Tx(string findStr, int pageNum, int pageSize)
         {
             string sortStr = new JObject { { "blockindex", -1 } }.ToString();
-            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, "NEP5transfer", sortStr, pageSize, pageNum, findStr);
+            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, "Nep5Transfer", sortStr, pageSize, pageNum, findStr);
             if (queryRes == null || queryRes.Count == 0) return new JArray { };
 
 
@@ -58,7 +58,7 @@ namespace NEL_Scan_API.Service
                 return jo;
             }).ToArray();
 
-            long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "NEP5transfer", findStr);
+            long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "Nep5Transfer", findStr);
             
             return new JArray { new JObject {
                 { "count", count},
@@ -103,7 +103,7 @@ namespace NEL_Scan_API.Service
         {
             string findStr = MongoFieldHelper.toFilter(assetIds.Distinct().ToArray(), "assetid").ToString();
             string fieldStr = new JObject() { { "assetid", 1 },{ "symbol", 1 }}.ToString();
-            var query = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "NEP5asset", fieldStr, findStr);
+            var query = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "Nep5AssetInfo", fieldStr, findStr);
             return query.ToDictionary(k=>k["assetid"].ToString(), v=>v["symbol"].ToString());
         }
 
