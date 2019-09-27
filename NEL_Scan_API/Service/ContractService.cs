@@ -112,7 +112,7 @@ namespace NEL_Scan_API.Service
                     { "from", p["address"]},
                     { "to", "当前合约"},
                     { "value", value},
-                    { "net_fee", NumberDecimalHelper.formatDecimal(p["net_fee"].ToString()) + " CGAS"}
+                    { "net_fee", NumberDecimalHelper.formatDecimal(p["net_fee"].ToString()) + " GAS"}
                 };
             }).ToArray();
 
