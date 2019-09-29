@@ -29,11 +29,12 @@ namespace NEL_Scan_API.Service
         {
             JObject filter = new JObject() { { "AssetHash", asset } };
             JObject sort = new JObject() { { "Balance", -1 } };
-            JArray res = mh.GetDataPages(analy_mongodbConnStr, analy_mongodbDatabase, "address_assetid_balance", sort.ToString(), pageSize, pageNum, filter.ToString());
+            JArray res = mh.GetDataPages(block_mongodbConnStr, block_mongodbDatabase, "Nep5State", sort.ToString(), pageSize, pageNum, filter.ToString());
             for (var i = 0;i<res.Count;i++)
             {
                 JObject jo = (JObject)res[i];
-                res[i] = new JObject() { { "asset", (string)jo["AssetHash"] }, { "balance",jo["Balance"]["$numberDecimal"] } ,{ "addr",jo["Address"]} };
+                var balance = double.Parse((string)jo["Balance"]["$numberDecimal"]) / System.Math.Pow(10,double.Parse((string)jo["AssetDecimals"])); 
+                res[i] = new JObject() { { "asset", (string)jo["AssetHash"] }, { "balance", balance } ,{ "addr",jo["Address"]} };
             }
             return res;
         }
