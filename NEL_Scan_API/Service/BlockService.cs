@@ -51,7 +51,8 @@ namespace NEL_Scan_API.Service
                     jo.Remove("to");
                     jo.Add("to", "system");
                 }
-                jo["value"] = double.Parse((string)jo["value"]) / System.Math.Pow(10,double.Parse((string)jo["decimals"]));
+                //jo["value"] = double.Parse((string)jo["value"]) / System.Math.Pow(10,double.Parse((string)jo["decimals"]));
+                jo["value"] = (decimal.Parse((string)jo["value"]) / new decimal(System.Math.Pow(10,double.Parse((string)jo["decimals"])))).ToString();
                 jo.Remove("blockindex");
                 jo.Remove("decimals");
                 jo.Remove("asset");
