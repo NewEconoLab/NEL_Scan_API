@@ -133,10 +133,11 @@ namespace NEL_Scan_API.Service
             if (queryRes == null || queryRes.Count == 0) return new JArray { };
 
             var indexs = queryRes.Select(p => (long)p["blockindex"]).ToArray();
-            var assets = queryRes.Select(p => p["asset"].ToString()).ToArray();
+            var assets = queryRes.Select(p => p["asset"].ToString()).Distinct().ToArray();
+            var txids = queryRes.Select(p => p["txid"].ToString()).Distinct().ToArray();
             var indexDict = getBlockTime(indexs);
             var assetDict = getAssetName(assets);
-
+            var txidDict = getTxNetFee(txids);
             var res = queryRes.Select(p => new JObject {
                 { "txid", p["txid"]},
                 { "time", indexDict.GetValueOrDefault((long)p["blockindex"])},
@@ -145,6 +146,7 @@ namespace NEL_Scan_API.Service
                 { "value", p["value"]},
                 { "assetHash", p["asset"]},
                 { "assetName", assetDict.GetValueOrDefault(p["asset"].ToString())},
+                { "net_fee", txidDict.GetValueOrDefault(p["txid"].ToString()) + " GAS" }
             }).ToArray();
 
             var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, findStr);
@@ -169,7 +171,6 @@ namespace NEL_Scan_API.Service
             var assets = queryRes.Select(p => p["asset"].ToString()).ToArray();
             var indexDict = getBlockTime(indexs);
             var assetDict = getAssetName(assets);
-
             var res = queryRes.Select(p => new JObject {
                 { "txid", p["txid"]},
                 { "time", indexDict.GetValueOrDefault((long)p["blockindex"])},
@@ -177,7 +178,7 @@ namespace NEL_Scan_API.Service
                 { "to", p["to"]},
                 { "value", p["value"]},
                 { "assetHash", p["asset"]},
-                { "assetName", assetDict.GetValueOrDefault(p["asset"].ToString())},
+                { "assetName", assetDict.GetValueOrDefault(p["asset"].ToString())}
             }).ToArray();
 
             var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, findStr);
@@ -201,6 +202,13 @@ namespace NEL_Scan_API.Service
             string fieldStr = MongoFieldHelper.toReturn(new string[] { "assetid", "symbol" }).ToString();
             var queryRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "NEP5asset", fieldStr, findStr);
             return queryRes.ToDictionary(k => k["assetid"].ToString(), v => v["symbol"].ToString());
+        }
+        private Dictionary<string, string> getTxNetFee(string[] txids)
+        {
+            string findStr = MongoFieldHelper.toFilter(txids, "txid").ToString();
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "txid", "net_fee" }).ToString();
+            var queryRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "tx", fieldStr, findStr);
+            return queryRes.ToDictionary(k => k["txid"].ToString(), v => v["net_fee"].ToString());
         }
 
         private bool isNep5Asset(string hash, out string name, out string symbol)
