@@ -65,10 +65,27 @@ namespace NEL_Scan_API.Service
                 { "list", new JArray{res} }
             } };
         }
-        
 
+
+        public JArray getutxolistbyaddressNew(string address, int pageNum = 1, int pageSize = 10) {
+            var findStr = new JObject { { "$or", new JArray{
+                new JObject{{"vinout.address", address}},
+                new JObject{{"vout.address", address}}
+            } }}.ToString();
+
+            long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "txdetail", findStr);
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "type", "txid", "blockindex", "size", "vinout", "vout", "sys_fee", "net_fee", "blocktime" }).ToString();
+            string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
+            JArray query = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "txdetail", fieldStr, pageSize, pageNum, sortStr, findStr);
+
+            return new JArray
+            {
+                new JObject(){{"count", count }, { "list", query}}
+            };
+        }
         public JArray getutxolistbyaddress(string address, int pageNum=1, int pageSize=10) {
 
+            bool flag = true; if(flag) { return getutxolistbyaddressNew(address, pageNum, pageSize); }
             string findStr = new JObject() { { "addr", address },{ "used",""} }.ToString();
             long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "utxo", findStr);
             
