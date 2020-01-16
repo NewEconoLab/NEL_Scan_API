@@ -96,10 +96,10 @@ namespace NEL_Scan_API.Service
             {
                 findStr = new JObject() { { "type", type } }.ToString();
             }
-            long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "tx", findStr);
-            string fieldStr = MongoFieldHelper.toReturn(new string[] {"type", "txid", "blockindex", "size" }).ToString();
+            long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "txdetail", findStr);
+            string fieldStr = MongoFieldHelper.toReturn(new string[] {"type", "txid", "blockindex", "size", "vinout", "vout", "sys_fee", "net_fee","blocktime" }).ToString();
             string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
-            JArray query = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "tx", fieldStr, pageSize, pageNum, sortStr, findStr);
+            JArray query = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "txdetail", fieldStr, pageSize, pageNum, sortStr, findStr);
             
             return new JArray
             {
