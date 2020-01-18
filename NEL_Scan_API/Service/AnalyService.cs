@@ -1,4 +1,5 @@
 ﻿using NEL_Scan_API.lib;
+using NEL_Scan_API.Service.constant;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,94 @@ namespace NEL_Scan_API.Service
         public string analy_mongodbDatabase { set; get; }
 
         //public JArray getAddressTxsNew(string address, int pageNum, int pageSize)//****************************************
+        public JArray getAddressTxsNew2(string address, int pageSize, int pageNum)
+        {
+            var findStr = new JObject { { "$or", new JArray{
+                new JObject{{"vinout.address", address}},
+                new JObject{{"vout.address", address}}
+            } }}.ToString();
+
+            long count = mh.GetDataCount(block_mongodbConnStr, block_mongodbDatabase, "txdetail", findStr);
+            string fieldStr = MongoFieldHelper.toReturn(new string[] { "type", "txid", "blockindex", "size", "vinout", "vout", "sys_fee", "net_fee", "blocktime" }).ToString();
+            string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
+            JArray queryRes = mh.GetDataPagesWithField(block_mongodbConnStr, block_mongodbDatabase, "txdetail", fieldStr, pageSize, pageNum, sortStr, findStr);
+
+            //
+            var res = formatAssetName(queryRes);
+
+            return new JArray
+            {
+                new JObject(){{"count", count }, { "list", res } }
+            };
+        }
+        private JArray formatAssetName(JArray queryRes)
+        {
+            var res =
+            queryRes.Select(p =>
+            {
+                var ins = (JArray)p["vinout"];
+                if (ins.Count > 0)
+                {
+                    var tp = ins.Select(pt =>
+                    {
+                        pt["assetName"] = AssetConst.getAssetName(pt["asset"].ToString());
+                        return pt;
+                    }).GroupBy(pg => pg["address"].ToString(), (kg, gg) => {
+                        var address = kg;
+                        var arr =
+                        gg.GroupBy(pgg => pgg["asset"].ToString(), (kgg, ggg) =>
+                        {
+                            var val = ggg.Sum(p3g => decimal.Parse(p3g["value"].ToString()));
+                            var unit = ggg.ToArray()[0]["assetName"].ToString();
+                            return val + " " + unit;
+                        }).ToArray();
+                        var assetJA = new JArray { arr };
+                        var tgRes = new JObject {
+                            { "address", address},
+                            { "assetJA", assetJA}
+                        };
+                        return tgRes;
+                    });
+
+                    p["vinout"] = new JArray { tp };
+                }
+                var outs = (JArray)p["vout"];
+                if (outs.Count > 0)
+                {
+                    var tp = outs.Select(pt =>
+                    {
+                        pt["assetName"] = AssetConst.getAssetName(pt["asset"].ToString());
+                        return pt;
+                    }).GroupBy(pg => pg["address"].ToString(), (kg, gg) => {
+                        var address = kg;
+                        var arr =
+                        gg.GroupBy(pgg => pgg["asset"].ToString(), (kgg, ggg) =>
+                        {
+                            var val = ggg.Sum(p3g => decimal.Parse(p3g["value"].ToString()));
+                            var unit = ggg.ToArray()[0]["assetName"].ToString();
+                            return val + " " + unit;
+                        }).ToArray();
+                        var assetJA = new JArray { arr };
+                        var tgRes = new JObject {
+                            { "address", address},
+                            { "assetJA", assetJA}
+                        };
+                        return tgRes;
+                    });
+                    p["vout"] = new JArray { tp };
+                }
+                p["net_fee"] += " GAS";
+                p["sys_fee"] += " GAS";
+                var pj = (JObject)p;
+                pj.Remove("vin");
+                return pj;
+            });
+            return new JArray { res };
+        }
         public JArray getAddressTxsNew(string address, int pageSize, int pageNum)
         {
+            bool flag = true; if(flag) { return getAddressTxsNew2(address, pageSize, pageNum); }
+
             string findBson = "{'addr':'" + address + "'}";
             string sortStr = "{'blockindex' : -1}";
             JArray addrTxRes = mh.GetDataPages(block_mongodbConnStr, block_mongodbDatabase, "address_tx", sortStr, pageSize, pageNum, findBson);

@@ -66,26 +66,7 @@ namespace NEL_Scan_API.Service
             } };
         }
 
-
-        public JArray getutxolistbyaddressNew(string address, int pageNum = 1, int pageSize = 10) {
-            var findStr = new JObject { { "$or", new JArray{
-                new JObject{{"vinout.address", address}},
-                new JObject{{"vout.address", address}}
-            } }}.ToString();
-
-            long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "txdetail", findStr);
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "type", "txid", "blockindex", "size", "vinout", "vout", "sys_fee", "net_fee", "blocktime" }).ToString();
-            string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
-            JArray query = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "txdetail", fieldStr, pageSize, pageNum, sortStr, findStr);
-
-            return new JArray
-            {
-                new JObject(){{"count", count }, { "list", query}}
-            };
-        }
         public JArray getutxolistbyaddress(string address, int pageNum=1, int pageSize=10) {
-
-            bool flag = true; if(flag) { return getutxolistbyaddressNew(address, pageNum, pageSize); }
             string findStr = new JObject() { { "addr", address },{ "used",""} }.ToString();
             long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "utxo", findStr);
             
@@ -116,12 +97,78 @@ namespace NEL_Scan_API.Service
             long count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "txdetail", findStr);
             string fieldStr = MongoFieldHelper.toReturn(new string[] {"type", "txid", "blockindex", "size", "vinout", "vout", "sys_fee", "net_fee","blocktime" }).ToString();
             string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
-            JArray query = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "txdetail", fieldStr, pageSize, pageNum, sortStr, findStr);
-            
+            JArray queryRes = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "txdetail", fieldStr, pageSize, pageNum, sortStr, findStr);
+            //
+            var res = formatAssetName(queryRes);
+
             return new JArray
             {
-                new JObject(){{"count", count }, { "list", query}}
+                new JObject(){{"count", count }, { "list", res } }
             };
+        }
+        private JArray formatAssetName(JArray queryRes)
+        {
+            var res =
+            queryRes.Select(p =>
+            {
+                var ins = (JArray)p["vinout"];
+                if (ins.Count > 0)
+                {
+                    var tp = ins.Select(pt =>
+                    {
+                        pt["assetName"] = AssetConst.getAssetName(pt["asset"].ToString());
+                        return pt;
+                    }).GroupBy(pg => pg["address"].ToString(), (kg, gg) => {
+                        var address = kg;
+                        var arr =
+                        gg.GroupBy(pgg => pgg["asset"].ToString(), (kgg, ggg) =>
+                        {
+                            var val = ggg.Sum(p3g => decimal.Parse(p3g["value"].ToString()));
+                            var unit = ggg.ToArray()[0]["assetName"].ToString();
+                            return val + " " + unit;
+                        }).ToArray();
+                        var assetJA = new JArray { arr };
+                        var tgRes = new JObject {
+                            { "address", address},
+                            { "assetJA", assetJA}
+                        };
+                        return tgRes;
+                    });
+
+                    p["vinout"] = new JArray { tp };
+                }
+                var outs = (JArray)p["vout"];
+                if (outs.Count > 0)
+                {
+                    var tp = outs.Select(pt =>
+                    {
+                        pt["assetName"] = AssetConst.getAssetName(pt["asset"].ToString());
+                        return pt;
+                    }).GroupBy(pg => pg["address"].ToString(), (kg, gg) => {
+                        var address = kg;
+                        var arr =
+                        gg.GroupBy(pgg => pgg["asset"].ToString(), (kgg, ggg) =>
+                        {
+                            var val = ggg.Sum(p3g => decimal.Parse(p3g["value"].ToString()));
+                            var unit = ggg.ToArray()[0]["assetName"].ToString();
+                            return val + " " + unit;
+                        }).ToArray();
+                        var assetJA = new JArray { arr };
+                        var tgRes = new JObject {
+                            { "address", address},
+                            { "assetJA", assetJA}
+                        };
+                        return tgRes;
+                    });
+                    p["vout"] = new JArray { tp };
+                }
+                p["net_fee"] += " GAS";
+                p["sys_fee"] += " GAS";
+                var pj = (JObject)p;
+                pj.Remove("vin");
+                return pj;
+            });
+            return new JArray { res };
         }
 
         public JArray getutxoinfo(string txid)
