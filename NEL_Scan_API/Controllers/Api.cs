@@ -18,6 +18,7 @@ namespace NEL_Scan_API.Controllers
         private NNSDomainCreditService nnsDomainCrediteService;
         private DaoService daoService;
         private ContractService contractService;
+        private InnerTxService innerTxService;
 
         private mongoHelper mh = new mongoHelper();
 
@@ -33,6 +34,14 @@ namespace NEL_Scan_API.Controllers
             switch (netnode)
             {
                 case "testnet":
+                    innerTxService = new InnerTxService
+                    {
+                        mh = mh,
+                        block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_testnet
+                    };
                     contractService = new ContractService
                     {
                         mh = mh,
@@ -110,6 +119,14 @@ namespace NEL_Scan_API.Controllers
                     };
                     break;
                 case "mainnet":
+                    innerTxService = new InnerTxService
+                    {
+                        mh = mh,
+                        block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_mainnet
+                    };
                     contractService = new ContractService
                     {
                         mh = mh,
@@ -193,6 +210,32 @@ namespace NEL_Scan_API.Controllers
                 point(req.method);
                 switch (req.method)
                 {
+                    //
+                    case "getInnerTxAtContractDetail":
+                        result = innerTxService.getInnerTxAtContractDetail(
+                            req.@params[0].ToString(),
+                            int.Parse(req.@params[1].ToString()),
+                            int.Parse(req.@params[2].ToString())
+                            );
+                        break;
+                    case "getInnerTxAtAddrDetail":
+                        result = innerTxService.getInnerTxAtAddrDetail(
+                            req.@params[0].ToString(),
+                            int.Parse(req.@params[1].ToString()),
+                            int.Parse(req.@params[2].ToString())
+                            );
+                        break;
+                    case "getInnerTxAtTxDetail":
+                        result = innerTxService.getInnerTxAtTxDetail(
+                            req.@params[0].ToString()
+                            );
+                        break;
+                    case "getInnerTxAtTxList":
+                        result = innerTxService.getInnerTxAtTxList(
+                            int.Parse(req.@params[0].ToString()), 
+                            int.Parse(req.@params[1].ToString())
+                            );
+                        break;
                     // 获取合约信息
                     case "getContractNep5Tx":
                         result = contractService.getContractNep5Tx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
