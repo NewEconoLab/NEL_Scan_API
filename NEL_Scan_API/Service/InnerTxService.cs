@@ -115,7 +115,7 @@ namespace NEL_Scan_API.Service
             foreach(var item in iRes)
             {
                 var txCallInfo = new TxCallInfo();
-                txCallInfo.type = item["type"].ToString();
+                txCallInfo.type = int.Parse(item["type"].ToString());
                 txCallInfo.from = item["from"].ToString();
                 txCallInfo.to = item["to"].ToString();
                 txCallInfo.index = (int)item["index"];
@@ -176,7 +176,7 @@ namespace NEL_Scan_API.Service
             public string callee;
             public string orderId;
             public int txNum;//0
-            public string type;
+            public int type;
             public string from;
             public string to;
             public int index;
