@@ -21,8 +21,8 @@ namespace NEL_Scan_API.Service
         {
             var findStr = new JObject { { "$or", new JArray
             {
-                new JObject{{"from", hash}},
-                new JObject{{"to", hash}},
+                new JObject{{"from", hash},{ "level", new JObject { { "$ne", 0 } }} },
+                new JObject{{"to", hash},{ "level", new JObject { { "$ne", 0 } }} },
             } } }.ToString();
             var count = mh.GetDataCount(analy_mongodbConnStr, analy_mongodbDatabase, innerTxColl, findStr);
             if (count == 0) return new JArray { new JObject { { "count", count }, { "list", new JArray() } } };
