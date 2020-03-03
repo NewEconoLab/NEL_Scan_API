@@ -125,6 +125,7 @@ namespace NEL_Scan_API.Service
                 {
                     txCallInfo.caller = txCallInfo.from.pubkeyhash2address();
                     txCallInfo.callee = txCallInfo.to;
+                    txCallInfo.callIndex = txCallInfo.index;
                     txCallInfo.orderId = "";
                     txCallInfo.txNum = 0;
                     
@@ -136,6 +137,7 @@ namespace NEL_Scan_API.Service
                 {
                     txCallInfo.caller = rr.caller;
                     txCallInfo.callee = rr.callee;
+                    txCallInfo.callIndex = rr.callIndex;
                     var id = rr.orderId;
                     if (id != "") id += "-";
                     txCallInfo.orderId = id + (++rr.txNum).ToString().PadLeft(2, '0');
@@ -145,7 +147,7 @@ namespace NEL_Scan_API.Service
             }
             //
             var jRes = 
-            list.GroupBy(p => p.caller +"_"+ p.callee/*new JObject {
+            list.GroupBy(p => p.caller +"_"+ p.callee+"_" + p.callIndex/*new JObject {
                     {"caller", p.caller},
                     {"callee", p.callee}
                 }*/, (k, g) =>
@@ -179,6 +181,7 @@ namespace NEL_Scan_API.Service
         class TxCallInfo{
             public string caller;
             public string callee;
+            public int callIndex;
             public string orderId;
             public int txNum;//0
             public int type;
