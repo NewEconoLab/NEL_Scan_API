@@ -134,8 +134,8 @@ namespace NEL_Scan_API.Service
                 var rr = list.Where(p => p.to.ToString() == txCallInfo.from).OrderByDescending(p => p.index).First();
                 if(rr != null)
                 {
-                    txCallInfo.caller = rr.from.pubkeyhash2address();
-                    txCallInfo.callee = rr.to;
+                    txCallInfo.caller = rr.caller;
+                    txCallInfo.callee = rr.callee;
                     var id = rr.orderId;
                     if (id != "") id += "-";
                     txCallInfo.orderId = id + (++rr.txNum).ToString().PadLeft(2, '0');
@@ -145,11 +145,12 @@ namespace NEL_Scan_API.Service
             }
             //
             var jRes = 
-            list.GroupBy(p => new JObject {
+            list.GroupBy(p => p.caller +"_"+ p.callee/*new JObject {
                     {"caller", p.caller},
                     {"callee", p.callee}
-                }, (k, g) =>
+                }*/, (k, g) =>
             {
+
                 var ul = g.Select(pg =>
                 {
                     var jo = new JObject();
@@ -162,10 +163,14 @@ namespace NEL_Scan_API.Service
                     jo["to"] = pg.to;
                     //jo["index"] = p.index;
                     return jo;
-                }).ToList();
-                k["txCount"] = ul.Count;
-                k["txList"] = new JArray { ul };
-                return k;
+                }).Where(p => p["orderId"].ToString() != "").ToList();
+                var kk = k.Split("_");
+                var rr = new JObject();
+                rr["caller"] = kk[0];
+                rr["callee"] = kk[1];
+                rr["txCount"] = ul.Count;
+                rr["txList"] = new JArray { ul };
+                return rr;
             }).ToList();
             var res = new JObject { { "count", jRes.Count }, { "list", new JArray { jRes } } };
 
