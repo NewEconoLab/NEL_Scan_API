@@ -27,10 +27,18 @@ namespace NEL_Scan_API.Service
 
             return queryRes[0]["hash"].ToString();
         }
+        private string getContractOriginHash2(string hash)
+        {
+            var findStr = new JObject { { "hash", hash } }.ToString();
+            var queryRes = mh.GetData(Analysis_mongodbConnStr, Analysis_mongodbDatabase, "contract_update_info", findStr);
+            if (queryRes.Count == 0) return hash;
+
+            return queryRes[0]["updateBeforeHash"].ToString();
+        }
         public JArray getContractInfo(string hash)
         {
             hash = hash.StartsWith("0x") ? hash: "0x"+hash;
-            hash = getContractOriginHash(hash);
+            hash = getContractOriginHash2(hash);
             if (mh == null) return new JArray { };
             string findStr = new JObject { { "hash", hash} }.ToString();
             string fieldStr = new JObject { { "script", 0 } }.ToString();
