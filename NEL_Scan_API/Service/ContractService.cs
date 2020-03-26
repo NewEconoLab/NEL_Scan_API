@@ -19,8 +19,18 @@ namespace NEL_Scan_API.Service
         private string contractTxInfoCol = "NEP5transfer";
         private string contractInfoCol = "contractCallState";
 
+        private string getContractOriginHash(string hash)
+        {
+            var findStr = new JObject { { "updateBeforeHash", hash } }.ToString();
+            var queryRes = mh.GetData(Analysis_mongodbConnStr, Analysis_mongodbDatabase, "contract_update_info", findStr);
+            if (queryRes.Count == 0) return hash;
+
+            return queryRes[0]["hash"].ToString();
+        }
         public JArray getContractInfo(string hash)
         {
+            hash = hash.StartsWith("0x") ? hash: "0x"+hash;
+            hash = getContractOriginHash(hash);
             if (mh == null) return new JArray { };
             string findStr = new JObject { { "hash", hash} }.ToString();
             string fieldStr = new JObject { { "script", 0 } }.ToString();
@@ -51,6 +61,8 @@ namespace NEL_Scan_API.Service
 
         private long getTxCount(string hash, bool isOnly24h = false, long indexBefore24h = 0)
         {
+            hash = hash.StartsWith("0x") ? hash : "0x" + hash;
+            hash = getContractOriginHash(hash);
             var findJo = new JObject { { "contractHash", hash } };
             if (isOnly24h)
             {
@@ -60,6 +72,8 @@ namespace NEL_Scan_API.Service
         }
         private long getUsrCount(string hash, bool isOnly24h = false, long indexBefore24h = 0)
         {
+            hash = hash.StartsWith("0x") ? hash : "0x" + hash;
+            hash = getContractOriginHash(hash);
             var findJo = new JObject { { "contractHash", hash } };
             if (isOnly24h)
             {
@@ -170,6 +184,8 @@ namespace NEL_Scan_API.Service
         }
         public JArray getContractNep5Tx(string hash, int pageNum=1, int pageSize=10)
         {
+            hash = hash.StartsWith("0x") ? hash : "0x" + hash;
+            hash = getContractOriginHash(hash);
             bool flag = true;
             if (flag) return getContractNep5TxNew(hash, pageNum, pageSize);
             if (mh == null) return new JArray { };
