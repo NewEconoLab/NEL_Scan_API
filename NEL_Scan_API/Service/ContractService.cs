@@ -19,7 +19,6 @@ namespace NEL_Scan_API.Service
         private string contractTxInfoCol = "NEP5transfer";
         private string contractInfoCol = "contractCallState";
 
-
         public JArray getContractInfo(string hash)
         {
             if (mh == null) return new JArray { };
@@ -84,11 +83,24 @@ namespace NEL_Scan_API.Service
             return (long)queryRes[0]["index"];
         }
 
+        private string[] getContractHashArr(string hash)
+        {
+            var findStr = new JObject { { "hash", hash }}.ToString();
+            var queryRes = mh.GetData(Analysis_mongodbConnStr, Analysis_mongodbDatabase, "contract_update_info", findStr);
+            if (queryRes.Count == 0)
+            {
+                return new string[] { hash };
+            }
+            return queryRes.SelectMany(p => new string[] { p["hash"].ToString(), p["updateBeforeHash"].ToString() }).Distinct().ToArray();
+        }
         public JArray getContractCallTx(string hash, int pageNum=1, int pageSize=10)
         {
             if (mh == null) return new JArray { };
             // txid + time + from + to + value(1neo,1gas) + fee
-            string findStr = new JObject { { "contractHash", hash } }.ToString();
+
+            var hashArr = getContractHashArr(hash);
+            var findStr = MongoFieldHelper.toFilter(hashArr, "contractHash").ToString();
+            //string findStr = new JObject { { "contractHash", hash } }.ToString();
             string sortStr = new JObject { { "time", -1} }.ToString();
             var queryRes = mh.GetDataPages(Analysis_mongodbConnStr, Analysis_mongodbDatabase, contractCallInfoCol, sortStr, pageSize, pageNum, findStr);;
             if (queryRes == null || queryRes.Count == 0) return new JArray { };
