@@ -13,7 +13,7 @@ namespace NEL_Scan_API.Service
         public mongoHelper mh { set; get; }
 
 
-        public JArray fuzzySearchAsset(string name, int pageNum = 1, int pageSize = 6)
+        public JArray fuzzySearchAsset(string name, int pageNum = 1, int pageSize = 10)
         {
             JArray res1 = search(false, "asset", name, pageNum, pageSize);
             JArray res2 = search(true, "NEP5asset", name, pageNum, pageSize);
@@ -48,6 +48,7 @@ namespace NEL_Scan_API.Service
             JArray orFilterSub = new JArray();
             orFilterSub.Add(newOrFilter(key, name));
             orFilterSub.Add(newOrFilter(key, transferName(name)));
+            orFilterSub.Add(newOrFilter("symbol", name));
             orFilter.Add("$or", orFilterSub);
 
             JArray res = mh.GetDataPages(mongodbConnStr, mongodbDatabase, coll, "{}", pageSize, pageNum, orFilter.ToString());
@@ -64,6 +65,7 @@ namespace NEL_Scan_API.Service
                     JObject obj = new JObject();
                     obj.Add("assetid", id);
                     obj.Add("name", transferRes(id, Convert.ToString(item["name"])));
+                    obj.Add("symbol", item["symbol"]);
                     return obj;
                 }).GroupBy(pItem => pItem["assetid"], (k,g) => g.ToArray()[0]).Where(pp => !isNeoOrGas(pp["assetid"].ToString())).ToArray()
             } };
@@ -76,12 +78,13 @@ namespace NEL_Scan_API.Service
                         JObject obj = new JObject();
                         obj.Add("assetid", id);
                         obj.Add("name", transferRes(id, Convert.ToString(subItem["name"])));
+                        obj.Add("symbol", "");
                         return obj;
                     }).ToArray();
                 }).GroupBy(pItem => pItem["assetid"], (k,g) => g.ToArray()[0]).ToArray()
             } };
         }
-
+        
         private string transferName(string name)
         {
             if (neoFilter.Contains(name.ToLower()))

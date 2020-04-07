@@ -436,6 +436,11 @@ namespace NEL_Scan_API.Controllers
 
                     // 资产名称模糊查询
                     case "fuzzysearchasset":
+                        if(req.@params.Length >= 3)
+                        {
+                            result = assetService.fuzzySearchAsset(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                            break;
+                        }
                         result = assetService.fuzzySearchAsset(req.@params[0].ToString());
                         break;
                     // 
