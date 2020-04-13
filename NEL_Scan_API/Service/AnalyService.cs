@@ -22,13 +22,42 @@ namespace NEL_Scan_API.Service
                 new JObject{{"vout.address", address}}
             } }}.ToString();
 
-            long count = mh.GetDataCount(block_mongodbConnStr, block_mongodbDatabase, "txdetail", findStr);
-            string fieldStr = MongoFieldHelper.toReturn(new string[] { "type", "txid", "blockindex", "size", "vinout", "vout", "sys_fee", "net_fee", "blocktime" }).ToString();
-            string sortStr = new JObject() { { "blockindex", -1 } }.ToString();
-            JArray queryRes = mh.GetDataPagesWithField(block_mongodbConnStr, block_mongodbDatabase, "txdetail", fieldStr, pageSize, pageNum, sortStr, findStr);
+            var count = mh.GetDataCount(block_mongodbConnStr, block_mongodbDatabase, "txdetail", findStr);
+            if (count == 0)
+            {
+                return new JArray
+                {
+                    new JObject(){{"count", count }, { "list", new JArray() } }
+                };
+            }
+            var sortStr = new JObject() { { "blockindex", -1 } }.ToString();
+            var queryRes = mh.GetDataPages(block_mongodbConnStr, block_mongodbDatabase, "txdetail", sortStr, pageSize, pageNum, findStr);
+            if (queryRes.Count == 0)
+            {
+                return new JArray
+                {
+                    new JObject(){{"count", count }, { "list", queryRes } }
+                };
+            }
+
+            var rr = queryRes.Select(p =>
+            {
+                var jo = new JObject();
+                jo["type"] = p["type"];
+                jo["txid"] = p["txid"];
+                jo["blockindex"] = p["blockindex"];
+                jo["size"] = p["size"];
+                jo["vinout"] = p["vinout"];
+                jo["vout"] = p["vout"];
+                jo["sys_fee"] = p["sys_fee"];
+                jo["net_fee"] = p["net_fee"];
+                jo["blocktime"] = p["blocktime"];
+                return jo;
+            }).ToArray();
+
 
             //
-            var res = formatAssetName(queryRes);
+            var res = formatAssetName(new JArray { rr });
 
             return new JArray
             {
