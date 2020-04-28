@@ -15,7 +15,7 @@ namespace NEL_Scan_API.Service
         public string Analysis_mongodbConnStr { get; set; }
         public string Analysis_mongodbDatabase { get; set; }
 
-        private string contractCallInfoCol = "contract_call_info";
+        private string contractCallInfoCol = "contract_exec_detail";
         private string contractTxInfoCol = "Nep5Transfer";
         private string contractInfoCol = "contractCallState";
 
@@ -106,27 +106,27 @@ namespace NEL_Scan_API.Service
         {
             if (mh == null) return new JArray { };
             // txid + time + from + to + value(1neo,1gas) + fee
-            string findStr = new JObject { { "contractHash", hash } }.ToString();
-            string sortStr = new JObject { { "time", -1} }.ToString();
-            var queryRes = mh.GetDataPages(Analysis_mongodbConnStr, Analysis_mongodbDatabase, contractCallInfoCol, sortStr, pageSize, pageNum, findStr);;
+            var findStr = new JObject { { "type", ContractInvokeType.Call},{ "to", hash } }.ToString();
+            var sortStr = new JObject { { "blockIndex", -1} }.ToString();
+            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, contractCallInfoCol, sortStr, pageSize, pageNum, findStr);;
             if (queryRes == null || queryRes.Count == 0) return new JArray { };
 
             var res = queryRes.Select(p => {
 
-                var neoAmount = NumberDecimalHelper.formatDecimal(p["neoAmount"].ToString());
-                var gasAmount = NumberDecimalHelper.formatDecimal(p["gasAmount"].ToString());
-                var value = "";
-                if (neoAmount != "0") value += neoAmount + " NEO";
-                if (gasAmount != "0") value += ", " + gasAmount + " GAS";
-                if (value == "") value = "0";
-
+                //var neoAmount = NumberDecimalHelper.formatDecimal(p["neoAmount"].ToString());
+                //var gasAmount = NumberDecimalHelper.formatDecimal(p["gasAmount"].ToString());
+                //var value = "";
+                //if (neoAmount != "0") value += neoAmount + " NEO";
+                //if (gasAmount != "0") value += ", " + gasAmount + " GAS";
+                //if (value == "") value = "0";
+                var value = "0";
                 return new JObject {
                     { "txid", p["txid"]},
-                    { "time", p["time"]},
-                    { "from", p["address"]},
+                    { "time", p["blockTimestamp"]},
+                    { "from", p["from"]},
                     { "to", "当前合约"},
                     { "value", value},
-                    { "net_fee", NumberDecimalHelper.formatDecimal(p["net_fee"].ToString()) + " CGAS"}
+                    { "net_fee", getNetFee(p["txid"].ToString()) + " CGAS"}
                 };
             }).ToArray();
 
@@ -137,14 +137,30 @@ namespace NEL_Scan_API.Service
                 { "list", new JArray{ res } }
             } };
         }
-
-        public JArray getContractNep5TxNew(string address, int pageNum=1, int pageSize=10)
+        private string getNetFee(string txid)
         {
-            if (mh == null) return new JArray { };
-            string findStr = new JObject { { "$or", new JArray { new JObject { { "from", address} }, new JObject { { "to", address } } } } }.ToString();
-            string sortStr = new JObject { { "time", -1 } }.ToString();
+            var findStr = new JObject { { "txid", txid } }.ToString();
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "tx", findStr);
+            if (queryRes.Count == 0) return "0";
+
+            var item = queryRes[0];
+            var res = NumberDecimalHelper.formatDecimal(item["net_fee"].ToString());
+            return res;
+        }
+
+        public JArray getContractNep5Tx(string address, int pageNum=1, int pageSize=10)
+        {
+            if(address.Length == 42 || address.Length == 40)
+            {
+                address = address.pubkeyhash2address();
+            }
+            var findStr = new JObject { { "$or", new JArray { new JObject { { "from", address} }, new JObject { { "to", address } } } } }.ToString();
+            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, findStr);
+            if(count == 0) return new JArray { new JObject { { "count", count }, { "list", new JArray() } } };
+
+            var sortStr = new JObject { { "blockindex", -1 } }.ToString();
             var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, sortStr, pageSize, pageNum, findStr); ;
-            if (queryRes == null || queryRes.Count == 0) return new JArray { };
+            if (queryRes.Count == 0) return new JArray { new JObject { { "count", count }, { "list", new JArray() } } };
 
             var indexs = queryRes.Select(p => (long)p["blockindex"]).ToArray();
             var assets = queryRes.Select(p => p["asset"].ToString()).ToArray();
@@ -161,17 +177,15 @@ namespace NEL_Scan_API.Service
                 { "assetName", assetDict.GetValueOrDefault(p["asset"].ToString())},
             }).ToArray();
 
-            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, findStr);
+            
 
             return new JArray { new JObject {
                 { "count", count},
                 { "list", new JArray{ res } }
             } };
         }
-        public JArray getContractNep5Tx(string hash, int pageNum=1, int pageSize=10)
+        public JArray getContractNep5TxOld(string hash, int pageNum=1, int pageSize=10)
         {
-            bool flag = true;
-            if (flag) return getContractNep5TxNew(hash, pageNum, pageSize);
             if (mh == null) return new JArray { };
             // txid + time + from + to + amount + assetName
             string findStr = new JObject { { "asset", hash } }.ToString();
@@ -231,6 +245,15 @@ namespace NEL_Scan_API.Service
             symbol = queryRes[0]["symbol"].ToString();
             return true;
         }
+    }
+
+    class ContractInvokeType
+    {
+        public const int Call = 1;
+        public const int Create = 2;
+        public const int Update = 3;
+        public const int Destroy = 4;
+
     }
 
 }
