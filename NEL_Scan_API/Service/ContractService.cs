@@ -22,6 +22,24 @@ namespace NEL_Scan_API.Service
 
         public JArray getContractInfo(string hash)
         {
+            var isNep5 = isNep5Asset(hash, out string assetName, out string assetSymbol);
+            var res = new JObject{
+                { "name",""},
+                { "hash",hash},
+                {"isNep5Asset", isNep5 },
+                {"assetName", assetName },
+                {"assetSymbol", assetSymbol },
+                { "creator",""},
+                { "createDate",1501234567},
+                {"txCount", 0 },
+                {"txCount24h", 0},
+                {"usrCount", 0 },
+                {"usrCount24h", 0 }
+            };
+            return new JArray { res };
+        }
+        public JArray getContractInfoOld(string hash)
+        {
             if (mh == null) return new JArray { };
             string findStr = new JObject { { "hash", hash} }.ToString();
             string fieldStr = new JObject { { "script", 0 } }.ToString();
