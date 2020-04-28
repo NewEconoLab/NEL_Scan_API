@@ -1,5 +1,6 @@
 ﻿using NEL_Scan_API.lib;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -143,6 +144,7 @@ namespace NEL_Scan_API.Service
 
             var item = queryRes[0];
             var res = NumberDecimalHelper.formatDecimal(item["net_fee"].ToString());
+            res = (decimal.Parse(res) / (new decimal(Math.Pow(10, 8)))).ToString();
             return res;
         }
 
