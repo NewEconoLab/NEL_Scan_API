@@ -67,7 +67,6 @@ namespace NEL_Scan_API.Service
                 };
             return new JArray { res };
         }
-
         private long getTxCount(string hash, bool isOnly24h = false, long indexBefore24h = 0)
         {
             var findJo = new JObject { { "contractHash", hash } };
@@ -107,10 +106,11 @@ namespace NEL_Scan_API.Service
             if (mh == null) return new JArray { };
             // txid + time + from + to + value(1neo,1gas) + fee
             var findStr = new JObject { { "type", ContractInvokeType.Call},{ "to", hash } }.ToString();
-            var sortStr = new JObject { { "blockIndex", -1} }.ToString();
-            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, contractCallInfoCol, sortStr, pageSize, pageNum, findStr);;
-            if (queryRes == null || queryRes.Count == 0) return new JArray { };
+            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, contractCallInfoCol, findStr);
+            if(count == 0) return new JArray { new JObject { { "count", count }, { "list", new JArray() } } };
 
+            var sortStr = new JObject { { "blockIndex", -1} }.ToString();
+            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, contractCallInfoCol, sortStr, pageSize, pageNum, findStr);
             var res = queryRes.Select(p => {
 
                 //var neoAmount = NumberDecimalHelper.formatDecimal(p["neoAmount"].ToString());
@@ -130,8 +130,6 @@ namespace NEL_Scan_API.Service
                 };
             }).ToArray();
 
-            var count = mh.GetDataCount(Analysis_mongodbConnStr, Analysis_mongodbDatabase, contractCallInfoCol, findStr);
-            
             return new JArray { new JObject {
                 { "count", count},
                 { "list", new JArray{ res } }
