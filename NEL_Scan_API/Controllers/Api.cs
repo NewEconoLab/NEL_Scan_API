@@ -17,6 +17,7 @@ namespace NEL_Scan_API.Controllers
         private BlockService blockService;
         private NNSDomainCreditService nnsDomainCrediteService;
         private ContractService contractService;
+        private InnerTxService innerTxService;
 
         private mongoHelper mh = new mongoHelper();
 
@@ -32,6 +33,14 @@ namespace NEL_Scan_API.Controllers
             switch (netnode)
             {
                 case "testnet":
+                    innerTxService = new InnerTxService
+                    {
+                        mh = mh,
+                        block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_testnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_testnet
+                    };
                     contractService = new ContractService
                     {
                         mh = mh,
@@ -103,6 +112,14 @@ namespace NEL_Scan_API.Controllers
                     };
                     break;
                 case "mainnet":
+                    innerTxService = new InnerTxService
+                    {
+                        mh = mh,
+                        block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
+                        block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                        analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
+                        analy_mongodbDatabase = mh.analy_mongodbDatabase_mainnet
+                    };
                     contractService = new ContractService
                     {
                         mh = mh,
