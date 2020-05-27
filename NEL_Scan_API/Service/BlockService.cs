@@ -44,7 +44,7 @@ namespace NEL_Scan_API.Service
             var res = new JArray { new JObject {
                 { "gasPrice", getPrice(gasPair)},
                 { "neoPrice", getPrice(neoPair)},
-                { "activeAddrCount", 0},
+                { "activeAddrCount", getActiveAddrCount()},
                 { "gasAddrCount", getAddrCount(gasHash) },
                 { "neoAddrCount", getAddrCount(neoHash) },
                 { "txCount", getTxCount()}
@@ -71,8 +71,26 @@ namespace NEL_Scan_API.Service
         private long getActiveAddrCount()
         {
             var now = TimeHelper.GetTimeStamp();
-            var findStr = new JObject { { "time", "" } }.ToString();
-            return 0;
+            var stIndex = getBlockIndex(now - SevenDaySeconds);
+            var edIndex = getBlockIndex(now);
+            var findStr = new JObject { { "lastuse.blockindex", new JObject {
+                { "$gte", stIndex},
+                { "$lte", edIndex}
+            } } }.ToString();
+            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "address", findStr);
+            return count;
+        }
+        private long getBlockIndex(long blocktime)
+        {
+            var findStr = new JObject { { "time", new JObject { { "$gte", blocktime } } } }.ToString();
+            var sortStr = "{'index':1}";
+            var skip = 0;
+            var limit = 1;
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "block", findStr, sortStr, skip, limit);
+            if (queryRes.Count == 0) return 5569626;
+
+            var item = queryRes[0];
+            return long.Parse(item["index"].ToString());
         }
         //
         private string gasHash = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
