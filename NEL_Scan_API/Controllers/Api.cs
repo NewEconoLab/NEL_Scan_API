@@ -148,6 +148,10 @@ namespace NEL_Scan_API.Controllers
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
                         Block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                        Analy_mongodbConnStr = mh.analy_mongodbConnStr_mainnet,
+                        Analy_mongodbDatabase = mh.analy_mongodbDatabase_mainnet,
+                        Notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
+                        Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                     };
                     analyService = new AnalyService
                     {
@@ -210,6 +214,13 @@ namespace NEL_Scan_API.Controllers
                 point(req.method);
                 switch (req.method)
                 {
+                    //
+                    case "getScanTxCountHist":
+                        result = blockService.getScanTxCountHist();
+                        break;
+                    case "getScanStatistic":
+                        result = blockService.getScanStatistic();
+                        break;
                     //
                     case "getInnerTxAtContractDetail":
                         result = innerTxService.getInnerTxAtContractDetail(
