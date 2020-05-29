@@ -82,8 +82,8 @@ namespace NEL_Scan_API.Service
         }
         private long getBlockIndex(long blocktime)
         {
-            var findStr = new JObject { { "time", new JObject { { "$gte", blocktime } } } }.ToString();
-            var sortStr = "{'index':1}";
+            var findStr = new JObject { { "time", new JObject { { "$lte", blocktime } } } }.ToString();
+            var sortStr = "{'index':-1}";
             var skip = 0;
             var limit = 1;
             var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "block", findStr, sortStr, skip, limit);
