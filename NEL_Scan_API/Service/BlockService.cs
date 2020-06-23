@@ -16,6 +16,45 @@ namespace NEL_Scan_API.Service
         public string Notify_mongodbConnStr { get; set; }
         public string Notify_mongodbDatabase { get; set; }
 
+        public JArray getContractList(int pageNum = 1, int pageSize = 10)
+        {
+            var findStr = "{}";
+            var sortStr = new JObject { { "time", -1 } }.ToString();
+            var skip = (pageNum - 1) * pageSize;
+            var limit = pageSize;
+
+            var count = mh.GetDataCount(Analy_mongodbConnStr, Analy_mongodbDatabase, "contract_create_info", findStr);
+            var queryRes = mh.GetData(Analy_mongodbConnStr, Analy_mongodbDatabase, "contract_create_info", findStr, sortStr, skip, limit);
+            if (queryRes.Count == 0) return queryRes;
+
+            var res = queryRes.Select(p => formatAssetInfo(p)).ToArray();
+
+            var rs = new JObject {
+                {"count", count },
+                {"list", new JArray{res } }
+            };
+            return new JArray { rs };
+        }
+        private JObject formatAssetInfo(JToken jt)
+        {
+            var res = new JObject();
+            res["contractHash"] = jt["contractHash"];
+            res["deployTime"] = jt["time"];
+            res["name"] = getAssetName(jt["contractHash"].ToString());
+            res["author"] = "";
+            return res;
+        }
+        private string getAssetName(string assetid)
+        {
+            var findStr = new JObject { { "assetid", assetid } }.ToString();
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "NEP5asset", findStr);
+            if (queryRes.Count == 0) return "";
+
+            var item = queryRes[0];
+            return item["name"].ToString();
+
+        }
+
         public JArray getScanTxCountHist()
         {
             var findStr = "{}";

@@ -215,6 +215,11 @@ namespace NEL_Scan_API.Controllers
                 switch (req.method)
                 {
                     //
+                    case "getContractList":
+                        result = blockService.getContractList(
+                            int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        break;
+                    //
                     case "getScanTxCountHist":
                         result = blockService.getScanTxCountHist();
                         break;
