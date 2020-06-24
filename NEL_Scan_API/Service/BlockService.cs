@@ -27,7 +27,7 @@ namespace NEL_Scan_API.Service
             var queryRes = mh.GetData(Analy_mongodbConnStr, Analy_mongodbDatabase, "contract_create_info", findStr, sortStr, skip, limit);
             if (queryRes.Count == 0) return queryRes;
 
-            var res = queryRes.Select(p => formatAssetInfo(p)).ToArray();
+            var res = queryRes.Select(p => formatAssetInfo(p)).Where(p => p["name"].ToString() != "").ToArray();
 
             var rs = new JObject {
                 {"count", count },
