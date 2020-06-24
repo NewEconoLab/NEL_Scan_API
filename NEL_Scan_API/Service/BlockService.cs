@@ -40,8 +40,9 @@ namespace NEL_Scan_API.Service
             var res = new JObject();
             res["contractHash"] = jt["contractHash"];
             res["deployTime"] = jt["time"];
-            res["name"] = getAssetName(jt["contractHash"].ToString());
-            res["author"] = "";
+            var author = getAssetAuthor(jt["contractHash"].ToString(), out string name);
+            res["name"] = name;
+            res["author"] = author;
             return res;
         }
         private string getAssetName(string assetid)
@@ -53,6 +54,18 @@ namespace NEL_Scan_API.Service
             var item = queryRes[0];
             return item["name"].ToString();
 
+        }
+        private string getAssetAuthor(string assetid, out string assetName)
+        {
+            assetName = "";
+            var findStr = new JObject { { "hash", assetid } }.ToString();
+            var fieldStr = new JObject { { "script", 0 } }.ToString();
+            var queryRes = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, "contractCallState", fieldStr, findStr);
+            if (queryRes.Count == 0) return "";
+
+            var item = queryRes[0];
+            assetName = item["name"].ToString();
+            return item["author"].ToString();
         }
 
         public JArray getScanTxCountHist()
