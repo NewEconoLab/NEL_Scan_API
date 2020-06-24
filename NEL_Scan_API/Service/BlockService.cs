@@ -21,13 +21,13 @@ namespace NEL_Scan_API.Service
             var findStr = "{}";
             var sortStr = new JObject { { "time", -1 } }.ToString();
             var skip = (pageNum - 1) * pageSize;
-            var limit = pageSize;
+            var limit = pageSize*2;
 
             var count = mh.GetDataCount(Analy_mongodbConnStr, Analy_mongodbDatabase, "contract_create_info", findStr);
             var queryRes = mh.GetData(Analy_mongodbConnStr, Analy_mongodbDatabase, "contract_create_info", findStr, sortStr, skip, limit);
             if (queryRes.Count == 0) return queryRes;
 
-            var res = queryRes.Select(p => formatAssetInfo(p)).Where(p => p["name"].ToString() != "").ToArray();
+            var res = queryRes.Select(p => formatAssetInfo(p)).Where(p => p["name"].ToString() != "").Take(pageSize).ToArray();
 
             var rs = new JObject {
                 {"count", count },
