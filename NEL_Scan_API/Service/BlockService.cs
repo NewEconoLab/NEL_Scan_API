@@ -20,6 +20,7 @@ namespace NEL_Scan_API.Service
 
         public JArray getScanTxCountHist()
         {
+            System.Console.WriteLine();
             var findStr = "{}";
             var sortStr = "{'recordTime':-1}";
             var skip = 0;
@@ -95,14 +96,16 @@ namespace NEL_Scan_API.Service
             return long.Parse(item["index"].ToString());
         }
         //
-        private string gasHash = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
-        private string neoHash = "0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
+        //private string gasHash = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
+        //private string neoHash = "0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
+        private string gasHash = "0x668e0c1f9d7b70a99dd9e06eadd4c784d641afbc";
+        private string neoHash = "0xde5f57d430d3dece511cf975a8d37848cb9e0525";
+
         private long getAddrCount(string hash)
         {
             var findStr = new JObject { { "AssetHash", hash }, { "Balance", new JObject { { "$gt", 0 } } } }.ToString();
-            //var count = mh.GetDataCount(Analy_mongodbConnStr, Analy_mongodbDatabase, "address_assetid_balance", findStr);
-            //return count;
-            return 0;
+            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "Nep5State", findStr);
+            return count;
         }
         //
         private long getTxCount()
