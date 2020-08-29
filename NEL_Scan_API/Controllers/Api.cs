@@ -62,6 +62,10 @@ namespace NEL_Scan_API.Controllers
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_testnet,
                         Block_mongodbDatabase = mh.block_mongodbDatabase_testnet,
+                        Notify_mongodbConnStr = mh.notify_mongodbConnStr_testnet,
+                        Notify_mongodbDatabase = mh.notify_mongodbDatabase_testnet,
+                        NEOPrice_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
+                        NEOPrice_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                     };
                     analyService = new AnalyService
                     {
@@ -141,6 +145,10 @@ namespace NEL_Scan_API.Controllers
                         mh = mh,
                         Block_mongodbConnStr = mh.block_mongodbConnStr_mainnet,
                         Block_mongodbDatabase = mh.block_mongodbDatabase_mainnet,
+                        Notify_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
+                        Notify_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
+                        NEOPrice_mongodbConnStr = mh.notify_mongodbConnStr_mainnet,
+                        NEOPrice_mongodbDatabase = mh.notify_mongodbDatabase_mainnet,
                     };
                     analyService = new AnalyService
                     {
@@ -203,6 +211,13 @@ namespace NEL_Scan_API.Controllers
                 point(req.method);
                 switch (req.method)
                 {
+                    //
+                    case "getScanTxCountHist":
+                        result = blockService.getScanTxCountHist();
+                        break;
+                    case "getScanStatistic":
+                        result = blockService.getScanStatistic();
+                        break;
                     // 获取合约信息
                     case "getContractNep5Tx":
                         result = contractService.getContractNep5Tx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));

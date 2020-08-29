@@ -14,6 +14,105 @@ namespace NEL_Scan_API.Service
         public string Notify_mongodbConnStr { get; set; }
         public string Notify_mongodbDatabase { get; set; }
 
+        public string NEOPrice_mongodbConnStr { get; set; }
+        public string NEOPrice_mongodbDatabase { get; set; }
+
+
+        public JArray getScanTxCountHist()
+        {
+            var findStr = "{}";
+            var sortStr = "{'recordTime':-1}";
+            var skip = 0;
+            var limit = 30;
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "txactiveinfos", findStr, sortStr, skip, limit);
+            if (queryRes.Count == 0) return queryRes;
+
+            var rr = queryRes.Select(p =>
+            {
+                var jo = new JObject();
+                jo["count"] = p["count"];
+                jo["time"] = p["recordTime"];
+                return jo;
+            }).ToArray();
+            var res = new JObject {
+                {"count", rr.Count() },
+                {"list", new JArray{rr} }
+            };
+            return new JArray { res };
+
+        }
+        public JArray getScanStatistic()
+        {
+            var res = new JArray { new JObject {
+                { "gasPrice", getPrice(gasPair)},
+                { "neoPrice", getPrice(neoPair)},
+                { "activeAddrCount", getActiveAddrCount()},
+                { "gasAddrCount", getAddrCount(gasHash) },
+                { "neoAddrCount", getAddrCount(neoHash) },
+                { "txCount", getTxCount()}
+            }};
+            return res;
+        }
+        //
+        private string gasPair = "GAS-USDT";
+        private string neoPair = "NEO-USDT";
+        private string getPrice(string pair)
+        {
+            var findStr = new JObject { { "instrument_id", pair } }.ToString();
+            var sortStr = "{'time':-1}";
+            var skip = 0;
+            var limit = 1;
+            var queryRes = mh.GetData(NEOPrice_mongodbConnStr, NEOPrice_mongodbDatabase, "priceinfos", findStr, sortStr, skip, limit);
+            if (queryRes.Count() == 0) return "-1";
+
+            var item = queryRes[0];
+            return item["last"].ToString();
+        }
+        //
+        private long SevenDaySeconds = 7 * 24 * 60 * 60;
+        private long getActiveAddrCount()
+        {
+            var now = TimeHelper.GetTimeStamp();
+            var stIndex = getBlockIndex(now - SevenDaySeconds);
+            var edIndex = getBlockIndex(now);
+            var findStr = new JObject { { "lastuse.blockindex", new JObject {
+                { "$gte", stIndex},
+                { "$lte", edIndex}
+            } } }.ToString();
+            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "address", findStr);
+            return count;
+        }
+        private long getBlockIndex(long blocktime)
+        {
+            var findStr = new JObject { { "time", new JObject { { "$lte", blocktime*1000 } } } }.ToString();
+            var sortStr = "{'index':-1}";
+            var skip = 0;
+            var limit = 1;
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "block", findStr, sortStr, skip, limit);
+            if (queryRes.Count == 0) return 5569626;
+
+            var item = queryRes[0];
+            return long.Parse(item["index"].ToString());
+        }
+        //
+        private string gasHash = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
+        private string neoHash = "0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
+        private long getAddrCount(string hash)
+        {
+            var findStr = new JObject { { "AssetHash", hash }, { "Balance", new JObject { { "$gt", 0 } } } }.ToString();
+            //var count = mh.GetDataCount(Analy_mongodbConnStr, Analy_mongodbDatabase, "address_assetid_balance", findStr);
+            //return count;
+            return 0;
+        }
+        //
+        private long getTxCount()
+        {
+            var findStr = "{}";
+            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "tx", findStr);
+            return count;
+        }
+
+
         public JArray getNep5Txlist(int pageNum =1, int pageSize=10)
         {
             return getNep5Tx("{}", pageNum, pageSize);
