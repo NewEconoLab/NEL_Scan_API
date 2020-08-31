@@ -165,6 +165,28 @@ namespace NEL_Scan_API.lib
             }
             else { return new JArray(); }
         }
+        public JArray GetDataPagesWithSkip(string mongodbConnStr, string mongodbDatabase, string coll, string sortStr, int skip, int limit, string findBson = "{}")
+        {
+            var client = new MongoClient(mongodbConnStr);
+            var database = client.GetDatabase(mongodbDatabase);
+            var collection = database.GetCollection<BsonDocument>(coll);
+
+            List<BsonDocument> query = collection.Find(BsonDocument.Parse(findBson)).Sort(sortStr).Skip(skip).Limit(limit).ToList();
+            client = null;
+
+            if (query.Count > 0)
+            {
+
+                var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+                JArray JA = JArray.Parse(query.ToJson(jsonWriterSettings));
+                foreach (JObject j in JA)
+                {
+                    j.Remove("_id");
+                }
+                return JA;
+            }
+            else { return new JArray(); }
+        }
 
         public JArray GetDataWithField(string mongodbConnStr, string mongodbDatabase, string coll, string fieldBson, string findBson = "{}")
         {

@@ -25,7 +25,7 @@ namespace NEL_Scan_API.Service
             }; 
         }
         
-        public JArray getRankByAsset(string asset, int pageSize, int pageNum, string network="testnet")
+        public JArray getRankByAssetOld(string asset, int pageSize, int pageNum, string network="testnet")
         {
             JObject filter = new JObject() { { "AssetHash", asset } };
             JObject sort = new JObject() { { "Balance", -1 } };
@@ -38,6 +38,69 @@ namespace NEL_Scan_API.Service
             }
             return res;
         }
+        public JArray getRankByAsset(string asset, int pageSize, int pageNum, string network = "testnet")
+        {
+            var hashArr = getRelateHashArr(asset);
+            var hashJOs = hashArr.Select(p => new JObject { { "AssetHash", p } }).ToArray();
+            var findStr = new JObject { { "$or", new JArray { hashJOs } } }.ToString();
+            var sortStr = new JObject() { { "Balance", -1 } }.ToString();
+            var queryRes = mh.GetDataPagesWithSkip(block_mongodbConnStr, block_mongodbDatabase, "Nep5State", sortStr, pageSize*(pageNum-1), pageSize*10, findStr);
+
+            var cnt = 0;
+            var ja = new JArray();
+            foreach(var item in queryRes)
+            {
+                var address = item["Address"].ToString();
+                var assetHash = item["AssetHash"].ToString();
+                var arr = ja.Where(p => p["addr"].ToString() == address).ToArray();
+                if (arr != null && arr.Length > 0)
+                {
+                    ja.Remove(arr[0]);
+                }
+
+                var balance = double.Parse((string)item["Balance"]["$numberDecimal"]) / System.Math.Pow(10, double.Parse((string)item["AssetDecimals"]));
+                var newItem = new JObject {
+                    { "asset", (string)item["AssetHash"] },
+                    { "balance", balance },
+                    { "addr", item["Address"] } };
+                ja.Add(newItem);
+                if(++cnt == pageSize)
+                {
+                    break;
+                }
+            }
+            return ja;
+        }
+        private JObject getNewContractBalance(string address, string asset)
+        {
+            var findStr = new JObject { { "Address", address },{ "AssetHash", asset} }.ToString();
+            var queryRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "Nep5State", findStr);
+            //
+            if (queryRes.Count == 0) return null;
+            return (JObject)queryRes[0];
+            //return long.Parse(NumberDecimalHelper.formatDecimal(queryRes[0]["Balance"].ToString()));
+        }
+        private string[] getRelateHashArr(string asset)
+        {
+            var contractId = getContractId(asset);
+            if (contractId == null) return new string[] { asset };
+            //
+            var findStr = new JObject { { "contractId", contractId } }.ToString();
+            var queryRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "contract", findStr);
+            //
+            var hashArr = queryRes.Select(p => p["contractHash"].ToString()).ToArray();
+            return hashArr;
+
+        }
+        private string getContractId(string asset)
+        {
+            var findStr = new JObject { { "contractHash", asset } }.ToString();
+            var queryRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "contract", findStr);
+            if (queryRes.Count == 0) return null;
+
+            return queryRes[0]["contractId"].ToString();
+        }
+
         public JArray getRankByAssetCount(string asset, string network = "testnet")
         {
             //if (network != "testnet") return getRankByAssetCountOld(asset);
