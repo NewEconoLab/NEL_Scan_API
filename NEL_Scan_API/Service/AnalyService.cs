@@ -83,7 +83,7 @@ namespace NEL_Scan_API.Service
         private string[] getRelateHashArr(string asset)
         {
             var contractId = getContractId(asset);
-            if (contractId == null) return new string[] { asset };
+            if (contractId == -1) return new string[] { asset };
             //
             var findStr = new JObject { { "contractId", contractId } }.ToString();
             var queryRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "contract", findStr);
@@ -92,13 +92,13 @@ namespace NEL_Scan_API.Service
             return hashArr;
 
         }
-        private string getContractId(string asset)
+        private long getContractId(string asset)
         {
             var findStr = new JObject { { "contractHash", asset } }.ToString();
             var queryRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "contract", findStr);
-            if (queryRes.Count == 0) return null;
+            if (queryRes.Count == 0) return -1;
 
-            return queryRes[0]["contractId"].ToString();
+            return long.Parse(queryRes[0]["contractId"].ToString());
         }
 
         public JArray getRankByAssetCount(string asset, string network = "testnet")
