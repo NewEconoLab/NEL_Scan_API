@@ -43,7 +43,7 @@ namespace NEL_Scan_API.Service
             var hashArr = getRelateHashArr(asset);
             var hashJOs = hashArr.Select(p => new JObject { { "AssetHash", p } }).ToArray();
             var findStr = new JObject { { "$or", new JArray { hashJOs } } }.ToString();
-            var sortStr = new JObject() { { "Balance", -1 } }.ToString();
+            var sortStr = new JObject() { { "_id", 1 } }.ToString();
             var queryRes = mh.GetDataPagesWithSkip(block_mongodbConnStr, block_mongodbDatabase, "Nep5State", sortStr, pageSize*(pageNum-1), pageSize*10, findStr);
 
             var cnt = 0;
