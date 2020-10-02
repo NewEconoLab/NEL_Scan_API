@@ -18,12 +18,19 @@ namespace NEL_Scan_API.Service
 
         private string contractCallInfoCol = "contract_exec_detail";
         private string contractTxInfoCol = "Nep5Transfer";
-        private string contractInfoCol = "contractCallState";
-
+        private long seconds24h = 24 * 60 * 60;
+        private long getTimeBefore24h()
+        {
+            long time = TimeHelper.GetTimeStamp();
+            time -= seconds24h;
+            time *= 1000;
+            return time;
+        }
 
         public JArray getContractInfo(string hash)
         {
             var isNep5 = isNep5Asset(hash, out string assetName, out string assetSymbol);
+            long time = getTimeBefore24h();
             var res = new JObject{
                 { "name",""},
                 { "hash",hash},
@@ -32,63 +39,34 @@ namespace NEL_Scan_API.Service
                 {"assetSymbol", assetSymbol },
                 { "creator",""},
                 { "createDate",1501234567},
-                {"txCount", 0 },
-                {"txCount24h", 0},
-                {"usrCount", 0 },
-                {"usrCount24h", 0 }
+                {"txCount", getTxCount(hash) },
+                {"txCount24h", getTxCount(hash,true, time)},
+                {"usrCount", getUsrCount(hash) },
+                {"usrCount24h", getUsrCount(hash,true, time)},
             };
             return new JArray { res };
         }
-        public JArray getContractInfoOld(string hash)
+        private long getTxCount(string hash, bool isOnly24h = false, long timeBefore24h = 0)
         {
-            if (mh == null) return new JArray { };
-            string findStr = new JObject { { "hash", hash} }.ToString();
-            string fieldStr = new JObject { { "script", 0 } }.ToString();
-            var queryRes = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, contractInfoCol, fieldStr, findStr);
-            if (queryRes == null || queryRes.Count == 0) return new JArray { };
-
-            var isNep5 = isNep5Asset(hash, out string assetName, out string assetSymbol);
-            var beforIndex = getBlockHeightBefore24h();
-            var p = queryRes[0];
-            var res = new JObject {
-                    {"name", p["name"] },
-                    {"hash", p["hash"] },
-                    {"isNep5Asset", isNep5 },
-                    {"assetName", assetName },
-                    {"assetSymbol", assetSymbol },
-                    {"author", p["author"] },
-                    {"email", p["email"] },
-                    {"createDate", p["createDate"].ToString() == "0" ? 1501234567:p["createDate"]},
-                    {"version", p["code_version"] },
-                    {"description", p["description"] },
-                    {"txCount", getTxCount(hash) },//p["txCount"] },
-                    {"txCount24h", getTxCount(hash,true, beforIndex)},//p["txCount24h"] },
-                    {"usrCount", getUsrCount(hash) },//p["usrCount"]},
-                    {"usrCount24h", getUsrCount(hash,true, beforIndex)},//p["usrCount24h"] },
-                };
-            return new JArray { res };
-        }
-        private long getTxCount(string hash, bool isOnly24h = false, long indexBefore24h = 0)
-        {
-            var findJo = new JObject { { "contractHash", hash } };
+            var findJo = new JObject { { "to", hash }, { "level", 0} };
             if (isOnly24h)
             {
-                findJo.Add("blockIndex", new JObject { { "$gte", indexBefore24h } });
+                findJo.Add("blockTimestamp", new JObject { { "$gte", timeBefore24h } });
             }
-            return mh.GetDataCount(Analysis_mongodbConnStr, Analysis_mongodbDatabase, "contract_call_info", findJo.ToString());
+            return mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "contract_exec_detail", findJo.ToString());
         }
-        private long getUsrCount(string hash, bool isOnly24h = false, long indexBefore24h = 0)
+        private long getUsrCount(string hash, bool isOnly24h = false, long timeBefore24h = 0)
         {
-            var findJo = new JObject { { "contractHash", hash } };
+            var findJo = new JObject { { "to", hash }, { "level", 0 } };
             if (isOnly24h)
             {
-                findJo.Add("blockIndex", new JObject { { "$gte", indexBefore24h } });
+                findJo.Add("blockTimestamp", new JObject { { "$gte", timeBefore24h } });
             }
             var list = new List<string>();
             list.Add(new JObject { { "$match", findJo } }.ToString());
-            list.Add(new JObject { { "$group", new JObject { { "_id", "$address" }, { "sum", new JObject { { "$sum", 1 } } } } } }.ToString());
+            list.Add(new JObject { { "$group", new JObject { { "_id", "$from" }, { "sum", new JObject { { "$sum", 1 } } } } } }.ToString());
             list.Add(new JObject { { "$group", new JObject { { "_id", "$id" }, { "sum", new JObject { { "$sum", 1 } } } } } }.ToString());
-            return mh.AggregateCount(Analysis_mongodbConnStr, Analysis_mongodbDatabase, "contract_call_info", list, false);
+            return mh.AggregateCount(Block_mongodbConnStr, Block_mongodbDatabase, "contract_exec_detail", list, false);
         }
         private long getBlockHeightBefore24h()
         {
@@ -143,7 +121,7 @@ namespace NEL_Scan_API.Service
             if (queryRes.Count == 0) return "0";
 
             var item = queryRes[0];
-            var res = NumberDecimalHelper.formatDecimal(item["net_fee"].ToString());
+            var res = NumberDecimalHelper.formatDecimal(item["netfee"].ToString());
             res = (decimal.Parse(res) / (new decimal(Math.Pow(10, 8)))).ToString();
             return res;
         }
@@ -152,7 +130,8 @@ namespace NEL_Scan_API.Service
         {
             if(address.Length == 42 || address.Length == 40)
             {
-                address = address.pubkeyhash2address();
+                //address = address.pubkeyhash2address(); 
+                //address = address.address2pubkeyHashN();
             }
             var findStr = new JObject { { "$or", new JArray { new JObject { { "from", address} }, new JObject { { "to", address } } } } }.ToString();
             var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, findStr);
@@ -184,38 +163,7 @@ namespace NEL_Scan_API.Service
                 { "list", new JArray{ res } }
             } };
         }
-        public JArray getContractNep5TxOld(string hash, int pageNum=1, int pageSize=10)
-        {
-            if (mh == null) return new JArray { };
-            // txid + time + from + to + amount + assetName
-            string findStr = new JObject { { "asset", hash } }.ToString();
-            string sortStr = new JObject { { "time", -1 } }.ToString();
-            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, sortStr, pageSize, pageNum, findStr); ;
-            if (queryRes == null || queryRes.Count == 0) return new JArray { };
-
-            var indexs = queryRes.Select(p => (long)p["blockindex"]).ToArray();
-            var assets = queryRes.Select(p => p["asset"].ToString()).ToArray();
-            var indexDict = getBlockTime(indexs);
-            var assetDict = getAssetName(assets);
-
-            var res = queryRes.Select(p => new JObject {
-                { "txid", p["txid"]},
-                { "time", indexDict.GetValueOrDefault((long)p["blockindex"])},
-                { "from", p["from"]},
-                { "to", p["to"]},
-                { "value", p["value"]},
-                { "assetHash", p["asset"]},
-                { "assetName", assetDict.GetValueOrDefault(p["asset"].ToString())},
-            }).ToArray();
-
-            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, findStr);
-
-            return new JArray { new JObject {
-                { "count", count},
-                { "list", new JArray{ res } }
-            } };
-        }
-
+        
         private Dictionary<long, long> getBlockTime(long[] indexs)
         {
             string findStr = MongoFieldHelper.toFilter(indexs, "index").ToString();

@@ -211,20 +211,28 @@ namespace NEL_Scan_API.Controllers
                 point(req.method);
                 switch (req.method)
                 {
+                    // 获取合约调用交易
+                    case "getContractCallTx":
+                        result = contractService.getContractCallTx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        break;
+                    // 获取合约Nep5交易
+                    case "getContractNep5Tx":
+                        result = contractService.getContractNep5Tx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
+                        break;
+                    // 获取合约内部交易
+                    case "getInnerTxAtContractDetail":
+                        result = innerTxService.getInnerTxAtContractDetail(
+                            req.@params[0].ToString(),
+                            int.Parse(req.@params[1].ToString()),
+                            int.Parse(req.@params[2].ToString())
+                            );
+                        break;
                     //
                     case "getScanTxCountHist":
                         result = blockService.getScanTxCountHist();
                         break;
                     case "getScanStatistic":
                         result = blockService.getScanStatistic();
-                        break;
-                    // 获取合约信息
-                    case "getContractNep5Tx":
-                        result = contractService.getContractNep5Tx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
-                        break;
-                    // 获取合约信息
-                    case "getContractCallTx":
-                        result = contractService.getContractCallTx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));
                         break;
                     // 获取合约信息
                     case "getContractInfo":

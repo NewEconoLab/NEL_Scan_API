@@ -71,15 +71,6 @@ namespace NEL_Scan_API.Service
             }
             return ja;
         }
-        private JObject getNewContractBalance(string address, string asset)
-        {
-            var findStr = new JObject { { "Address", address },{ "AssetHash", asset} }.ToString();
-            var queryRes = mh.GetData(block_mongodbConnStr, block_mongodbDatabase, "Nep5State", findStr);
-            //
-            if (queryRes.Count == 0) return null;
-            return (JObject)queryRes[0];
-            //return long.Parse(NumberDecimalHelper.formatDecimal(queryRes[0]["Balance"].ToString()));
-        }
         private string[] getRelateHashArr(string asset)
         {
             var contractId = getContractId(asset);
@@ -103,12 +94,16 @@ namespace NEL_Scan_API.Service
 
         public JArray getRankByAssetCount(string asset, string network = "testnet")
         {
-            //if (network != "testnet") return getRankByAssetCountOld(asset);
+            var hashArr = getRelateHashArr(asset);
+            var hashJOs = hashArr.Select(p => new JObject { { "AssetHash", p } }).ToArray();
+            var findStr = new JObject { { "$or", new JArray { hashJOs } } };
 
-            JObject filter = new JObject() { { "AssetHash", asset } };
-            long res = mh.GetDataCount(analy_mongodbConnStr, analy_mongodbDatabase, "address_assetid_balance", filter.ToString());
-            
-            return getJAbyKV("count", res);
+            var list = new List<string>();
+            list.Add(new JObject { { "$match", findStr } }.ToString());
+            list.Add(new JObject { { "$group", new JObject {
+                { "_id", "$Address" }, { "sum", new JObject { { "$sum", 1 } } } } } }.ToString());
+            var cnt = mh.AggregateCount(block_mongodbConnStr, block_mongodbDatabase, "Nep5State", list);
+            return getJAbyKV("count", cnt);
         }
 
         private JArray getJAbyKV(string key, object value)
