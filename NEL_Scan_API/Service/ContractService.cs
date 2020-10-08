@@ -66,12 +66,13 @@ namespace NEL_Scan_API.Service
             assetName = "";
             var findStr = new JObject { { "hash", assetid } }.ToString();
             var fieldStr = new JObject { { "script", 0 } }.ToString();
-            var queryRes = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, "contractCallState", fieldStr, findStr);
-            if (queryRes.Count == 0) return "";
+            //var queryRes = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, "contractCallState", fieldStr, findStr);
+            //if (queryRes.Count == 0) return "";
 
-            var item = queryRes[0];
-            assetName = item["name"].ToString();
-            return item["author"].ToString();
+            //var item = queryRes[0];
+            //assetName = item["name"].ToString();
+            //return item["author"].ToString();
+            return "";
         }
 
         public JArray getContractInfo(string hash)
