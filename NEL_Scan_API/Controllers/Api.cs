@@ -211,6 +211,10 @@ namespace NEL_Scan_API.Controllers
                 point(req.method);
                 switch (req.method)
                 {
+                    // 
+                    case "getContractList":
+                        result = contractService.getContractList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
+                        break;
                     // 获取合约调用交易
                     case "getContractCallTx":
                         result = contractService.getContractCallTx(req.@params[0].ToString(), int.Parse(req.@params[1].ToString()), int.Parse(req.@params[2].ToString()));

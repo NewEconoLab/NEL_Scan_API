@@ -27,6 +27,53 @@ namespace NEL_Scan_API.Service
             return time;
         }
 
+        public JArray getContractList(int pageNum = 1, int pageSize = 10)
+        {
+            var findStr = new JObject {
+                {"$or", new JArray{
+                     new JObject{ { "type", ContractInvokeType.Create } },
+                     new JObject{{"type", ContractInvokeType .Update} }
+                } }
+            }.ToString();
+            var sortStr = new JObject { { "time", -1 } }.ToString();
+            var skip = (pageNum - 1) * pageSize;
+            var limit = pageSize * 2;
+
+            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "contract_exec_detail", findStr);
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "contract_exec_detail", findStr, sortStr, skip, limit);
+            if (queryRes.Count == 0) return queryRes;
+
+            var res = queryRes.Select(p => formatAssetInfo(p))/*.Where(p => p["name"].ToString() != "")*/.Take(pageSize).ToArray();
+
+            var rs = new JObject {
+                {"count", count },
+                {"list", new JArray{res } }
+            };
+            return new JArray { rs };
+        }
+        private JObject formatAssetInfo(JToken jt)
+        {
+            var res = new JObject();
+            res["contractHash"] = jt["to"];
+            res["deployTime"] = long.Parse(jt["blockTimestamp"].ToString())/1000;
+            var author = getAssetAuthor(jt["to"].ToString(), out string name);
+            res["name"] = name;
+            res["author"] = author;
+            return res;
+        }
+        private string getAssetAuthor(string assetid, out string assetName)
+        {
+            assetName = "";
+            var findStr = new JObject { { "hash", assetid } }.ToString();
+            var fieldStr = new JObject { { "script", 0 } }.ToString();
+            var queryRes = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, "contractCallState", fieldStr, findStr);
+            if (queryRes.Count == 0) return "";
+
+            var item = queryRes[0];
+            assetName = item["name"].ToString();
+            return item["author"].ToString();
+        }
+
         public JArray getContractInfo(string hash)
         {
             var isNep5 = isNep5Asset(hash, out string assetName, out string assetSymbol);
@@ -67,17 +114,6 @@ namespace NEL_Scan_API.Service
             list.Add(new JObject { { "$group", new JObject { { "_id", "$from" }, { "sum", new JObject { { "$sum", 1 } } } } } }.ToString());
             list.Add(new JObject { { "$group", new JObject { { "_id", "$id" }, { "sum", new JObject { { "$sum", 1 } } } } } }.ToString());
             return mh.AggregateCount(Block_mongodbConnStr, Block_mongodbDatabase, "contract_exec_detail", list, false);
-        }
-        private long getBlockHeightBefore24h()
-        {
-            long now = TimeHelper.GetTimeStamp();
-            long bfr = now - 24 * 60 * 60;
-            string findStr = new JObject { { "time", new JObject { { "$gte", bfr } } } }.ToString();
-            string sortStr = new JObject { { "time", 1 } }.ToString();
-            string fieldStr = new JObject { { "index", 1 } }.ToString();
-            var queryRes = mh.GetDataPagesWithField(Block_mongodbConnStr, Block_mongodbDatabase, "block", fieldStr, 1, 1, sortStr, findStr);
-            if (queryRes == null || queryRes.Count == 0) return 0;
-            return (long)queryRes[0]["index"];
         }
 
         public JArray getContractCallTx(string hash, int pageNum=1, int pageSize=10)
