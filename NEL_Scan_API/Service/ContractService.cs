@@ -27,6 +27,7 @@ namespace NEL_Scan_API.Service
             return time;
         }
 
+        // 合约列表
         public JArray getContractList(int pageNum = 1, int pageSize = 10)
         {
             var findStr = new JObject {
@@ -75,6 +76,7 @@ namespace NEL_Scan_API.Service
             return "";
         }
 
+        // 合约信息
         public JArray getContractInfo(string hash)
         {
             var isNep5 = isNep5Asset(hash, out string assetName, out string assetSymbol);
@@ -96,7 +98,12 @@ namespace NEL_Scan_API.Service
         }
         private long getTxCount(string hash, bool isOnly24h = false, long timeBefore24h = 0)
         {
-            var findJo = new JObject { { "to", hash }, { "level", 0} };
+            //var findJo = new JObject { { "to", hash }, { "level", 0} };
+            var findJo = new JObject { { "level", 0 } };
+            var hashArr = getContractHashArr(hash);
+            var findArr = hashArr.Distinct().Select(p => new JObject { { "to", p} }).ToArray();
+            findJo.Add("$or", new JArray { findArr });
+
             if (isOnly24h)
             {
                 findJo.Add("blockTimestamp", new JObject { { "$gte", timeBefore24h } });
@@ -105,7 +112,12 @@ namespace NEL_Scan_API.Service
         }
         private long getUsrCount(string hash, bool isOnly24h = false, long timeBefore24h = 0)
         {
-            var findJo = new JObject { { "to", hash }, { "level", 0 } };
+            //var findJo = new JObject { { "to", hash }, { "level", 0 } };
+            var findJo = new JObject { { "level", 0 } };
+            var hashArr = getContractHashArr(hash);
+            var findArr = hashArr.Distinct().Select(p => new JObject { { "to", p } }).ToArray();
+            findJo.Add("$or", new JArray { findArr });
+
             if (isOnly24h)
             {
                 findJo.Add("blockTimestamp", new JObject { { "$gte", timeBefore24h } });
@@ -117,11 +129,18 @@ namespace NEL_Scan_API.Service
             return mh.AggregateCount(Block_mongodbConnStr, Block_mongodbDatabase, "contract_exec_detail", list, false);
         }
 
+        // 合约调用交易
         public JArray getContractCallTx(string hash, int pageNum=1, int pageSize=10)
         {
             if (mh == null) return new JArray { };
             // txid + time + from + to + value(1neo,1gas) + fee
-            var findStr = new JObject { { "type", ContractInvokeType.Call},{ "to", hash } }.ToString();
+            //var findStr = new JObject { { "type", ContractInvokeType.Call},{ "to", hash } }.ToString();
+            var findJo = new JObject { { "type", ContractInvokeType.Call } };
+            var hashArr = getContractHashArr(hash);
+            var findArr = hashArr.Distinct().Select(p => new JObject { { "to", p } }).ToArray();
+            findJo.Add("$or", new JArray { findArr });
+            var findStr = findJo.ToString();
+
             var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, contractCallInfoCol, findStr);
             if(count == 0) return new JArray { new JObject { { "count", count }, { "list", new JArray() } } };
 
@@ -163,6 +182,7 @@ namespace NEL_Scan_API.Service
             return res;
         }
 
+        // 合约nep5交易
         public JArray getContractNep5Tx(string address, int pageNum=1, int pageSize=10)
         {
             if(address.Length == 42 || address.Length == 40)
@@ -175,7 +195,7 @@ namespace NEL_Scan_API.Service
             if(count == 0) return new JArray { new JObject { { "count", count }, { "list", new JArray() } } };
 
             var sortStr = new JObject { { "blockindex", -1 } }.ToString();
-            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, sortStr, pageSize, pageNum, findStr); ;
+            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, contractTxInfoCol, sortStr, pageSize, pageNum, findStr); 
             if (queryRes.Count == 0) return new JArray { new JObject { { "count", count }, { "list", new JArray() } } };
 
             var indexs = queryRes.Select(p => (long)p["blockindex"]).ToArray();
@@ -200,7 +220,77 @@ namespace NEL_Scan_API.Service
                 { "list", new JArray{ res } }
             } };
         }
-        
+
+        public JArray getInnerTxAtContractDetail(string hash, int pageNum = 1, int pageSize = 10)
+        {
+            var hashArr = getContractHashArr(hash);
+            var findArr = hashArr.SelectMany(p =>
+            {
+                return new JObject[] {
+                    new JObject{{"from", p},{ "level", new JObject { { "$ne", 0 } }} },
+                    new JObject{{"to", p},{ "level", new JObject { { "$ne", 0 } }} },
+                    new JObject{{"to", p}, {"type", ContractInvokeType.Update}},
+                    new JObject{{"to", p }, {"type", ContractInvokeType.Destroy}},
+                };
+            });
+
+            var findStr = new JObject { { "$or", new JArray { findArr } } }.ToString();
+            var count = mh.GetDataCount(Block_mongodbConnStr, Block_mongodbDatabase, "contract_exec_detail", findStr);
+            if (count == 0) return new JArray { new JObject { { "count", count }, { "list", new JArray() } } };
+
+            var sortStr = new JObject { { "blockIndex", -1 } }.ToString();
+            var queryRes = mh.GetDataPages(Block_mongodbConnStr, Block_mongodbDatabase, "contract_exec_detail", sortStr, pageSize, pageNum, findStr);
+            if (queryRes.Count == 0) return new JArray { new JObject { { "count", count }, { "list", new JArray() } } };
+
+            //
+            var indexArr = queryRes.Select(p => long.Parse(p["blockIndex"].ToString())).Distinct().ToArray();
+            //var timeDict = getBlockTime(indexArr);
+
+            var iRes =
+            queryRes.Select(p =>
+            {
+                return new JObject {
+                    {"txid", p["txid"]},
+                    //{"time", timeDict.GetValueOrDefault(long.Parse(p["blockIndex"].ToString()),-1)},
+                    {"time", long.Parse(p["blockTimestamp"].ToString())/1000 },
+                    {"type", p["type"]},
+                    {"from", p["from"]},
+                    {"to", p["to"]}
+                };
+            }).ToArray();
+            var res = new JArray { iRes };
+            return new JArray { { new JObject { { "count", count }, { "list", res } } } };
+        }
+
+        private string[] getContractHashArr(string hash)
+        {
+            var contractId = getContractIdByHash(hash);
+            if (contractId == "") return new string[] { hash};
+
+            var contractHashArr = getContractHashById(contractId);
+            if (contractHashArr == null || contractHashArr.Length == 0) return new string[] { hash };
+            return contractHashArr;
+        }
+        private string getContractIdByHash(string hash)
+        {
+            var findStr = new JObject { { "contractHash", hash } }.ToString();
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "contract", findStr);
+            if (queryRes.Count == 0) return "";
+
+            var res = queryRes[0]["contractId"].ToString();
+            return res;
+
+        }
+        private string[] getContractHashById(string id)
+        {
+            var findStr = new JObject { { "contractId", long.Parse(id) } }.ToString();
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "contract", findStr);
+            if (queryRes.Count == 0) return null;
+
+            var res = queryRes.Select(p => p["contractHash"].ToString()).Distinct().ToArray();
+            return res;
+        }
+
         private Dictionary<long, long> getBlockTime(long[] indexs)
         {
             string findStr = MongoFieldHelper.toFilter(indexs, "index").ToString();

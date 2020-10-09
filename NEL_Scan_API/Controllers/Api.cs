@@ -225,7 +225,7 @@ namespace NEL_Scan_API.Controllers
                         break;
                     // 获取合约内部交易
                     case "getInnerTxAtContractDetail":
-                        result = innerTxService.getInnerTxAtContractDetail(
+                        result = contractService.getInnerTxAtContractDetail(
                             req.@params[0].ToString(),
                             int.Parse(req.@params[1].ToString()),
                             int.Parse(req.@params[2].ToString())
