@@ -231,6 +231,7 @@ namespace NEL_Scan_API.Service
                     new JObject{{"to", p},{ "level", new JObject { { "$ne", 0 } }} },
                     new JObject{{"to", p}, {"type", ContractInvokeType.Update}},
                     new JObject{{"to", p }, {"type", ContractInvokeType.Destroy}},
+                    new JObject{{"to", p }, {"type", ContractInvokeType.Create}},
                 };
             });
 
