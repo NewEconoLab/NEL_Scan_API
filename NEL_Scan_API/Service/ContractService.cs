@@ -88,13 +88,22 @@ namespace NEL_Scan_API.Service
                 {"assetName", assetName },
                 {"assetSymbol", assetSymbol },
                 { "creator",""},
-                { "createDate",1501234567},
+                { "createDate",getCreateTime(hash)},
                 {"txCount", getTxCount(hash) },
                 {"txCount24h", getTxCount(hash,true, time)},
                 {"usrCount", getUsrCount(hash) },
                 {"usrCount24h", getUsrCount(hash,true, time)},
             };
             return new JArray { res };
+        }
+        private long getCreateTime(string hash)
+        {
+            var findStr = new JObject { { "type", ContractInvokeType.Create }, { "to", hash } }.ToString();
+            var queryRes = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, contractCallInfoCol, findStr);
+            if (queryRes.Count == 0) return 1501234567;
+
+            var timeStr = queryRes[0]["blockTimestamp"].ToString();
+            return long.Parse(timeStr) / 1000;
         }
         private long getTxCount(string hash, bool isOnly24h = false, long timeBefore24h = 0)
         {
