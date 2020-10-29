@@ -212,6 +212,13 @@ namespace NEL_Scan_API.Controllers
                 switch (req.method)
                 {
                     // 
+                    case "getContractNotify":
+                        result = contractService.getContractNotify(req.@params[0].ToString());
+                        break;
+                    case "getContractManifest":
+                        result = contractService.getContractManifest(req.@params[0].ToString());
+                        break;
+                    //
                     case "getContractList":
                         result = contractService.getContractList(int.Parse(req.@params[0].ToString()), int.Parse(req.@params[1].ToString()));
                         break;

@@ -27,6 +27,26 @@ namespace NEL_Scan_API.Service
             return time;
         }
 
+        //
+        public JArray getContractNotify(string contractHash)
+        {
+            if (!contractHash.StartsWith("0x")) contractHash = "0x" + contractHash;
+
+            return null;
+        }
+        //
+        public JArray getContractManifest(string contractHash)
+        {
+            if (!contractHash.StartsWith("0x")) contractHash = "0x" + contractHash;
+            var findStr = new JObject { { "contractHash", contractHash } }.ToString();
+
+            var res = mh.GetData(Block_mongodbConnStr, Block_mongodbDatabase, "contract", findStr);
+            if (res.Count == 0) return null;
+
+            var manifest = res[0]["manifest"];
+            return new JArray { new JObject { { "manifest", manifest } } };
+        }
+
         // 合约列表
         public JArray getContractList(int pageNum = 1, int pageSize = 10)
         {
