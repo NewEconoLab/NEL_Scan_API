@@ -28,11 +28,17 @@ namespace NEL_Scan_API.Service
         }
 
         //
-        public JArray getContractNotify(string contractHash)
+        public JArray getContractNotify(string txid)
         {
-            if (!contractHash.StartsWith("0x")) contractHash = "0x" + contractHash;
+            if (!txid.StartsWith("0x")) txid = "0x" + txid;
 
-            return null;
+            var findStr = new JObject { { "txid", txid } }.ToString();
+            var fieldStr = new JObject { { "notifications", 1 } }.ToString();
+            var queryRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "notify", fieldStr, findStr);
+            if (queryRes.Count == 0) return new JArray { new JObject { { "notifications", new JArray() } } };
+
+            return new JArray { new JObject { { "notifications", queryRes[0]["notifications"] } } };
+
         }
         //
         public JArray getContractManifest(string contractHash)
@@ -85,15 +91,22 @@ namespace NEL_Scan_API.Service
         private string getAssetAuthor(string assetid, out string assetName)
         {
             assetName = "";
-            var findStr = new JObject { { "hash", assetid } }.ToString();
-            var fieldStr = new JObject { { "script", 0 } }.ToString();
-            //var queryRes = mh.GetDataWithField(Notify_mongodbConnStr, Notify_mongodbDatabase, "contractCallState", fieldStr, findStr);
-            //if (queryRes.Count == 0) return "";
+            var findStr = new JObject { { "contractHash", assetid } }.ToString();
+            var fieldStr = new JObject { { "manifest", 1 } }.ToString();
+            var queryRes = mh.GetDataWithField(Block_mongodbConnStr, Block_mongodbDatabase, "contract", fieldStr, findStr);
+            if (queryRes.Count == 0) return "";
 
-            //var item = queryRes[0];
-            //assetName = item["name"].ToString();
-            //return item["author"].ToString();
-            return "";
+            var manifest = queryRes[0]["manifest"];
+            var manifestJo = JObject.Parse(manifest.ToString());
+            if (manifestJo["extra"] == null ) return "";
+
+            var extra = manifestJo["extra"];
+            if (extra.ToString() == "") return "";
+
+            var extraJo = JObject.Parse(extra.ToString());
+            if (extraJo["Author"] == null) return "";
+
+            return extraJo["Author"].ToString();
         }
 
         // 合约信息
